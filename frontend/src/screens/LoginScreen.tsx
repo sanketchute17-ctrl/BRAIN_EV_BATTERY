@@ -46,9 +46,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       {/* MOBILE APP CONTAINER FRAME */}
       <div className="w-full sm:max-w-[400px] min-h-screen sm:min-h-[850px] sm:max-h-[920px] sm:rounded-[46px] relative overflow-hidden shadow-2xl border-0 sm:border-[10px] sm:border-slate-900 bg-slate-900 text-slate-900 flex flex-col justify-between p-4 sm:p-5 z-10">
         
-        {/* 70% VISIBILITY SCOOTER BACKGROUND OVERLAY (ONLY INSIDE MOBILE VIEW) */}
+        {/* 100% FULLY VISIBLE SCOOTER BACKGROUND OVERLAY (INSIDE MOBILE VIEW) */}
         <div 
-          className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none opacity-70"
+          className="absolute inset-0 z-0 bg-[size:100%_100%] bg-center bg-no-repeat pointer-events-none opacity-80"
           style={{ backgroundImage: `url(${scooterBg})` }}
         />
 
