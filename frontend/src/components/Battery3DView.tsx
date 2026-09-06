@@ -119,27 +119,37 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const currentMount = mountRef.current;
     if (!currentMount) return;
 
-    const width = currentMount.clientWidth;
-    const height = currentMount.clientHeight;
+    const width = currentMount.clientWidth || 320;
+    const height = currentMount.clientHeight || 220;
+    const aspect = height > 0 ? width / height : 1.5;
 
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
-    scene.background = null;
+    let scene: THREE.Scene;
+    let camera: THREE.PerspectiveCamera;
+    let renderer: THREE.WebGLRenderer;
 
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 1000);
-    camera.position.copy(targetCamPos.current);
-    camera.lookAt(currentLookAt.current);
-    cameraRef.current = camera;
+    try {
+      scene = new THREE.Scene();
+      sceneRef.current = scene;
+      scene.background = null;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.35;
-    rendererRef.current = renderer;
-    currentMount.appendChild(renderer.domElement);
+      camera = new THREE.PerspectiveCamera(36, aspect, 0.1, 1000);
+      camera.position.copy(targetCamPos.current);
+      camera.lookAt(currentLookAt.current);
+      cameraRef.current = camera;
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, failIfMajorPerformanceCaveat: false });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.35;
+      rendererRef.current = renderer;
+      currentMount.appendChild(renderer.domElement);
+    } catch (err) {
+      console.warn('WebGL Renderer Init Fallback:', err);
+      return;
+    }
 
     const rootGroup = new THREE.Group();
     rootGroup.rotation.set(0.35, -0.55, 0);

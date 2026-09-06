@@ -5,6 +5,7 @@ import { Navigation } from './components/Navigation';
 import type { TabType, DrawerType } from './components/Navigation';
 import { MenuDrawer } from './components/MenuDrawer';
 import { Battery3DView } from './components/Battery3DView';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { BrainLogo } from './components/BrainLogo';
 import { apiService } from './services/api';
 import { bluetoothService } from './services/bluetoothService';
@@ -244,7 +245,9 @@ export function App() {
                 </div>
 
                 <div className="h-80 rounded-xl overflow-hidden border border-slate-200 relative">
-                  <Battery3DView status={demoStatus} expanded={true} interactive={true} />
+                  <ErrorBoundary>
+                    <Battery3DView status={demoStatus} expanded={true} interactive={true} />
+                  </ErrorBoundary>
                 </div>
               </div>
             ) : activeDrawerItem === 'bms' ? (

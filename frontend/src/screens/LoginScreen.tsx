@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Battery3DView } from '../components/Battery3DView';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { BrainLogo } from '../components/BrainLogo';
 import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus, RotateCcw } from 'lucide-react';
 import { apiService } from '../services/api';
@@ -77,7 +78,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
           {/* 3D WebGL Canvas Container (~32-36% viewport height) */}
           <div className="w-full h-48 sm:h-56 relative cursor-grab active:cursor-grabbing">
-            <Battery3DView key={resetKey} status="HEALTHY" interactive={true} hideControls={true} />
+            <ErrorBoundary>
+              <Battery3DView key={resetKey} status="HEALTHY" interactive={true} hideControls={true} />
+            </ErrorBoundary>
           </div>
 
           {/* Minimal Gesture Instruction Line with Reset Icon */}
