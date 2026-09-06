@@ -1,9 +1,14 @@
+import sys
+import os
+
+# Ensure backend root directory is in sys.path so 'app' imports resolve cleanly anywhere
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.api import auth, pkl_router
-import os
 
 # Create database tables automatically
 Base.metadata.create_all(bind=engine)
@@ -40,6 +45,5 @@ def root():
 
 if __name__ == "__main__":
     import uvicorn
-    # Read PORT environment variable provided by Render or default to 8000
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("app.main:app", host="0.0.0.0", port=port)
