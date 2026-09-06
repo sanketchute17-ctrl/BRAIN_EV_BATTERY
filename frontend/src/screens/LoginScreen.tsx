@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { BrainLogo } from '../components/BrainLogo';
-import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus } from 'lucide-react';
+import { Battery3DView } from '../components/Battery3DView';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus, Leaf, ShieldCheck, BarChart2 } from 'lucide-react';
 import { apiService } from '../services/api';
-import scooterBg from '../assets/scooter_bg.jpg';
 
 interface LoginScreenProps {
   onLoginSuccess: (isDemo?: boolean) => void;
@@ -40,112 +40,120 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20">
-      {/* MOBILE APP CONTAINER FRAME (Background Scooter Image Clipped INSIDE Phone Frame) */}
-      <div 
-        className="w-full sm:max-w-md min-h-screen sm:min-h-[840px] sm:max-h-[920px] sm:rounded-[40px] relative overflow-hidden shadow-2xl border-0 sm:border-[8px] sm:border-slate-800 flex flex-col justify-between p-4 sm:p-6 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${scooterBg})` }}
-      >
-        {/* Subtle Dark Vignette Overlay for Crisp Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/15 to-black/45 pointer-events-none z-0" />
-
-        {/* Top Green Ambient Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[350px] h-[300px] bg-gradient-to-b from-emerald-500/25 via-transparent to-transparent rounded-full blur-2xl pointer-events-none z-0" />
-
-        {/* DECORATIVE SUB-HEADER */}
-        <div className="relative z-10 text-center text-[10px] font-extrabold tracking-widest text-slate-800 uppercase pt-2 pb-1">
-          <div className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/60 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>INTELLIGENCE FOR CLEANER MOBILITY</span>
+    <div className="min-h-screen bg-[#EAF7EF] flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20">
+      {/* MOBILE APP CONTAINER FRAME */}
+      <div className="w-full sm:max-w-[400px] min-h-screen sm:min-h-[850px] sm:max-h-[920px] sm:rounded-[46px] relative overflow-hidden shadow-2xl border-0 sm:border-[10px] sm:border-slate-900 bg-gradient-to-b from-[#F2FBF5] via-[#FFFFFF] to-[#F0FDF4] text-slate-900 flex flex-col justify-between p-4 sm:p-5">
+        
+        {/* iOS TOP STATUS BAR */}
+        <div className="flex items-center justify-between text-xs font-black text-slate-900 select-none pt-1 pb-1">
+          <span>9:41</span>
+          <div className="flex items-center gap-1.5 text-slate-900 text-[10px]">
+            <span className="font-mono">5G</span>
+            <span className="w-2.5 h-2.5 rounded-full border border-slate-900 inline-block" />
           </div>
         </div>
 
-        {/* 1. BRANDING HEADER */}
-        <div className="relative z-10 text-center pt-2 pb-2 flex flex-col items-center">
-          <div className="bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/70 shadow-md">
-            <BrainLogo size="md" showText={true} fullTagline={true} className="my-0.5" />
+        {/* TOP SUB-TAGLINE */}
+        <div className="flex items-center justify-end text-[10px] font-bold text-slate-500 gap-1.5 pt-1">
+          <Leaf className="w-3.5 h-3.5 text-[#059669]" />
+          <div className="text-right leading-tight text-[9px]">
+            A Cleaner<br />Greener Tomorrow
           </div>
         </div>
 
-        {/* 2. STATUS PILLS BAR */}
-        <div className="flex items-center justify-center gap-1.5 z-10 my-2 flex-wrap">
-          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-white/85 text-emerald-800 border border-emerald-400 shadow-sm flex items-center gap-1 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> HEALTHY
-          </span>
-          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-white/85 text-amber-800 border border-amber-400 shadow-sm flex items-center gap-1 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> WATCH
-          </span>
-          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-white/85 text-orange-800 border border-orange-400 shadow-sm flex items-center gap-1 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> WARNING
-          </span>
-          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-white/85 text-red-800 border border-red-400 shadow-sm flex items-center gap-1 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> CRITICAL
-          </span>
+        {/* 1. BRANDING LOGO & TAGLINE (MATCHING LEFT MOCKUP) */}
+        <div className="flex flex-col items-center text-center space-y-1 my-1">
+          <div className="w-16 h-16 rounded-2xl bg-white border-2 border-[#059669] shadow-md flex items-center justify-center p-2">
+            <svg viewBox="0 0 100 100" className="w-full h-full text-[#059669] fill-current">
+              <path d="M35 15 h30 v10 h-30 z M25 25 h50 v60 a10 10 0 0 1 -10 10 h-30 a10 10 0 0 1 -10 -10 z" fill="none" stroke="currentColor" strokeWidth="6" />
+              <path d="M42 45 l16 -12 l-6 18 l16 -4 l-20 22 l4 -16 z" fill="currentColor" />
+            </svg>
+          </div>
+
+          <div className="flex items-center gap-1 mt-1">
+            <span className="text-2xl font-black tracking-tight text-slate-900">BRAIN</span>
+            <span className="text-2xl font-black tracking-tight text-[#059669]">EV</span>
+          </div>
+          <p className="text-xs font-bold text-slate-500">Battery Intelligence</p>
+          <p className="text-[11px] font-semibold italic text-[#059669]">“Think Ahead. Protect Every Battery.”</p>
         </div>
 
-        {/* 3. 100% TRANSPARENT LOGIN CARD */}
-        <div className="bg-transparent rounded-3xl p-4 sm:p-5 max-w-sm w-full mx-auto z-10 my-1 space-y-3">
+        {/* 2. REAL 3D INTERACTIVE BATTERY VISUAL */}
+        <div className="relative my-1 flex flex-col items-center">
+          <div className="w-full h-44 sm:h-48 relative">
+            <ErrorBoundary>
+              <Battery3DView status="HEALTHY" interactive={true} hideControls={true} />
+            </ErrorBoundary>
+          </div>
+          
+          <div className="text-[10px] font-extrabold text-slate-500 tracking-wide mt-1">
+            Drag to <span className="text-[#059669]">rotate</span> • Pinch to <span className="text-[#059669]">zoom</span>
+          </div>
+          
+          {/* Carousel dots */}
+          <div className="flex items-center gap-1 mt-1">
+            <span className="w-3 h-1 bg-[#059669] rounded-full" />
+            <span className="w-1 h-1 bg-slate-300 rounded-full" />
+            <span className="w-1 h-1 bg-slate-300 rounded-full" />
+          </div>
+        </div>
+
+        {/* 3. INPUT FORM CARD */}
+        <div className="space-y-2.5 my-1">
           {errorMsg && (
-            <div className="p-2.5 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">
+            <div className="p-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">
               {errorMsg}
             </div>
           )}
 
-          <form onSubmit={handleLoginSubmit} className="space-y-3">
-            {/* EMAIL INPUT */}
-            <div>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-3 py-3 bg-white/90 border border-slate-300 rounded-xl text-xs font-extrabold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/20 transition shadow-md"
-                  placeholder="researcher@brain-ev.org"
-                />
-              </div>
+          <form onSubmit={handleLoginSubmit} className="space-y-2.5">
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/20 transition shadow-2xs"
+                placeholder="researcher@brain-ev.org"
+              />
             </div>
 
-            {/* PASSWORD INPUT WITH EYE TOGGLE */}
-            <div>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-10 py-3 bg-white/90 border border-slate-300 rounded-xl text-xs font-extrabold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/20 transition shadow-md"
-                  placeholder="••••••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 transition"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full pl-11 pr-11 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/20 transition shadow-2xs"
+                placeholder="••••••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
 
             <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() => alert('Forgot password instructions sent to your email.')}
-                className="text-[11px] font-extrabold text-white bg-slate-900/60 backdrop-blur-md px-2.5 py-1 rounded-md shadow-xs hover:bg-slate-900/80 transition"
+                className="text-[11px] font-bold text-[#059669] hover:underline cursor-pointer"
               >
                 Forgot Password?
               </button>
             </div>
 
-            {/* PRIMARY VIBRANT GREEN CTA BUTTON */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-black text-xs sm:text-sm rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition flex items-center justify-center gap-2 shadow-emerald uppercase tracking-wider heading-tech cursor-pointer active:scale-[0.99]"
+              className="w-full py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-extrabold text-xs sm:text-sm rounded-2xl transition flex items-center justify-center gap-2 shadow-md uppercase tracking-wider cursor-pointer active:scale-[0.99]"
             >
-              <span>{isSubmitting ? 'AUTHENTICATING...' : 'Sign In'}</span>
+              <span>{isSubmitting ? 'Authenticating...' : 'Sign In'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </form>
@@ -153,38 +161,47 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           {/* DIVIDER */}
           <div className="relative my-2 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/40" />
+              <div className="w-full border-t border-slate-200" />
             </div>
-            <span className="relative bg-slate-900/70 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[9px] font-extrabold text-white uppercase tracking-widest">
+            <span className="relative bg-[#F2FBF5] px-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
               OR
             </span>
           </div>
 
           {/* SECONDARY BUTTONS */}
-          <div className="grid grid-cols-2 gap-2.5 pt-0.5">
+          <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
               onClick={handleDemoClick}
-              className="py-2.5 px-2 bg-white/90 backdrop-blur-md text-emerald-900 border-2 border-emerald-500 rounded-xl text-[11px] font-black hover:bg-white transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+              className="py-2.5 px-2 bg-white text-[#059669] border border-slate-200 rounded-2xl text-[11px] font-bold hover:bg-slate-50 transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
             >
-              <PlayCircle className="w-3.5 h-3.5 text-emerald-600" />
+              <PlayCircle className="w-3.5 h-3.5 text-[#059669]" />
               <span>Demo Mode</span>
             </button>
             <button
               type="button"
               onClick={onNavigateRegister}
-              className="py-2.5 px-2 bg-white/90 backdrop-blur-md text-slate-900 border-2 border-slate-300 rounded-xl text-[11px] font-black hover:bg-white transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+              className="py-2.5 px-2 bg-white text-slate-700 border border-slate-200 rounded-2xl text-[11px] font-bold hover:bg-slate-50 transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
             >
-              <UserPlus className="w-3.5 h-3.5 text-slate-700" />
+              <UserPlus className="w-3.5 h-3.5 text-slate-500" />
               <span>Register</span>
             </button>
           </div>
         </div>
 
-        {/* 4. FOOTER INFORMATION */}
-        <div className="relative z-10 pt-1 pb-1">
-          <div className="text-center text-[10px] font-extrabold text-slate-900 bg-white/75 backdrop-blur-md py-1 px-3 rounded-full max-w-xs mx-auto border border-white/60 shadow-xs">
-            BRAIN Mobile App v1.0.0 • EV Risk Analytics
+        {/* 4. THREE BOTTOM FEATURE BADGES (Safer Batteries / Smarter Mobility / Brighter Tomorrow) */}
+        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
+          <div className="flex flex-col items-center gap-0.5">
+            <ShieldCheck className="w-4 h-4 text-[#059669]" />
+            <span className="text-[9px] font-extrabold text-slate-700 leading-tight">Safer<br />Batteries</span>
+          </div>
+          <div className="flex flex-col items-center gap-0.5">
+            <Leaf className="w-4 h-4 text-[#059669]" />
+            <span className="text-[9px] font-extrabold text-slate-700 leading-tight">Smarter<br />Mobility</span>
+          </div>
+          <div className="flex flex-col items-center gap-0.5">
+            <BarChart2 className="w-4 h-4 text-[#059669]" />
+            <span className="text-[9px] font-extrabold text-slate-700 leading-tight">Brighter<br />Tomorrow</span>
           </div>
         </div>
       </div>

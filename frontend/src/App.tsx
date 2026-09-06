@@ -27,7 +27,17 @@ import {
   Bluetooth,
   Wifi,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Bell,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Heart,
+  Navigation as NavigationIcon,
+  BarChart2,
+  ShieldCheck,
+  Clock
 } from 'lucide-react';
 
 export function App() {
@@ -389,104 +399,197 @@ export function App() {
           </div>
         ) : (
           <>
-            {!backendOnline && !isDemoMode && (
-              <div className="p-3.5 rounded-2xl bg-[#FFF5F5] border border-[#FEE2E2] flex items-center justify-between gap-2 shadow-xs">
-                <div className="flex items-start gap-2.5">
-                  <div className="p-1.5 bg-red-100/80 rounded-xl text-red-500 shrink-0 mt-0.5">
-                    <ZapOff className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-black text-[#DC2626] uppercase heading-tech tracking-wide">NO LIVE BMS CONNECTION</div>
-                    <div className="text-[10px] font-semibold text-slate-500 leading-tight">Connect a compatible hardware BMS or activate Demo Mode.</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsDemoMode(true)}
-                  className="px-3 py-2 bg-[#059669] hover:bg-[#047857] text-white text-[10px] font-black rounded-xl shadow-xs uppercase tracking-wider shrink-0 cursor-pointer transition active:scale-95"
-                >
-                  START DEMO
-                </button>
-              </div>
-            )}
-
             {/* TAB 1: HOME DASHBOARD */}
             {activeTab === 'home' && (
               <div className="space-y-3.5">
+                
                 {/* 3D DIGITAL TWIN HERO CARD */}
-                <div className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-xs relative overflow-hidden space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-4 h-4 rounded border-2 border-emerald-500 flex items-center justify-center text-emerald-600 text-[10px]">
-                        ⬡
-                      </div>
-                      <span className="text-xs font-black text-slate-900 tracking-tight uppercase heading-tech">
-                        3D DIGITAL TWIN PACK (96S LFP)
+                <div className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1 bg-[#ECFDF5] border border-[#A7F3D0] px-2 py-0.5 rounded-full text-[9px] font-extrabold text-[#047857]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#059669] animate-pulse" /> Live
                       </span>
+                      <div>
+                        <h3 className="text-xs font-black text-slate-900 tracking-tight">3D Digital Twin</h3>
+                        <p className="text-[9px] font-semibold text-slate-400">Real-time battery visualization</p>
+                      </div>
                     </div>
-                    <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      ESTIMATED
+
+                    <button
+                      onClick={() => setActiveDrawerItem('twin')}
+                      className="inline-flex items-center gap-1 bg-white border border-[#059669] px-2.5 py-1 rounded-full text-[10px] font-extrabold text-[#059669] hover:bg-emerald-50 transition cursor-pointer"
+                    >
+                      <span>View 3D</span>
+                      <Maximize2 className="w-3 h-3 text-[#059669]" />
+                    </button>
+                  </div>
+
+                  {/* Interactive 3D WebGL Battery View Canvas with Left/Right Arrows */}
+                  <div className="relative h-44 rounded-2xl overflow-hidden border border-slate-100 bg-[#F8FAFC]">
+                    <ErrorBoundary>
+                      <Battery3DView status={demoStatus} interactive={true} hideControls={true} />
+                    </ErrorBoundary>
+
+                    <button className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-white transition cursor-pointer z-10">
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-white transition cursor-pointer z-10">
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 4 KEY METRICS HORIZONTAL ROW */}
+                  <div className="grid grid-cols-4 gap-1.5 pt-1">
+                    <div className="bg-[#F8FAFC] p-2 rounded-2xl border border-slate-200/60 text-center">
+                      <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
+                        <BatteryCharging className="w-3 h-3 text-[#059669]" /> SOC
+                      </div>
+                      <div className="text-sm font-black text-[#059669] mt-0.5">84%</div>
+                    </div>
+
+                    <div className="bg-[#F8FAFC] p-2 rounded-2xl border border-slate-200/60 text-center">
+                      <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
+                        <Heart className="w-3 h-3 text-[#2563EB]" /> SOH
+                      </div>
+                      <div className="text-sm font-black text-[#2563EB] mt-0.5">96.4%</div>
+                    </div>
+
+                    <div className="bg-[#F8FAFC] p-2 rounded-2xl border border-slate-200/60 text-center">
+                      <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
+                        <Thermometer className="w-3 h-3 text-[#EA580C]" /> Temp
+                      </div>
+                      <div className="text-sm font-black text-[#EA580C] mt-0.5">34.2°C</div>
+                    </div>
+
+                    <div className="bg-[#F8FAFC] p-2 rounded-2xl border border-slate-200/60 text-center">
+                      <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
+                        <NavigationIcon className="w-3 h-3 text-[#059669]" /> Range
+                      </div>
+                      <div className="text-sm font-black text-[#059669] mt-0.5">342 km</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BATTERY HEALTH PROGRESS BAR CARD */}
+                <div className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-xl bg-[#ECFDF5] text-[#059669]">
+                        <Activity className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-slate-900">Battery Health</h4>
+                        <p className="text-[9px] font-semibold text-slate-400">Overall battery condition is healthy</p>
+                      </div>
+                    </div>
+
+                    <span className="inline-flex items-center gap-1 bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#047857]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" /> Healthy ▾
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-                    {/* 3D WebGL Battery View Canvas */}
-                    <div className="h-44 rounded-2xl overflow-hidden border border-slate-100 relative bg-slate-50">
-                      <ErrorBoundary>
-                        <Battery3DView status={demoStatus} interactive={true} />
-                      </ErrorBoundary>
+                  <div className="space-y-1 pt-1">
+                    <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5">
+                      <div className="h-full bg-[#059669] rounded-full transition-all duration-500" style={{ width: '96.4%' }} />
+                    </div>
+                    <div className="text-right text-xs font-black text-slate-900">96.4%</div>
+                  </div>
+                </div>
+
+                {/* LIVE PARAMETERS 4 GRID */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center gap-1.5">
+                      <BarChart2 className="w-4 h-4 text-[#059669]" />
+                      <h4 className="text-xs font-black text-slate-900">Live Parameters</h4>
+                    </div>
+                    <button className="text-[10px] font-extrabold text-[#059669] hover:underline cursor-pointer">View All</button>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                      <Zap className="w-4 h-4 text-[#059669]" />
+                      <div className="text-[8px] font-extrabold text-slate-400 uppercase">Voltage</div>
+                      <div className="text-xs font-black text-[#059669]">350.4 V</div>
                     </div>
 
-                    {/* Stacked Telemetry Cards (State of Charge / Health / Range & Temp) */}
-                    <div className="space-y-2">
-                      <div className="bg-[#F8FAFC] p-2.5 rounded-2xl border border-slate-200/60 shadow-2xs">
-                        <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">STATE OF CHARGE</div>
-                        <div className="text-3xl font-black text-[#059669] leading-tight">
-                          84%
-                        </div>
-                        <div className="text-[10px] font-mono text-slate-500 font-bold">350.4 V &nbsp;•&nbsp; 120.5 A</div>
-                      </div>
+                    <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                      <Activity className="w-4 h-4 text-[#2563EB]" />
+                      <div className="text-[8px] font-extrabold text-slate-400 uppercase">Current</div>
+                      <div className="text-xs font-black text-[#2563EB]">120.5 A</div>
+                    </div>
 
-                      <div className="bg-[#F8FAFC] p-2.5 rounded-2xl border border-slate-200/60 shadow-2xs">
-                        <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">STATE OF HEALTH</div>
-                        <div className="text-3xl font-black text-slate-900 leading-tight">
-                          96.4%
-                        </div>
-                        <div className="text-[10px] font-mono text-slate-500 font-bold uppercase">INTERNAL RES: 1.2 mΩ</div>
-                      </div>
+                    <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                      <Cpu className="w-4 h-4 text-[#9333EA]" />
+                      <div className="text-[8px] font-extrabold text-slate-400 uppercase">Power</div>
+                      <div className="text-xs font-black text-[#9333EA]">42.2 kW</div>
+                    </div>
 
-                      <div className="bg-[#F8FAFC] p-2.5 rounded-2xl border border-slate-200/60 shadow-2xs flex items-center justify-between">
-                        <div>
-                          <div className="text-[8px] font-extrabold text-slate-400 uppercase">ESTIMATED RANGE</div>
-                          <div className="text-base font-black text-[#059669]">342 KM</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-[8px] font-extrabold text-slate-400 uppercase">PACK TEMP</div>
-                          <div className="text-base font-black text-[#DC2626]">34.2 °C</div>
-                        </div>
-                      </div>
+                    <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                      <Thermometer className="w-4 h-4 text-[#EA580C]" />
+                      <div className="text-[8px] font-extrabold text-slate-400 uppercase">Temperature</div>
+                      <div className="text-xs font-black text-[#EA580C]">34.2 °C</div>
                     </div>
                   </div>
                 </div>
 
-                {/* TELEMETRY WIDGETS GRID (MATCHING REFERENCE MOCKUP) */}
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {[
-                    { label: 'REAL PACK VOLTAGE', val: '350.4 V', color: 'text-[#059669]' },
-                    { label: 'REAL PACK CURRENT', val: '120.5 A', color: 'text-[#059669]' },
-                    { label: 'REAL PACK POWER', val: '42.2 kW', color: 'text-[#059669]' },
-                    { label: 'REAL PACK TEMP', val: '34.2 °C', color: 'text-[#DC2626]' },
-                    { label: 'ESTIMATED CELL BALANCE', val: '12 mV', color: 'text-[#059669]' },
-                    { label: 'ESTIMATED CYCLE COUNT', val: '428', color: 'text-slate-800' },
-                  ].map((w, idx) => (
-                    <div key={idx} className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between h-20 text-center">
-                      <div className="text-[8px] font-extrabold text-slate-400 uppercase tracking-tight leading-tight">{w.label}</div>
-                      <div className={`text-sm font-black ${w.color} heading-tech`}>{w.val}</div>
+                {/* AI GUARDIAN & RISK STATUS 2 CARDS */}
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div 
+                    onClick={() => setActiveTab('guardian')}
+                    className="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-emerald-300 transition"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-xl bg-[#ECFDF5] text-[#059669]">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-black text-slate-900">AI Guardian</div>
+                        <div className="text-[8px] font-semibold text-slate-400 leading-tight">No critical issues detected</div>
+                      </div>
                     </div>
-                  ))}
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  </div>
+
+                  <div 
+                    onClick={() => setActiveTab('guardian')}
+                    className="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-emerald-300 transition"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-xl bg-[#ECFDF5] text-[#059669]">
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-black text-slate-900">Risk Status</div>
+                        <div className="text-[9px] font-extrabold text-[#059669]">Low Risk</div>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  </div>
                 </div>
 
-                {/* Drag Handle Indicator Pill */}
-                <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto my-1" />
+                {/* RECENT ALERTS CARD */}
+                <div className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-xl bg-red-50 text-red-500">
+                        <Bell className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-xs font-black text-slate-900">Recent Alerts</h4>
+                    </div>
+                    <button className="text-[10px] font-extrabold text-[#059669] hover:underline cursor-pointer">View All</button>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 p-2 bg-[#F8FAFC] rounded-2xl border border-slate-100">
+                    <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0" />
+                    <div>
+                      <div className="text-xs font-extrabold text-slate-900">No active alerts</div>
+                      <div className="text-[9px] font-semibold text-slate-400">Your battery is operating normally.</div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             )}
 
