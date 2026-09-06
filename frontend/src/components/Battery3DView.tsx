@@ -62,38 +62,58 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const bmsGroupRef = useRef<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
-  const targetCamPos = useRef(new THREE.Vector3(0, 6.5, 10.5));
-  const targetLookAt = useRef(new THREE.Vector3(0, 0.2, 0));
-  const currentLookAt = useRef(new THREE.Vector3(0, 0.2, 0));
+  const targetCamPos = useRef(new THREE.Vector3(0, 5.5, 9.5));
+  const targetLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
+  const currentLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
 
+  // Side Controller Plate Texture (Matching Reference Photo: BRAI in Crisp White, N in Glowing Electric Green)
   const createBrainLogoTexture = () => {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 256;
     const ctx = canvas.getContext('2d');
     if (ctx) {
+      // Dark Slate / Metallic Black Plate
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, 512, 256);
 
+      // Plate Bezel
       ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 10;
-      ctx.strokeRect(12, 12, 488, 232);
+      ctx.lineWidth = 8;
+      ctx.strokeRect(10, 10, 492, 236);
 
-      ctx.fillStyle = '#94a3b8';
-      ctx.beginPath(); ctx.arc(28, 28, 10, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(484, 28, 10, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(28, 228, 10, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(484, 228, 10, 0, Math.PI * 2); ctx.fill();
+      // Corner Bolts
+      const screws = [
+        [28, 28],
+        [484, 28],
+        [28, 228],
+        [484, 228],
+      ];
+      screws.forEach(([sx, sy]) => {
+        ctx.fillStyle = '#94a3b8';
+        ctx.beginPath();
+        ctx.arc(sx, sy, 12, 0, Math.PI * 2);
+        ctx.fill();
 
-      ctx.font = '900 115px "Inter", "Segoe UI", sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(sx, sy, 5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // BRAI text in Crisp White
+      ctx.font = '900 120px "Inter", "Segoe UI", sans-serif';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
 
       ctx.fillStyle = '#FFFFFF';
       ctx.fillText('BRAI', 65, 130);
 
-      ctx.fillStyle = '#10B981';
-      ctx.fillText('N', 360, 130);
+      // N text in Glowing Electric Green (#00E676)
+      ctx.fillStyle = '#00E676';
+      ctx.shadowColor = '#00E676';
+      ctx.shadowBlur = 20;
+      ctx.fillText('N', 380, 130);
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
@@ -101,8 +121,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   };
 
   const resetCamera = () => {
-    targetCamPos.current.set(0, 6.5, 10.5);
-    targetLookAt.current.set(0, 0.2, 0);
+    targetCamPos.current.set(0, 5.5, 9.5);
+    targetLookAt.current.set(0, 0.1, 0);
     if (rootGroupRef.current) {
       rootGroupRef.current.rotation.set(0.35, -0.55, 0);
     }
@@ -150,7 +170,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       } catch (e) {
-        // Fallback for devices without shadowMap extension
+        // Fallback
       }
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.35;
@@ -166,48 +186,36 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     rootGroupRef.current = rootGroup;
     scene.add(rootGroup);
 
-    let cellGlowHex = 0x10b981;
+    let cellGlowHex = 0x00e676; // Electric Green
     if (status === 'WATCH') cellGlowHex = 0xf59e0b;
     if (status === 'WARNING') cellGlowHex = 0xf97316;
     if (status === 'CRITICAL') cellGlowHex = 0xef4444;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.6);
     scene.add(ambientLight);
 
-    const mainKeyLight = new THREE.DirectionalLight(0xffffff, 3.8);
+    const mainKeyLight = new THREE.DirectionalLight(0xffffff, 4.0);
     mainKeyLight.position.set(12, 20, 14);
     mainKeyLight.castShadow = true;
     scene.add(mainKeyLight);
 
-    const fillBlueLight = new THREE.DirectionalLight(0x38bdf8, 1.6);
+    const fillBlueLight = new THREE.DirectionalLight(0x38bdf8, 1.8);
     fillBlueLight.position.set(-14, 10, -10);
     scene.add(fillBlueLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 2.8);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 3.0);
     rimLight.position.set(0, 10, -14);
     scene.add(rimLight);
 
-    const cellInternalGlowLight = new THREE.PointLight(cellGlowHex, 6.0, 10);
-    cellInternalGlowLight.position.set(1.5, 0.0, 1.8);
+    const cellInternalGlowLight = new THREE.PointLight(cellGlowHex, 6.0, 12);
+    cellInternalGlowLight.position.set(0.5, 0.0, 1.2);
     rootGroup.add(cellInternalGlowLight);
-
-    const groundDiscGeo = new THREE.CircleGeometry(6.5, 32);
-    const groundDiscMat = new THREE.MeshStandardMaterial({
-      color: 0xcbd5e1,
-      roughness: 0.4,
-      metalness: 0.1,
-      transparent: true,
-      opacity: 0.45,
-    });
-    const groundDisc = new THREE.Mesh(groundDiscGeo, groundDiscMat);
-    groundDisc.rotation.x = -Math.PI / 2;
-    groundDisc.position.y = -1.45;
-    rootGroup.add(groundDisc);
 
     const packWidth = 8.6;
     const packHeight = 2.8;
     const packDepth = 4.4;
 
+    // Dark Metal Bottom Chassis Base
     const chassisGeo = new THREE.BoxGeometry(packWidth - 0.2, 0.35, packDepth - 0.2);
     const chassisMat = new THREE.MeshStandardMaterial({
       color: 0x0f172a,
@@ -218,6 +226,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     chassisMesh.position.y = -1.2;
     rootGroup.add(chassisMesh);
 
+    // Chassis Corner Mounting Brackets
     const bracketGeo = new THREE.BoxGeometry(0.5, 0.25, 0.4);
     const bracketMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9, roughness: 0.2 });
 
@@ -229,49 +238,60 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       });
     });
 
-    const cellWidth = 0.38;
-    const cellHeight = 2.0;
+    // 8 FRONT ROW ILLUMINATED PRISMATIC BLADE BATTERY CELLS (MATCHING REFERENCE PHOTO EXACTLY)
+    const cellWidth = 0.42;
+    const cellHeight = 2.1;
     const cellDepth = 1.6;
 
     const glowingCellGeo = new THREE.BoxGeometry(cellWidth, cellHeight, cellDepth);
-    const glowingCellMat = new THREE.MeshStandardMaterial({
-      color: cellGlowHex,
-      emissive: cellGlowHex,
-      emissiveIntensity: 1.8,
-      metalness: 0.4,
-      roughness: 0.1,
-    });
 
-    const neonBarGeo = new THREE.BoxGeometry(0.06, cellHeight - 0.1, 0.06);
-    const neonBarMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
-    for (let i = 0; i < 6; i++) {
-      const cellX = 0.5 + i * 0.45;
+    for (let i = 0; i < 8; i++) {
+      const cellId = i + 1;
+      const cellX = -1.8 + i * 0.52;
       const cellZ = 1.05;
+
+      // Check if specific cell has anomaly under warning/critical status
+      const hasProblem = (status === 'WARNING' || status === 'CRITICAL') && (cellId === 3 || cellId === 6);
+      const activeCellGlow = hasProblem ? 0xef4444 : cellGlowHex;
+
+      const glowingCellMat = new THREE.MeshStandardMaterial({
+        color: activeCellGlow,
+        emissive: activeCellGlow,
+        emissiveIntensity: hasProblem ? 3.0 : 2.2,
+        metalness: 0.3,
+        roughness: 0.1,
+      });
 
       const cellMesh = new THREE.Mesh(glowingCellGeo, glowingCellMat);
       cellMesh.position.set(cellX, 0.0, cellZ);
       cellMesh.userData = {
-        name: `Active Prismatic Cell C0${i + 1}`,
-        type: 'EV Battery Cell',
-        voltage: '3.65 V',
-        temp: '32.1 °C',
-        status: 'HEALTHY',
-        risk: '2%',
-        description: 'High energy density vertical lithium blade cell with active status illumination.',
+        cellId,
+        name: `Prismatic Lithium Blade Cell C0${cellId}`,
+        type: 'High-Voltage Blade Cell',
+        voltage: hasProblem ? '2.92 V (Low Voltage Drop)' : '3.65 V',
+        temp: hasProblem ? '52.4 °C (Elevated Thermal Load)' : '32.1 °C',
+        status: hasProblem ? 'FAULT DETECTED' : 'HEALTHY',
+        risk: hasProblem ? '88%' : '2%',
+        description: hasProblem
+          ? 'Thermal anomaly & internal impedance spike detected. Active balancing active.'
+          : 'High energy density blade cell operating within optimal voltage & thermal limits.',
       };
       rootGroup.add(cellMesh);
 
+      // Top White LED Neon Stripe Bar
+      const neonBarGeo = new THREE.BoxGeometry(0.06, cellHeight - 0.1, 0.06);
+      const neonBarMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
       const neonBar = new THREE.Mesh(neonBarGeo, neonBarMat);
       neonBar.position.set(cellX, 0.0, cellZ + 0.81);
       rootGroup.add(neonBar);
     }
 
+    // BACK ROW METALLIC MODULE CELLS
     const darkCellGeo = new THREE.BoxGeometry(cellWidth, cellHeight, cellDepth);
-    const darkCellMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.3 });
+    const darkCellMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85, roughness: 0.25 });
 
-    for (let col = 0; col < 6; col++) {
-      const cellX = -3.2 + col * 0.55;
+    for (let col = 0; col < 8; col++) {
+      const cellX = -1.8 + col * 0.52;
       const cellZ = -1.05;
 
       const darkCell = new THREE.Mesh(darkCellGeo, darkCellMat);
@@ -279,29 +299,31 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       rootGroup.add(darkCell);
     }
 
+    // SIDE CONTROLLER BRANDING PLATE (EXACT MATCH TO REFERENCE PHOTO: BLACK METALLIC PLATE WITH BRAIN LOGO)
     const logoTexture = createBrainLogoTexture();
     const logoPlateGeo = new THREE.BoxGeometry(2.4, 1.4, 0.08);
     const logoPlateMat = new THREE.MeshStandardMaterial({
       map: logoTexture,
-      metalness: 0.6,
+      metalness: 0.7,
       roughness: 0.2,
     });
     const logoPlate = new THREE.Mesh(logoPlateGeo, logoPlateMat);
     logoPlate.position.set(2.8, 0.0, 2.12);
     logoPlate.userData = {
-      name: 'BRAIN EV Intelligence Module Plate',
-      type: 'Branding & Master Controller Panel',
+      name: 'BRAIN Master Intelligence Module Plate',
+      type: 'BMS Controller Panel',
       status: 'ONLINE',
       risk: '0%',
-      description: 'BRAIN EV Master Intelligence Unit housing predictive risk algorithms.',
+      description: 'BRAIN Master Intelligence Unit housing real-time battery risk telemetry & PINN AI algorithms.',
     };
     rootGroup.add(logoPlate);
 
+    // HEAVY HIGH VOLTAGE ORANGE CABLING TRACES (CURVED OVER MODULE TOPS)
     const createCurvedHVCable = (points: THREE.Vector3[], radius = 0.11) => {
       const curve = new THREE.CatmullRomCurve3(points);
       const tubeGeo = new THREE.TubeGeometry(curve, 40, radius, 12, false);
       const tubeMat = new THREE.MeshStandardMaterial({
-        color: 0xff6600,
+        color: 0xff5500, // Vibrant Glossy HV Orange
         roughness: 0.25,
         metalness: 0.3,
       });
@@ -340,8 +362,9 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     ]);
     rootGroup.add(bmsCable2);
 
+    // FRONT HV CONNECTOR HOUSING & PLUGS
     const connectorHousingGeo = new THREE.BoxGeometry(0.4, 1.1, 1.2);
-    const connectorHousingMat = new THREE.MeshStandardMaterial({ color: 0xff6600, roughness: 0.3, metalness: 0.4 });
+    const connectorHousingMat = new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3, metalness: 0.4 });
     const connectorHousing = new THREE.Mesh(connectorHousingGeo, connectorHousingMat);
     connectorHousing.position.set(-4.4, 0.0, 0.0);
     rootGroup.add(connectorHousing);
@@ -355,6 +378,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       rootGroup.add(plug);
     });
 
+    // TOP BMS CONTROL BOX
     const bmsGroup = new THREE.Group();
     bmsGroup.position.set(3.4, 1.1, -0.5);
     bmsGroupRef.current = bmsGroup;
@@ -370,6 +394,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     goldPin.position.set(0, 0.25, 0);
     bmsGroup.add(goldPin);
 
+    // TRANSPARENT ACRYLIC COVER & CHROME CORNER RAILS
     const coverGroup = new THREE.Group();
     coverGroup.position.y = 0.0;
     rootGroup.add(coverGroup);
@@ -378,30 +403,31 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const coverMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       metalness: 0.1,
-      roughness: 0.1,
+      roughness: 0.05,
       transparent: true,
-      opacity: 0.38,
+      opacity: 0.35,
     });
     const coverMesh = new THREE.Mesh(coverGeo, coverMat);
     coverMeshRef.current = coverMesh;
     coverGroup.add(coverMesh);
 
     const coverEdges = new THREE.EdgesGeometry(coverGeo);
-    const edgeLineMat = new THREE.LineBasicMaterial({ color: 0xe2e8f0, linewidth: 2, transparent: true, opacity: 0.5 });
+    const edgeLineMat = new THREE.LineBasicMaterial({ color: 0xe2e8f0, linewidth: 2, transparent: true, opacity: 0.45 });
     const coverEdgeLines = new THREE.LineSegments(coverEdges, edgeLineMat);
     coverWireframeRef.current = coverEdgeLines;
     coverGroup.add(coverEdgeLines);
 
-    const pillarGeo = new THREE.CylinderGeometry(0.42, 0.42, packHeight, 24);
+    // CHROME CORNER PILLARS & CORNER BOLTS
+    const pillarGeo = new THREE.CylinderGeometry(0.38, 0.38, packHeight, 24);
     const pillarMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
+      color: 0xe2e8f0,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.5,
       roughness: 0.1,
-      metalness: 0.1,
+      metalness: 0.85,
     });
 
-    const screwMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.2 });
+    const screwMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.9, roughness: 0.15 });
 
     [
       [-packWidth / 2, -packDepth / 2],
@@ -443,7 +469,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const handlePointerUp = () => {
       isDragging.current = false;
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-      inactivityTimer.current = setTimeout(() => { setAutoRotate(true); }, 4000);
+      inactivityTimer.current = setTimeout(() => { setAutoRotate(true); }, 3000);
     };
 
     const handleCanvasClick = (clientX: number, clientY: number) => {
@@ -457,16 +483,16 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
         const hitObj = intersects[0].object as THREE.Mesh;
         if (hitObj.userData && hitObj.userData.name) {
           if (selectedMeshRef.current && selectedMeshRef.current.material) {
-            (selectedMeshRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.2;
+            (selectedMeshRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = 2.2;
           }
           selectedMeshRef.current = hitObj;
           if (hitObj.material && (hitObj.material as THREE.MeshStandardMaterial).emissive) {
-            (hitObj.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.0;
+            (hitObj.material as THREE.MeshStandardMaterial).emissiveIntensity = 3.5;
           }
           const worldPos = new THREE.Vector3();
           hitObj.getWorldPosition(worldPos);
           targetLookAt.current.copy(worldPos);
-          targetCamPos.current.set(worldPos.x, worldPos.y + 4.0, worldPos.z + 6.5);
+          targetCamPos.current.set(worldPos.x, worldPos.y + 3.5, worldPos.z + 5.5);
           setSelectedInfo({
             name: hitObj.userData.name,
             type: hitObj.userData.type || 'Component',
@@ -527,17 +553,21 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     window.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('touchend', onTouchEnd);
 
+    // ANIMATION LOOP (WITH SLOW CONTINUOUS 360-DEGREE AUTO-ROTATION)
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      if (!isDragging.current && rootGroupRef.current) {
-        if (autoRotateRef.current) rootGroupRef.current.rotation.y += 0.0012;
-        else {
+
+      if (rootGroupRef.current) {
+        if (!isDragging.current && autoRotateRef.current) {
+          rootGroupRef.current.rotation.y += 0.003; // Smooth slow continuous 360 rotation
+        } else if (!isDragging.current) {
           rootGroupRef.current.rotation.y += rotationVelocity.current.x;
           rootGroupRef.current.rotation.x += rotationVelocity.current.y;
           rotationVelocity.current.x *= 0.92;
           rotationVelocity.current.y *= 0.92;
         }
       }
+
       if (cameraRef.current) {
         cameraRef.current.position.lerp(targetCamPos.current, 0.08);
         currentLookAt.current.lerp(targetLookAt.current, 0.08);
@@ -549,6 +579,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       if (bmsGroupRef.current) {
         bmsGroupRef.current.position.y = THREE.MathUtils.lerp(bmsGroupRef.current.position.y, isExploded ? 2.4 : 1.1, 0.08);
       }
+
       cellInternalGlowLight.intensity = 5.0 + Math.sin(Date.now() * 0.004) * 1.5;
       renderer.render(scene, camera);
     };
@@ -573,13 +604,14 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const coverMat = coverMeshRef.current.material as THREE.MeshStandardMaterial;
     const wireMat = coverWireframeRef.current.material as THREE.LineBasicMaterial;
     if (casingMode === 'SOLID') { coverMat.opacity = 0.95; wireMat.opacity = 0.3; }
-    else if (casingMode === 'TRANSPARENT') { coverMat.opacity = 0.38; wireMat.opacity = 0.5; }
+    else if (casingMode === 'TRANSPARENT') { coverMat.opacity = 0.35; wireMat.opacity = 0.45; }
     else if (casingMode === 'X-RAY') { coverMat.opacity = 0.1; wireMat.opacity = 0.95; }
   }, [casingMode]);
 
   return (
-    <div className={`relative w-full h-full min-h-[220px] sm:min-h-[300px] flex items-center justify-center select-none ${!hideControls ? 'bg-gradient-to-b from-slate-100 via-white to-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-md' : ''}`}>
+    <div className="relative w-full h-full min-h-[220px] sm:min-h-[300px] flex items-center justify-center select-none bg-transparent border-0 shadow-none overflow-visible">
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+      
       {!hideControls && (
         <div className="absolute top-3 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 bg-white/95 border border-slate-200 p-1.5 rounded-xl backdrop-blur-md shadow-md">
@@ -594,19 +626,29 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
           </div>
         </div>
       )}
+
       {selectedInfo && (
-        <div className="absolute bottom-12 left-3 right-3 sm:left-auto sm:right-3 sm:max-w-xs z-20 bg-white/98 border-2 border-emerald-500 p-3.5 rounded-2xl shadow-xl backdrop-blur-md animate-fadeIn space-y-2">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+        <div className="absolute bottom-12 left-3 right-3 sm:left-auto sm:right-3 sm:max-w-xs z-20 bg-slate-900/95 text-white border-2 border-[#00E676] p-3.5 rounded-2xl shadow-2xl backdrop-blur-md animate-fadeIn space-y-2">
+          <div className="flex items-center justify-between border-b border-slate-700 pb-1.5">
             <div>
-              <span className="text-[10px] font-extrabold text-emerald-600 uppercase tracking-wider">{selectedInfo.type}</span>
-              <h4 className="text-sm font-black text-slate-900 uppercase">{selectedInfo.name}</h4>
+              <span className="text-[10px] font-extrabold text-[#00E676] uppercase tracking-wider">{selectedInfo.type}</span>
+              <h4 className="text-sm font-black text-white uppercase">{selectedInfo.name}</h4>
             </div>
-            <button onClick={() => setSelectedInfo(null)} className="text-slate-400 hover:text-slate-800 text-sm font-bold">✕</button>
+            <button onClick={() => setSelectedInfo(null)} className="text-slate-400 hover:text-white text-sm font-bold">✕</button>
           </div>
-          <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono font-bold">
+          
+          <div className="grid grid-cols-2 gap-2 text-[11px] font-mono font-bold">
+            <div className="bg-slate-800 p-2 rounded-xl border border-slate-700">
+              <div className="text-[9px] text-slate-400 uppercase">VOLTAGE</div>
+              <div className="text-xs text-[#00E676] font-extrabold mt-0.5">{selectedInfo.voltage}</div>
+            </div>
+            <div className="bg-slate-800 p-2 rounded-xl border border-slate-700">
+              <div className="text-[9px] text-slate-400 uppercase">TEMPERATURE</div>
+              <div className="text-xs text-amber-400 font-extrabold mt-0.5">{selectedInfo.temp}</div>
+            </div>
           </div>
 
-          <p className="text-[11px] font-medium text-slate-600 leading-snug">{selectedInfo.description}</p>
+          <p className="text-[11px] font-medium text-slate-300 leading-snug">{selectedInfo.description}</p>
         </div>
       )}
 
@@ -614,13 +656,15 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       {!hideControls && (
         <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none text-xs font-mono font-bold">
           <span className="bg-slate-900/90 text-white px-3 py-1.5 rounded-xl border border-slate-700 backdrop-blur-md shadow-md">
-            Drag to rotate • Pinch to zoom • Tap to inspect
+            Drag to rotate • Pinch to zoom • Tap cell for telemetry
           </span>
           <span className="bg-emerald-50 text-emerald-700 border border-emerald-500 px-2.5 py-1 rounded-xl font-extrabold shadow-sm">
-            {isSimulated ? 'SIMULATED DATA' : 'REAL BMS'}
+            {isSimulated ? 'LIVE PINN MODEL' : 'PHYSICAL BLE BMS'}
           </span>
         </div>
       )}
     </div>
   );
 };
+
+export default Battery3DView;
