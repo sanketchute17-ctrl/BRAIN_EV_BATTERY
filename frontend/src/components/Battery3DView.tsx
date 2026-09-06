@@ -375,17 +375,12 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     rootGroup.add(coverGroup);
 
     const coverGeo = new THREE.BoxGeometry(packWidth, packHeight, packDepth);
-    const coverMat = new THREE.MeshPhysicalMaterial({
+    const coverMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      metalness: 0.05,
-      roughness: 0.05,
-      transmission: 0.88,
-      ior: 1.5,
+      metalness: 0.1,
+      roughness: 0.1,
       transparent: true,
       opacity: 0.38,
-      reflectivity: 0.95,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1,
     });
     const coverMesh = new THREE.Mesh(coverGeo, coverMat);
     coverMeshRef.current = coverMesh;
@@ -398,13 +393,15 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     coverGroup.add(coverEdgeLines);
 
     const pillarGeo = new THREE.CylinderGeometry(0.42, 0.42, packHeight, 24);
-    const pillarMat = new THREE.MeshPhysicalMaterial({
+    const pillarMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      transmission: 0.85,
       transparent: true,
       opacity: 0.45,
       roughness: 0.1,
+      metalness: 0.1,
     });
+
+    const screwMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.2 });
 
     [
       [-packWidth / 2, -packDepth / 2],
@@ -522,11 +519,11 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       touchStartDist.current = null;
     };
 
-    domElem.addEventListener('mousedown', onMouseDown);
+    currentMount.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-    domElem.addEventListener('wheel', onWheel, { passive: false });
-    domElem.addEventListener('touchstart', onTouchStart, { passive: true });
+    currentMount.addEventListener('wheel', onWheel, { passive: false });
+    currentMount.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('touchend', onTouchEnd);
 
@@ -559,6 +556,13 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
     return () => {
       cancelAnimationFrame(animId);
+      currentMount.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      currentMount.removeEventListener('wheel', onWheel);
+      currentMount.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
       if (currentMount.contains(renderer.domElement)) currentMount.removeChild(renderer.domElement);
       renderer.dispose();
     };
@@ -566,11 +570,11 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
   useEffect(() => {
     if (!coverMeshRef.current || !coverWireframeRef.current) return;
-    const coverMat = coverMeshRef.current.material as THREE.MeshPhysicalMaterial;
+    const coverMat = coverMeshRef.current.material as THREE.MeshStandardMaterial;
     const wireMat = coverWireframeRef.current.material as THREE.LineBasicMaterial;
-    if (casingMode === 'SOLID') { coverMat.opacity = 0.95; coverMat.transmission = 0.0; wireMat.opacity = 0.3; }
-    else if (casingMode === 'TRANSPARENT') { coverMat.opacity = 0.38; coverMat.transmission = 0.88; wireMat.opacity = 0.5; }
-    else if (casingMode === 'X-RAY') { coverMat.opacity = 0.1; coverMat.transmission = 0.95; wireMat.opacity = 0.95; }
+    if (casingMode === 'SOLID') { coverMat.opacity = 0.95; wireMat.opacity = 0.3; }
+    else if (casingMode === 'TRANSPARENT') { coverMat.opacity = 0.38; wireMat.opacity = 0.5; }
+    else if (casingMode === 'X-RAY') { coverMat.opacity = 0.1; wireMat.opacity = 0.95; }
   }, [casingMode]);
 
   return (
