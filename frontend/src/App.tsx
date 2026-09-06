@@ -433,7 +433,9 @@ export function App() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
                     <div className="lg:col-span-2 h-64 rounded-xl overflow-hidden border border-slate-200">
-                      <Battery3DView status={demoStatus} interactive={true} />
+                      <ErrorBoundary>
+                        <Battery3DView status={demoStatus} interactive={true} />
+                      </ErrorBoundary>
                     </div>
 
                     <div className="space-y-3">

@@ -126,6 +126,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     let scene: THREE.Scene;
     let camera: THREE.PerspectiveCamera;
     let renderer: THREE.WebGLRenderer;
+    let animId: number;
 
     try {
       scene = new THREE.Scene();
@@ -137,11 +138,20 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       camera.lookAt(currentLookAt.current);
       cameraRef.current = camera;
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, failIfMajorPerformanceCaveat: false });
+      try {
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      } catch (e) {
+        renderer = new THREE.WebGLRenderer({ alpha: true });
+      }
+
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      try {
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      } catch (e) {
+        // Fallback for devices without shadowMap extension
+      }
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.35;
       rendererRef.current = renderer;
@@ -218,35 +228,6 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
         rootGroup.add(bracket);
       });
     });
-
-    const moduleCapGeo = new THREE.BoxGeometry(1.25, 0.16, 1.85);
-    const moduleCapMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b,
-      metalness: 0.85,
-      roughness: 0.25,
-    });
-
-    const screwGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.08, 12);
-    const screwMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.95, roughness: 0.1 });
-
-    for (let row = 0; row < 2; row++) {
-      for (let col = 0; col < 6; col++) {
-        const capX = -3.2 + col * 1.3;
-        const capZ = -1.05 + row * 2.1;
-
-        const capMesh = new THREE.Mesh(moduleCapGeo, moduleCapMat);
-        capMesh.position.set(capX, 1.15, capZ);
-        rootGroup.add(capMesh);
-
-        [-0.52, 0.52].forEach((sx) => {
-          [-0.82, 0.82].forEach((sz) => {
-            const screw = new THREE.Mesh(screwGeo, screwMat);
-            screw.position.set(capX + sx, 1.24, capZ + sz);
-            rootGroup.add(screw);
-          });
-        });
-      }
-    }
 
     const cellWidth = 0.38;
     const cellHeight = 2.0;
@@ -549,7 +530,6 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     window.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('touchend', onTouchEnd);
 
-    let animId: number;
     const animate = () => {
       animId = requestAnimationFrame(animate);
       if (!isDragging.current && rootGroupRef.current) {
