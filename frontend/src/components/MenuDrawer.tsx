@@ -30,20 +30,20 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   ] as const;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="w-4/5 max-w-sm bg-brain-charcoal border-l border-brain-border h-full flex flex-col justify-between p-5 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+      <div className="w-4/5 max-w-sm bg-white border-l border-slate-200 h-full flex flex-col justify-between p-5 shadow-2xl">
         {/* Drawer Header */}
         <div>
-          <div className="flex items-center justify-between pb-4 border-b border-brain-border">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-200">
             <div>
-              <h3 className="text-xl font-extrabold text-electric-green heading-tech tracking-wider uppercase">BRAIN MODULES</h3>
-              <p className="text-xs font-semibold text-slate-400">Research & Intelligence System</p>
+              <h3 className="text-lg font-black text-slate-900 heading-tech tracking-tight uppercase">BRAIN MODULES</h3>
+              <p className="text-xs font-semibold text-slate-500">Research & Intelligence System</p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl glass-panel-premium text-slate-400 hover:text-white border border-brain-border"
+              className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-800 border border-slate-200"
             >
-              <X className="w-5 h-5 text-electric-red" />
+              <X className="w-5 h-5 text-red-500" />
             </button>
           </div>
 
@@ -58,20 +58,20 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
                     onSelectDrawerItem(item.id as DrawerType);
                     onClose();
                   }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-brain-navy/60 hover:bg-electric-green/15 border border-brain-border hover:border-electric-green/40 transition group"
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-300 transition group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-brain-card text-electric-green group-hover:text-electric-red transition">
+                    <div className="p-2 rounded-lg bg-white border border-slate-200 text-emerald-600 shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition">
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="text-left">
-                      <div className="text-xs font-mono font-bold text-white group-hover:text-electric-green transition">
+                      <div className="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition">
                         {item.label}
                       </div>
-                      <div className="text-[10px] font-mono text-slate-500">{item.tag}</div>
+                      <div className="text-[10px] font-mono text-slate-400">{item.tag}</div>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-electric-green transition" />
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition" />
                 </button>
               );
             })}
@@ -79,13 +79,13 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
         </div>
 
         {/* Logout Footer */}
-        <div className="pt-4 border-t border-brain-border">
+        <div className="pt-4 border-t border-slate-200">
           <button
             onClick={() => {
               onLogout();
               onClose();
             }}
-            className="w-full py-3 bg-electric-red/15 text-electric-red border border-electric-red/40 rounded-xl text-xs font-mono font-bold hover:bg-electric-red/30 transition uppercase tracking-wider shadow-neon-red"
+            className="w-full py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-extrabold hover:bg-red-100 transition uppercase tracking-wider shadow-sm"
           >
             SIGN OUT OPERATOR
           </button>

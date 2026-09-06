@@ -22,18 +22,18 @@ export const BrainLogo: React.FC<BrainLogoProps> = ({
 
   return (
     <div className={`flex items-center gap-3.5 ${className}`}>
-      {/* Bright Electric Light Green & Electric Light Red Emblem */}
+      {/* Bright Ola/Ather Style Emblem */}
       <div className={`relative flex items-center justify-center shrink-0 ${dimensions.icon}`}>
         <svg
           viewBox="0 0 100 100"
-          className="w-full h-full drop-shadow-[0_0_18px_rgba(0,255,135,0.8)]"
+          className="w-full h-full drop-shadow-md"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Hexagonal Outer Frame */}
           <polygon
             points="50,4 92,25 92,75 50,96 8,75 8,25"
-            stroke="#00FF87"
+            stroke="#10B981"
             strokeWidth="5"
             fill="url(#brainLogoGrad)"
           />
@@ -45,34 +45,33 @@ export const BrainLogo: React.FC<BrainLogoProps> = ({
             width="40"
             height="60"
             rx="6"
-            stroke="#FF2A55"
+            stroke="#EF4444"
             strokeWidth="4"
-            fill="#0D121D"
+            fill="#FFFFFF"
           />
           {/* Positive Cap */}
-          <rect x="40" y="13" width="20" height="7" rx="3" fill="#00FF87" />
+          <rect x="40" y="13" width="20" height="7" rx="3" fill="#10B981" />
 
           {/* Core Lightning */}
           <path
             d="M 50 28 L 38 48 L 54 48 L 42 72"
-            stroke="#00FF87"
+            stroke="#10B981"
             fill="none"
             strokeWidth="5.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="drop-shadow-[0_0_15px_rgba(0,255,135,1)]"
           />
 
           {/* Glowing Nodes */}
-          <circle cx="18" cy="50" r="4" fill="#00FF87" className="animate-pulse" />
-          <circle cx="82" cy="50" r="4" fill="#FF2A55" className="animate-pulse" />
-          <line x1="18" y1="50" x2="30" y2="50" stroke="#00FF87" strokeWidth="2.5" />
-          <line x1="70" y1="50" x2="82" y2="50" stroke="#FF2A55" strokeWidth="2.5" />
+          <circle cx="18" cy="50" r="4" fill="#10B981" className="animate-pulse" />
+          <circle cx="82" cy="50" r="4" fill="#EF4444" className="animate-pulse" />
+          <line x1="18" y1="50" x2="30" y2="50" stroke="#10B981" strokeWidth="2.5" />
+          <line x1="70" y1="50" x2="82" y2="50" stroke="#EF4444" strokeWidth="2.5" />
 
           <defs>
             <linearGradient id="brainLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#182238" stopOpacity="0.95" />
-              <stop offset="100%" stopColor="#07090E" stopOpacity="0.95" />
+              <stop offset="0%" stopColor="#F1F5F9" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.95" />
             </linearGradient>
           </defs>
         </svg>
@@ -81,23 +80,23 @@ export const BrainLogo: React.FC<BrainLogoProps> = ({
       {showText && (
         <div className="flex flex-col text-left">
           <div className={`font-black tracking-widest leading-none flex items-center gap-2 ${dimensions.title}`}>
-            <span className="text-[#00FF87] font-black tracking-widest drop-shadow-[0_0_20px_rgba(0,255,135,0.9)] uppercase heading-tech">
-              BRAIN
+            <span className="text-[#0F172A] font-black tracking-tight uppercase heading-tech">
+              BRAIN <span className="text-[#10B981]">EV</span>
             </span>
           </div>
 
           {fullTagline ? (
             <div className="mt-1.5 space-y-0.5">
-              <span className="block text-sm font-extrabold text-white tracking-wide">
+              <span className="block text-sm font-extrabold text-slate-800 tracking-wide">
                 Battery Risk & Analytics Intelligence Network
               </span>
-              <span className="block text-xs font-serif italic text-[#FF2A55] font-bold">
+              <span className="block text-xs font-serif italic text-emerald-600 font-bold">
                 “Think Ahead. Protect Every Battery.”
               </span>
             </div>
           ) : (
-            <span className={`font-extrabold tracking-widest text-[#FF2A55] uppercase leading-tight ${dimensions.subtitle}`}>
-              EV BATTERY INTELLIGENCE
+            <span className={`font-bold tracking-wider text-slate-500 uppercase leading-tight ${dimensions.subtitle}`}>
+              BATTERY INTELLIGENCE
             </span>
           )}
         </div>

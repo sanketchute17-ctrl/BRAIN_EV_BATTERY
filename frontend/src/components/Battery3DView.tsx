@@ -107,18 +107,18 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     rootGroupRef.current = rootGroup;
     scene.add(rootGroup);
 
-    const glowHex = (status === 'CRITICAL' || status === 'WARNING') ? 0xff2a55 : 0x00ff87;
-    const rimHex = 0x00ff87;
+    const glowHex = (status === 'CRITICAL' || status === 'WARNING') ? 0xef4444 : 0x10b981;
+    const rimHex = 0x10b981;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.2);
     keyLight.position.set(12, 18, 12);
     keyLight.castShadow = true;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x00ff87, 1.4);
+    const fillLight = new THREE.DirectionalLight(0x10b981, 1.5);
     fillLight.position.set(-10, 8, -8);
     scene.add(fillLight);
 
@@ -126,22 +126,22 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     rimLight.position.set(0, 6, -14);
     scene.add(rimLight);
 
-    const coreGlowLight = new THREE.PointLight(glowHex, 5.5, 18);
+    const coreGlowLight = new THREE.PointLight(glowHex, 4.5, 18);
     coreGlowLight.position.set(0, 2, 0);
     scene.add(coreGlowLight);
 
     // Ground HUD Grid
-    const gridHelper = new THREE.GridHelper(16, 24, rimHex, 0x2a3854);
+    const gridHelper = new THREE.GridHelper(16, 24, rimHex, 0xcbd5e1);
     gridHelper.position.y = -1.2;
     rootGroup.add(gridHelper);
 
     const groundDiscGeo = new THREE.CircleGeometry(7.5, 32);
     const groundDiscMat = new THREE.MeshStandardMaterial({
-      color: 0x07090e,
-      roughness: 0.1,
-      metalness: 0.85,
+      color: 0xf1f5f9,
+      roughness: 0.2,
+      metalness: 0.3,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.9,
     });
     const groundDisc = new THREE.Mesh(groundDiscGeo, groundDiscMat);
     groundDisc.rotation.x = -Math.PI / 2;
@@ -151,8 +151,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     // Chassis & Rails
     const chassisGeo = new THREE.BoxGeometry(8.2, 0.4, 5.2);
     const chassisMat = new THREE.MeshStandardMaterial({
-      color: 0x131a2b,
-      metalness: 0.9,
+      color: 0x334155,
+      metalness: 0.8,
       roughness: 0.2,
     });
     const chassisMesh = new THREE.Mesh(chassisGeo, chassisMat);
@@ -234,21 +234,21 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const capMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.1 });
 
     const healthyCellMat = new THREE.MeshStandardMaterial({
-      color: 0x00ff87,
-      metalness: 0.85,
-      roughness: 0.15,
-      emissive: 0x00ff87,
-      emissiveIntensity: 0.25,
+      color: 0x10b981,
+      metalness: 0.7,
+      roughness: 0.2,
+      emissive: 0x10b981,
+      emissiveIntensity: 0.15,
     });
 
     const criticalCellMat = new THREE.MeshStandardMaterial({
-      color: 0xff2a55,
-      emissive: 0xff2a55,
-      emissiveIntensity: 0.9,
-      metalness: 0.6,
+      color: 0xef4444,
+      emissive: 0xef4444,
+      emissiveIntensity: 0.8,
+      metalness: 0.5,
     });
 
-    const busbarMat = new THREE.MeshStandardMaterial({ color: 0x00ff87, metalness: 0.95, roughness: 0.15 });
+    const busbarMat = new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.9, roughness: 0.2 });
 
     cellMeshMap.current.clear();
     let globalCellIdx = 1;
@@ -634,20 +634,20 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   }, [casingMode]);
 
   return (
-    <div className="relative w-full h-full min-h-[380px] flex items-center justify-center bg-gradient-to-b from-[#07090E] via-[#111827] to-[#07090E] rounded-xl overflow-hidden border-2 border-[#00FF87]/40 select-none shadow-[0_0_25px_rgba(0,0,0,0.8)]">
+    <div className="relative w-full h-full min-h-[380px] flex items-center justify-center bg-gradient-to-b from-slate-100 via-white to-slate-100 rounded-2xl overflow-hidden border border-slate-200 select-none shadow-md">
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {/* TOP AUTOMOTIVE HIGH VISIBILITY HUD CONTROLS */}
+      {/* TOP AUTOMOTIVE LIGHT HUD CONTROLS */}
       <div className="absolute top-3 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto">
-        <div className="flex items-center gap-1.5 bg-[#0F1420]/95 border-2 border-[#00FF87]/50 p-1.5 rounded-xl backdrop-blur-md shadow-2xl">
+        <div className="flex items-center gap-1.5 bg-white/95 border border-slate-200 p-1.5 rounded-xl backdrop-blur-md shadow-md">
           {(['SOLID', 'TRANSPARENT', 'X-RAY'] as CasingMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => setCasingMode(mode)}
-              className={`px-3 py-1.5 text-xs font-black rounded-lg transition ${
+              className={`px-3 py-1.5 text-xs font-extrabold rounded-lg transition ${
                 casingMode === mode
-                  ? 'bg-[#00FF87] text-slate-950 shadow-[0_0_15px_rgba(0,255,135,0.8)]'
-                  : 'text-white bg-[#182238] hover:bg-[#2A3854] border border-[#2A3854]'
+                  ? 'bg-emerald-500 text-white shadow-emerald'
+                  : 'text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200'
               }`}
             >
               {mode}
@@ -658,10 +658,10 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsExploded(!isExploded)}
-            className={`px-3.5 py-1.5 text-xs font-black rounded-xl border-2 backdrop-blur-md transition shadow-2xl ${
+            className={`px-3.5 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition shadow-md ${
               isExploded
-                ? 'bg-[#FF2A55] text-white border-red-300 shadow-[0_0_15px_rgba(255,42,85,0.8)]'
-                : 'bg-[#0F1420]/95 text-[#00FF87] border-[#00FF87] hover:bg-[#00FF87]/20 shadow-[0_0_15px_rgba(0,255,135,0.4)]'
+                ? 'bg-red-500 text-white border-red-400 shadow-red'
+                : 'bg-white/95 text-emerald-700 border-emerald-400 hover:bg-emerald-50'
             }`}
           >
             {isExploded ? 'ASSEMBLE' : 'EXPLODED VIEW'}
@@ -669,10 +669,10 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
           <button
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`px-3 py-1.5 text-xs font-black rounded-xl border-2 backdrop-blur-md transition ${
+            className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${
               autoRotate
-                ? 'bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87] shadow-[0_0_15px_rgba(0,255,135,0.4)]'
-                : 'bg-[#0F1420]/95 text-slate-300 border-[#2A3854]'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-400 shadow-sm'
+                : 'bg-white/95 text-slate-700 border-slate-200'
             }`}
           >
             AUTO ROTATE ↻
@@ -680,7 +680,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
           <button
             onClick={resetCamera}
-            className="px-3 py-1.5 text-xs font-black rounded-xl bg-[#0F1420]/95 text-white border-2 border-[#2A3854] hover:border-[#00FF87] backdrop-blur-md"
+            className="px-3 py-1.5 text-xs font-extrabold rounded-xl bg-white/95 text-slate-800 border border-slate-300 hover:border-emerald-500 backdrop-blur-md shadow-sm"
           >
             RESET ↺
           </button>
@@ -689,54 +689,54 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
       {/* COMPONENT INSPECTION POPUP BADGE */}
       {selectedInfo && (
-        <div className="absolute bottom-14 left-3 right-3 sm:left-auto sm:right-3 sm:max-w-xs z-20 bg-[#0F1420]/98 border-2 border-[#00FF87] p-4 rounded-2xl shadow-[0_0_30px_rgba(0,255,135,0.4)] backdrop-blur-md animate-fadeIn space-y-2 pointer-events-auto">
-          <div className="flex items-center justify-between border-b border-[#2A3854] pb-2">
+        <div className="absolute bottom-14 left-3 right-3 sm:left-auto sm:right-3 sm:max-w-xs z-20 bg-white/98 border-2 border-emerald-500 p-4 rounded-2xl shadow-xl backdrop-blur-md animate-fadeIn space-y-2 pointer-events-auto">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
             <div>
-              <span className="text-xs font-black text-[#00FF87] uppercase tracking-wider">{selectedInfo.type}</span>
-              <h4 className="text-base font-black text-white heading-tech uppercase">{selectedInfo.name}</h4>
+              <span className="text-xs font-extrabold text-emerald-600 uppercase tracking-wider">{selectedInfo.type}</span>
+              <h4 className="text-base font-black text-slate-900 heading-tech uppercase">{selectedInfo.name}</h4>
             </div>
-            <button onClick={() => setSelectedInfo(null)} className="text-slate-300 hover:text-white p-1 font-bold text-base">
+            <button onClick={() => setSelectedInfo(null)} className="text-slate-400 hover:text-slate-800 p-1 font-bold text-base">
               ✕
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs font-mono font-bold">
             {selectedInfo.voltage && (
-              <div className="bg-[#131A2B] p-2 rounded-lg border border-[#2A3854]">
-                <span className="text-[10px] text-slate-400 block uppercase">VOLTAGE</span>
-                <span className="font-black text-[#00FF87] text-sm">{selectedInfo.voltage}</span>
+              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-500 block uppercase">VOLTAGE</span>
+                <span className="font-extrabold text-emerald-600 text-sm">{selectedInfo.voltage}</span>
               </div>
             )}
             {selectedInfo.temp && (
-              <div className="bg-[#131A2B] p-2 rounded-lg border border-[#2A3854]">
-                <span className="text-[10px] text-slate-400 block uppercase">TEMP</span>
-                <span className="font-black text-[#FF2A55] text-sm">{selectedInfo.temp}</span>
+              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-500 block uppercase">TEMP</span>
+                <span className="font-extrabold text-red-500 text-sm">{selectedInfo.temp}</span>
               </div>
             )}
             {selectedInfo.deviation && (
-              <div className="bg-[#131A2B] p-2 rounded-lg border border-[#2A3854]">
-                <span className="text-[10px] text-slate-400 block uppercase">DEVIATION</span>
-                <span className="font-black text-[#00FF87] text-sm">{selectedInfo.deviation}</span>
+              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-500 block uppercase">DEVIATION</span>
+                <span className="font-extrabold text-emerald-600 text-sm">{selectedInfo.deviation}</span>
               </div>
             )}
             {selectedInfo.risk && (
-              <div className="bg-[#131A2B] p-2 rounded-lg border border-[#2A3854]">
-                <span className="text-[10px] text-slate-400 block uppercase">RISK SCORE</span>
-                <span className="font-black text-[#FF2A55] text-sm">{selectedInfo.risk}</span>
+              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-500 block uppercase">RISK SCORE</span>
+                <span className="font-extrabold text-red-500 text-sm">{selectedInfo.risk}</span>
               </div>
             )}
           </div>
 
-          <p className="text-xs font-medium text-slate-200 leading-snug">{selectedInfo.description}</p>
+          <p className="text-xs font-medium text-slate-600 leading-snug">{selectedInfo.description}</p>
         </div>
       )}
 
       {/* GESTURE HINT BANNER */}
       <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none text-xs font-mono font-bold">
-        <span className="bg-[#07090E]/90 text-white px-3 py-1.5 rounded-xl border border-[#2A3854] backdrop-blur-md shadow-lg">
+        <span className="bg-slate-900/90 text-white px-3 py-1.5 rounded-xl border border-slate-700 backdrop-blur-md shadow-md">
           Drag/Swipe to rotate 360° • Pinch to zoom • Tap to inspect
         </span>
-        <span className="bg-[#00FF87]/20 text-[#00FF87] border-2 border-[#00FF87] px-2.5 py-1 rounded-xl font-black shadow-[0_0_10px_rgba(0,255,135,0.4)]">
+        <span className="bg-emerald-50 text-emerald-700 border border-emerald-500 px-2.5 py-1 rounded-xl font-extrabold shadow-sm">
           {isSimulated ? 'SIMULATED DATA' : 'REAL BMS'}
         </span>
       </div>

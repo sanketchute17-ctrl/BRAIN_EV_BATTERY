@@ -110,27 +110,27 @@ export function App() {
     );
   }
 
-  // Status Light Indicator Style (Electric Light Green / Electric Light Red)
+  // Status Light Indicator Style (Emerald Green / Electric Red)
   const getStatusLightClass = (st: typeof demoStatus) => {
     switch (st) {
       case 'HEALTHY':
       case 'WATCH':
-        return 'bg-electric-green status-pulse-green shadow-neon-green';
+        return 'bg-emerald-500 status-pulse-green shadow-emerald';
       case 'WARNING':
       case 'CRITICAL':
-        return 'bg-electric-red status-pulse-red shadow-neon-red';
+        return 'bg-red-500 status-pulse-red shadow-red';
     }
   };
 
   return (
-    <div className="min-h-screen bg-brain-black text-slate-100 pb-24 max-w-6xl mx-auto relative overflow-x-hidden">
-      {/* 1. HEADER WITH ELECTRIC LIGHT GREEN / RED BRANDING */}
-      <header className="sticky top-0 z-30 bg-brain-charcoal/95 backdrop-blur-md border-b border-brain-border px-4 py-3 flex items-center justify-between shadow-2xl">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24 max-w-6xl mx-auto relative overflow-x-hidden">
+      {/* 1. HEADER WITH OLA/ATHER BRANDING */}
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           {activeDrawerItem ? (
             <button
               onClick={() => setActiveDrawerItem(null)}
-              className="p-2 glass-panel-premium rounded-xl text-electric-green hover:bg-electric-green/15 border border-brain-border"
+              className="p-2 bg-white rounded-xl text-emerald-600 hover:bg-emerald-50 border border-slate-200 shadow-sm"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -143,14 +143,14 @@ export function App() {
             <span
               className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${
                 backendOnline
-                  ? 'bg-electric-green/15 border-electric-green/40 text-electric-green'
-                  : 'bg-electric-red/15 border-electric-red/40 text-electric-red'
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                  : 'bg-red-50 border-red-300 text-red-700'
               }`}
             >
               ● {backendOnline ? 'BACKEND ONLINE' : 'OFFLINE'}
             </span>
             {isDemoMode && (
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-electric-green/15 border border-electric-green/50 text-electric-green tracking-wider">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 tracking-wider">
                 SIMULATED DATA
               </span>
             )}
@@ -159,9 +159,9 @@ export function App() {
 
         {/* Status Light & Scenario Switcher */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-brain-navy/90 border border-brain-border rounded-xl px-3 py-1.5 shadow-inner">
+          <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
             <span className={`w-3 h-3 rounded-full ${getStatusLightClass(demoStatus)}`} />
-            <span className="text-xs font-mono font-extrabold tracking-wider text-slate-200">
+            <span className="text-xs font-mono font-extrabold tracking-wider text-slate-800">
               {demoStatus}
             </span>
           </div>
@@ -169,7 +169,7 @@ export function App() {
           <select
             value={demoStatus}
             onChange={(e) => setDemoStatus(e.target.value as any)}
-            className="text-xs font-bold bg-brain-navy border border-brain-border rounded-xl px-2.5 py-1.5 text-electric-green focus:outline-none focus:border-electric-green cursor-pointer hidden md:block"
+            className="text-xs font-bold bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-emerald-700 focus:outline-none focus:border-emerald-500 cursor-pointer hidden md:block shadow-sm"
           >
             <option value="HEALTHY">🟢 HEALTHY</option>
             <option value="WATCH">🟢 WATCH</option>
@@ -182,14 +182,14 @@ export function App() {
       {/* 2. MAIN CONTENT BODY */}
       <main className="p-4 sm:p-6 space-y-6">
         {activeDrawerItem ? (
-          <div className="glass-panel-premium rounded-2xl p-6 border border-brain-border space-y-4 animate-fadeIn">
-            <div className="flex items-center justify-between border-b border-brain-border pb-3">
-              <h2 className="text-xl font-bold text-electric-green heading-tech uppercase tracking-wide">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xl space-y-4 animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h2 className="text-lg font-black text-slate-900 heading-tech uppercase tracking-wide">
                 {activeDrawerItem} MODULE
               </h2>
               <button
                 onClick={() => setActiveDrawerItem(null)}
-                className="text-xs font-mono font-bold text-electric-red hover:underline"
+                className="text-xs font-bold text-red-500 hover:underline"
               >
                 Back to Dashboard
               </button>
@@ -197,15 +197,15 @@ export function App() {
 
             {activeDrawerItem === 'twin' ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between bg-brain-navy p-3 rounded-xl border border-brain-border">
-                  <span className="text-xs font-mono font-bold text-slate-300">TWIN MODEL STATE:</span>
+                <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <span className="text-xs font-mono font-bold text-slate-700">TWIN MODEL STATE:</span>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setTwinMode('LIVE')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg ${
                         twinMode === 'LIVE'
-                          ? 'bg-electric-green text-brain-black shadow-neon-green'
-                          : 'bg-brain-card text-slate-400'
+                          ? 'bg-emerald-500 text-white shadow-emerald'
+                          : 'bg-white text-slate-600 border border-slate-200'
                       }`}
                     >
                       LIVE TELEMETRY
@@ -214,8 +214,8 @@ export function App() {
                       onClick={() => setTwinMode('PREDICTED')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg ${
                         twinMode === 'PREDICTED'
-                          ? 'bg-electric-red text-white shadow-neon-red'
-                          : 'bg-brain-card text-slate-400'
+                          ? 'bg-red-500 text-white shadow-red'
+                          : 'bg-white text-slate-600 border border-slate-200'
                       }`}
                     >
                       PREDICTED PINN STATE
@@ -223,13 +223,13 @@ export function App() {
                   </div>
                 </div>
 
-                <div className="h-80 rounded-xl overflow-hidden border border-brain-border relative">
+                <div className="h-80 rounded-xl overflow-hidden border border-slate-200 relative">
                   <Battery3DView status={demoStatus} expanded={true} interactive={true} />
                 </div>
               </div>
             ) : (
-              <div className="h-64 bg-brain-navy rounded-xl flex items-center justify-center border border-brain-border">
-                <span className="text-xs font-mono font-bold text-slate-400 tracking-widest uppercase">
+              <div className="h-64 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-200">
+                <span className="text-xs font-mono font-bold text-slate-500 tracking-widest uppercase">
                   [ {activeDrawerItem.toUpperCase()} INTELLIGENCE ENGINE ONLINE ]
                 </span>
               </div>
@@ -238,18 +238,18 @@ export function App() {
         ) : (
           <>
             {!backendOnline && !isDemoMode && (
-              <div className="p-4 rounded-2xl bg-electric-red/15 border border-electric-red/40 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+              <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
                 <div className="flex items-center gap-3">
-                  <ZapOff className="w-6 h-6 text-electric-red" />
+                  <ZapOff className="w-6 h-6 text-red-500" />
                   <div>
-                    <div className="text-sm font-bold text-electric-red uppercase heading-tech">NO LIVE BMS CONNECTION</div>
-                    <div className="text-xs text-slate-300">Connect a compatible hardware BMS or activate Demo Mode.</div>
+                    <div className="text-sm font-extrabold text-red-600 uppercase heading-tech">NO LIVE BMS CONNECTION</div>
+                    <div className="text-xs text-slate-600">Connect a compatible hardware BMS or activate Demo Mode.</div>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setIsDemoMode(true)}
-                    className="px-4 py-2 bg-electric-green text-brain-black text-xs font-bold rounded-xl shadow-neon-green"
+                    className="px-4 py-2 bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-emerald hover:bg-emerald-600"
                   >
                     START DEMO
                   </button>
@@ -261,49 +261,49 @@ export function App() {
             {activeTab === 'home' && (
               <div className="space-y-6">
                 {/* HERO CARD */}
-                <div className="glass-card-premium rounded-2xl p-4 sm:p-5 border border-electric-green/40 shadow-2xl relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-3 border-b border-brain-border pb-2">
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border-2 border-emerald-500/80 shadow-xl relative overflow-hidden">
+                  <div className="flex items-center justify-between mb-3 border-b border-slate-200 pb-2">
                     <div className="flex items-center gap-2">
-                      <Cpu className="w-5 h-5 text-electric-green" />
-                      <span className="text-sm font-extrabold text-white tracking-wider heading-tech uppercase">
+                      <Cpu className="w-5 h-5 text-emerald-600" />
+                      <span className="text-sm font-black text-slate-900 tracking-tight heading-tech uppercase">
                         3D DIGITAL TWIN PACK (96S LFP)
                       </span>
                     </div>
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-electric-green/15 text-electric-green border border-electric-green/40">
+                    <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
                       ESTIMATED
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
-                    <div className="lg:col-span-2 h-64 rounded-xl overflow-hidden border border-brain-border">
+                    <div className="lg:col-span-2 h-64 rounded-xl overflow-hidden border border-slate-200">
                       <Battery3DView status={demoStatus} interactive={true} />
                     </div>
 
                     <div className="space-y-3">
-                      <div className="glass-panel-premium p-3.5 rounded-xl border border-brain-border">
-                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">STATE OF CHARGE</div>
-                        <div className="text-4xl font-black text-electric-green mt-1 drop-shadow-[0_0_15px_rgba(0,255,135,0.6)]">
+                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">STATE OF CHARGE</div>
+                        <div className="text-4xl font-black text-emerald-600 mt-1">
                           84%
                         </div>
-                        <div className="text-[10px] font-mono text-electric-green mt-1">350.4 V • 120.5 A</div>
+                        <div className="text-[10px] font-mono text-emerald-700 font-bold mt-1">350.4 V • 120.5 A</div>
                       </div>
 
-                      <div className="glass-panel-premium p-3.5 rounded-xl border border-brain-border">
-                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">STATE OF HEALTH</div>
-                        <div className="text-4xl font-black text-electric-red mt-1 drop-shadow-[0_0_15px_rgba(255,42,85,0.6)]">
+                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">STATE OF HEALTH</div>
+                        <div className="text-4xl font-black text-slate-900 mt-1">
                           96.4%
                         </div>
-                        <div className="text-[10px] font-mono text-slate-400 mt-1">INTERNAL RES: 1.2 mΩ</div>
+                        <div className="text-[10px] font-mono text-slate-500 font-bold mt-1">INTERNAL RES: 1.2 mΩ</div>
                       </div>
 
-                      <div className="glass-panel-premium p-3.5 rounded-xl border border-brain-border flex items-center justify-between">
+                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
-                          <div className="text-[10px] font-bold text-slate-400 uppercase">ESTIMATED RANGE</div>
-                          <div className="text-xl font-extrabold text-electric-green mt-0.5">342 KM</div>
+                          <div className="text-[10px] font-bold text-slate-500 uppercase">ESTIMATED RANGE</div>
+                          <div className="text-xl font-extrabold text-emerald-600 mt-0.5">342 KM</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-[10px] font-bold text-slate-400 uppercase">PACK TEMP</div>
-                          <div className="text-xl font-extrabold text-electric-red mt-0.5">34.2 °C</div>
+                          <div className="text-[10px] font-bold text-slate-500 uppercase">PACK TEMP</div>
+                          <div className="text-xl font-extrabold text-red-500 mt-0.5">34.2 °C</div>
                         </div>
                       </div>
                     </div>
@@ -313,23 +313,23 @@ export function App() {
                 {/* TELEMETRY WIDGETS GRID */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                   {[
-                    { label: 'PACK VOLTAGE', val: '350.4 V', icon: Zap, color: 'text-electric-green', badge: 'REAL' },
-                    { label: 'PACK CURRENT', val: '120.5 A', icon: Activity, color: 'text-electric-green', badge: 'REAL' },
-                    { label: 'PACK POWER', val: '42.2 kW', icon: Gauge, color: 'text-electric-green', badge: 'REAL' },
-                    { label: 'PACK TEMP', val: '34.2 °C', icon: Thermometer, color: 'text-electric-red', badge: 'REAL' },
-                    { label: 'CELL BALANCING', val: '12 mV', icon: Sliders, color: 'text-electric-green', badge: 'ESTIMATED' },
-                    { label: 'CYCLE COUNT', val: '428', icon: RefreshCw, color: 'text-slate-300', badge: 'ESTIMATED' },
+                    { label: 'PACK VOLTAGE', val: '350.4 V', icon: Zap, color: 'text-emerald-600', badge: 'REAL' },
+                    { label: 'PACK CURRENT', val: '120.5 A', icon: Activity, color: 'text-emerald-600', badge: 'REAL' },
+                    { label: 'PACK POWER', val: '42.2 kW', icon: Gauge, color: 'text-emerald-600', badge: 'REAL' },
+                    { label: 'PACK TEMP', val: '34.2 °C', icon: Thermometer, color: 'text-red-500', badge: 'REAL' },
+                    { label: 'CELL BALANCING', val: '12 mV', icon: Sliders, color: 'text-emerald-600', badge: 'ESTIMATED' },
+                    { label: 'CYCLE COUNT', val: '428', icon: RefreshCw, color: 'text-slate-700', badge: 'ESTIMATED' },
                   ].map((w, idx) => {
                     const Icon = w.icon;
                     return (
-                      <div key={idx} className="glass-panel-premium p-3.5 rounded-xl border border-brain-border glass-card-hover space-y-1">
+                      <div key={idx} className="bg-white p-3.5 rounded-xl border border-slate-200 glass-card-hover space-y-1 shadow-sm">
                         <div className="flex items-center justify-between">
                           <Icon className={`w-4 h-4 ${w.color}`} />
-                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-brain-navy border border-brain-border text-slate-400">
+                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-slate-100 border border-slate-200 text-slate-500">
                             {w.badge}
                           </span>
                         </div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{w.label}</div>
+                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{w.label}</div>
                         <div className={`text-xl font-extrabold ${w.color} heading-tech`}>{w.val}</div>
                       </div>
                     );
@@ -341,46 +341,46 @@ export function App() {
             {/* TAB 2: BATTERY INTELLIGENCE & CELL MONITORING */}
             {activeTab === 'battery' && (
               <div className="space-y-6">
-                <div className="glass-panel-premium p-5 rounded-2xl border border-brain-border space-y-4">
-                  <div className="flex items-center justify-between border-b border-brain-border pb-3">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                     <div>
-                      <h2 className="text-lg font-bold text-electric-green heading-tech uppercase">BATTERY PACK OVERVIEW</h2>
-                      <p className="text-xs text-slate-400">96 Series High-Voltage LFP Architecture</p>
+                      <h2 className="text-lg font-black text-slate-900 heading-tech uppercase">BATTERY PACK OVERVIEW</h2>
+                      <p className="text-xs text-slate-500">96 Series High-Voltage LFP Architecture</p>
                     </div>
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-electric-green/15 text-electric-green border border-electric-green/40">
+                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
                       OPTIMAL OPERATING MATRIX
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="bg-brain-navy p-3 rounded-xl border border-brain-border">
-                      <div className="text-[10px] font-bold text-slate-400">SOC / SOH</div>
-                      <div className="text-lg font-extrabold text-electric-green mt-0.5">84% / 96.4%</div>
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="text-[10px] font-bold text-slate-500">SOC / SOH</div>
+                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">84% / 96.4%</div>
                     </div>
-                    <div className="bg-brain-navy p-3 rounded-xl border border-brain-border">
-                      <div className="text-[10px] font-bold text-slate-400">VOLTAGE / CURRENT</div>
-                      <div className="text-lg font-extrabold text-electric-green mt-0.5">350.4 V / 120.5 A</div>
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="text-[10px] font-bold text-slate-500">VOLTAGE / CURRENT</div>
+                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">350.4 V / 120.5 A</div>
                     </div>
-                    <div className="bg-brain-navy p-3 rounded-xl border border-brain-border">
-                      <div className="text-[10px] font-bold text-slate-400">POWER / TEMP</div>
-                      <div className="text-lg font-extrabold text-electric-green mt-0.5">42.2 kW / 34.2 °C</div>
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="text-[10px] font-bold text-slate-500">POWER / TEMP</div>
+                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">42.2 kW / 34.2 °C</div>
                     </div>
-                    <div className="bg-brain-navy p-3 rounded-xl border border-brain-border">
-                      <div className="text-[10px] font-bold text-slate-400">INTERNAL RESISTANCE</div>
-                      <div className="text-lg font-extrabold text-electric-red mt-0.5">1.25 mΩ / cell</div>
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="text-[10px] font-bold text-slate-500">INTERNAL RESISTANCE</div>
+                      <div className="text-lg font-extrabold text-red-500 mt-0.5">1.25 mΩ / cell</div>
                     </div>
                   </div>
                 </div>
 
                 {/* 96 Cell Visual Matrix Grid */}
-                <div className="glass-panel-premium p-5 rounded-2xl border border-brain-border space-y-3">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md space-y-3">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-bold text-slate-200 uppercase heading-tech tracking-wide">
+                    <h3 className="text-sm font-black text-slate-900 uppercase heading-tech tracking-wide">
                       CELL MONITORING MATRIX (TAP CELL FOR DIAGNOSTICS)
                     </h3>
-                    <div className="flex items-center gap-3 text-[11px]">
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-electric-green" /> Healthy</span>
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-electric-red" /> Critical</span>
+                    <div className="flex items-center gap-3 text-[11px] font-bold">
+                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Healthy</span>
+                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Critical</span>
                     </div>
                   </div>
 
@@ -390,8 +390,8 @@ export function App() {
                       const isCritical = (demoStatus === 'CRITICAL' || demoStatus === 'WARNING') && (cellId === 14 || cellId === 28);
 
                       const statusColor = isCritical
-                        ? 'bg-electric-red/20 border-electric-red text-electric-red animate-pulse shadow-neon-red'
-                        : 'bg-electric-green/10 border-electric-green/50 text-electric-green hover:bg-electric-green/20';
+                        ? 'bg-red-100 border-red-500 text-red-700 animate-pulse shadow-red'
+                        : 'bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100';
 
                       return (
                         <button
@@ -417,40 +417,40 @@ export function App() {
 
                 {/* Selected Cell Modal */}
                 {selectedCell && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fadeIn">
-                    <div className="bg-brain-charcoal border border-brain-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-                      <div className="flex items-center justify-between border-b border-brain-border pb-3">
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fadeIn">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                         <div className="flex items-center gap-2">
-                          <Zap className="w-5 h-5 text-electric-green" />
-                          <h3 className="text-lg font-bold text-white heading-tech">CELL C{selectedCell.id < 10 ? `0${selectedCell.id}` : selectedCell.id} DIAGNOSTICS</h3>
+                          <Zap className="w-5 h-5 text-emerald-600" />
+                          <h3 className="text-lg font-black text-slate-900 heading-tech">CELL C{selectedCell.id < 10 ? `0${selectedCell.id}` : selectedCell.id} DIAGNOSTICS</h3>
                         </div>
-                        <button onClick={() => setSelectedCell(null)} className="p-1 text-slate-400 hover:text-white">
-                          <X className="w-5 h-5 text-electric-red" />
+                        <button onClick={() => setSelectedCell(null)} className="p-1 text-slate-400 hover:text-slate-800">
+                          <X className="w-5 h-5 text-red-500" />
                         </button>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-brain-navy p-3 rounded-xl border border-brain-border">
-                          <div className="text-[10px] font-bold text-slate-400">VOLTAGE</div>
-                          <div className="text-xl font-extrabold text-electric-green">{selectedCell.voltage} V</div>
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div className="text-[10px] font-bold text-slate-500">VOLTAGE</div>
+                          <div className="text-xl font-extrabold text-emerald-600">{selectedCell.voltage} V</div>
                         </div>
-                        <div className="bg-brain-navy p-3 rounded-xl border border-brain-border">
-                          <div className="text-[10px] font-bold text-slate-400">TEMPERATURE</div>
-                          <div className="text-xl font-extrabold text-electric-red">{selectedCell.temp} °C</div>
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div className="text-[10px] font-bold text-slate-500">TEMPERATURE</div>
+                          <div className="text-xl font-extrabold text-red-500">{selectedCell.temp} °C</div>
                         </div>
-                        <div className="bg-brain-navy p-3 rounded-xl border border-brain-border">
-                          <div className="text-[10px] font-bold text-slate-400">DEVIATION</div>
-                          <div className="text-xl font-extrabold text-electric-green">{selectedCell.deviation} mV</div>
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div className="text-[10px] font-bold text-slate-500">DEVIATION</div>
+                          <div className="text-xl font-extrabold text-emerald-600">{selectedCell.deviation} mV</div>
                         </div>
-                        <div className="bg-brain-navy p-3 rounded-xl border border-brain-border">
-                          <div className="text-[10px] font-bold text-slate-400">RISK SCORE</div>
-                          <div className="text-xl font-extrabold text-electric-red">{selectedCell.riskScore}%</div>
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div className="text-[10px] font-bold text-slate-500">RISK SCORE</div>
+                          <div className="text-xl font-extrabold text-red-500">{selectedCell.riskScore}%</div>
                         </div>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-brain-navy border border-brain-border">
-                        <div className="text-[10px] font-bold text-slate-400 uppercase">AI CELL DIAGNOSIS</div>
-                        <div className="text-xs font-semibold text-slate-200 mt-1">
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase">AI CELL DIAGNOSIS</div>
+                        <div className="text-xs font-semibold text-slate-800 mt-1">
                           {selectedCell.status === 'CRITICAL'
                             ? 'Severe voltage drop and elevated thermal gradient detected. Cell balancing override active.'
                             : 'Normal impedance and healthy electrochemical activity.'}
@@ -459,7 +459,7 @@ export function App() {
 
                       <button
                         onClick={() => setSelectedCell(null)}
-                        className="w-full py-2.5 bg-electric-green text-brain-black font-bold text-xs rounded-xl shadow-neon-green uppercase"
+                        className="w-full py-2.5 bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-emerald uppercase"
                       >
                         CLOSE DIAGNOSTICS
                       </button>
@@ -472,45 +472,45 @@ export function App() {
             {/* TAB 3: AI GUARDIAN & EXPLAINABLE AI */}
             {activeTab === 'guardian' && (
               <div className="space-y-6">
-                <div className="glass-card-premium p-6 rounded-2xl border border-electric-green/40 space-y-5 shadow-2xl">
-                  <div className="flex items-center justify-between border-b border-brain-border pb-3">
+                <div className="bg-white p-6 rounded-2xl border-2 border-emerald-500/80 space-y-5 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <ShieldAlert className="w-6 h-6 text-electric-green" />
+                      <ShieldAlert className="w-6 h-6 text-emerald-600" />
                       <div>
-                        <h2 className="text-xl font-extrabold text-electric-green heading-tech tracking-wider uppercase">
+                        <h2 className="text-xl font-black text-slate-900 heading-tech tracking-tight uppercase">
                           AI GUARDIAN SAFETY CENTER
                         </h2>
-                        <p className="text-xs text-slate-400">Physics-Informed Neural Network (PINN) Safety Engine</p>
+                        <p className="text-xs text-slate-500">Physics-Informed Neural Network (PINN) Safety Engine</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-electric-green/15 text-electric-green border border-electric-green/40">
+                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
                       STATUS: NORMAL
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-brain-navy p-4 rounded-xl border border-brain-border text-center">
-                      <div className="text-xs font-bold text-slate-400 uppercase">OVERALL RISK SCORE</div>
-                      <div className="text-5xl font-black text-electric-green mt-1 drop-shadow-[0_0_15px_rgba(0,255,135,0.6)]">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                      <div className="text-xs font-bold text-slate-500 uppercase">OVERALL RISK SCORE</div>
+                      <div className="text-5xl font-black text-emerald-600 mt-1">
                         23%
                       </div>
-                      <div className="text-[10px] font-mono text-slate-400 mt-1">LOW RISK OPERATING REGIME</div>
+                      <div className="text-[10px] font-mono text-slate-500 mt-1">LOW RISK OPERATING REGIME</div>
                     </div>
 
-                    <div className="bg-brain-navy p-4 rounded-xl border border-brain-border text-center">
-                      <div className="text-xs font-bold text-slate-400 uppercase">PREDICTION CONFIDENCE</div>
-                      <div className="text-5xl font-black text-electric-green mt-1 drop-shadow-[0_0_15px_rgba(0,255,135,0.6)]">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                      <div className="text-xs font-bold text-slate-500 uppercase">PREDICTION CONFIDENCE</div>
+                      <div className="text-5xl font-black text-emerald-600 mt-1">
                         91%
                       </div>
-                      <div className="text-[10px] font-mono text-slate-400 mt-1">VALIDATED BY PINN MODEL</div>
+                      <div className="text-[10px] font-mono text-slate-500 mt-1">VALIDATED BY PINN MODEL</div>
                     </div>
 
-                    <div className="bg-brain-navy p-4 rounded-xl border border-brain-border flex flex-col justify-between">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
                       <div>
-                        <div className="text-xs font-bold text-slate-400 uppercase">ESTIMATED SAFE OPERATING WINDOW</div>
-                        <div className="text-2xl font-extrabold text-electric-red mt-1">18 – 25 MIN</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase">ESTIMATED SAFE OPERATING WINDOW</div>
+                        <div className="text-2xl font-extrabold text-red-500 mt-1">18 – 25 MIN</div>
                       </div>
-                      <p className="text-[11px] font-serif italic text-slate-400 mt-2">
+                      <p className="text-[11px] font-serif italic text-slate-500 mt-2">
                         * Model-based estimate, not a guaranteed countdown.
                       </p>
                     </div>
@@ -518,31 +518,31 @@ export function App() {
                 </div>
 
                 {/* EXPLAINABLE AI CONTRIBUTION BARS */}
-                <div className="glass-panel-premium p-6 rounded-2xl border border-brain-border space-y-4">
-                  <div className="flex items-center justify-between border-b border-brain-border pb-3">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-4 shadow-md">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                     <div className="flex items-center gap-2">
-                      <Info className="w-5 h-5 text-electric-green" />
-                      <h3 className="text-lg font-bold text-white heading-tech tracking-wide uppercase">
+                      <Info className="w-5 h-5 text-emerald-600" />
+                      <h3 className="text-lg font-black text-slate-900 heading-tech tracking-tight uppercase">
                         WHY DID RISK CHANGE? (EXPLAINABLE AI)
                       </h3>
                     </div>
-                    <span className="text-[11px] font-mono text-slate-400">PINN FEATURE ATTRIBUTION</span>
+                    <span className="text-[11px] font-mono text-slate-500">PINN FEATURE ATTRIBUTION</span>
                   </div>
 
                   <div className="space-y-3 pt-1">
                     {[
-                      { factor: 'Temperature Rise', pct: 35, color: 'bg-electric-red', val: '+35%' },
-                      { factor: 'Cell Imbalance', pct: 25, color: 'bg-electric-green', val: '+25%' },
-                      { factor: 'High Current Discharge', pct: 20, color: 'bg-electric-green', val: '+20%' },
-                      { factor: 'SOH Degradation', pct: 12, color: 'bg-electric-red', val: '+12%' },
-                      { factor: 'Other Factors', pct: 8, color: 'bg-slate-500', val: '+8%' },
+                      { factor: 'Temperature Rise', pct: 35, color: 'bg-red-500', val: '+35%' },
+                      { factor: 'Cell Imbalance', pct: 25, color: 'bg-emerald-500', val: '+25%' },
+                      { factor: 'High Current Discharge', pct: 20, color: 'bg-emerald-500', val: '+20%' },
+                      { factor: 'SOH Degradation', pct: 12, color: 'bg-red-500', val: '+12%' },
+                      { factor: 'Other Factors', pct: 8, color: 'bg-slate-400', val: '+8%' },
                     ].map((item, idx) => (
                       <div key={idx} className="space-y-1">
-                        <div className="flex justify-between text-xs font-semibold text-slate-200">
+                        <div className="flex justify-between text-xs font-bold text-slate-700">
                           <span>{item.factor}</span>
-                          <span className="font-mono text-electric-green">{item.val}</span>
+                          <span className="font-mono text-emerald-600">{item.val}</span>
                         </div>
-                        <div className="h-3 w-full bg-brain-navy rounded-full overflow-hidden border border-brain-border">
+                        <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                           <div className={`h-full ${item.color} rounded-full transition-all duration-500`} style={{ width: `${item.pct}%` }} />
                         </div>
                       </div>
@@ -555,47 +555,47 @@ export function App() {
             {/* TAB 4: WHAT-IF SIMULATOR */}
             {activeTab === 'simulator' && (
               <div className="space-y-6">
-                <div className="glass-card-premium p-6 rounded-2xl border border-electric-green/40 space-y-5 shadow-2xl">
-                  <div className="flex items-center justify-between border-b border-brain-border pb-3">
+                <div className="bg-white p-6 rounded-2xl border-2 border-emerald-500/80 space-y-5 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <Cpu className="w-6 h-6 text-electric-green" />
+                      <Cpu className="w-6 h-6 text-emerald-600" />
                       <div>
-                        <h2 className="text-xl font-extrabold text-electric-green heading-tech uppercase">WHAT-IF BATTERY SIMULATOR</h2>
-                        <p className="text-xs text-slate-400">Simulate Driving Loads, Thermal Stress & Fast Charging</p>
+                        <h2 className="text-xl font-black text-slate-900 heading-tech uppercase">WHAT-IF BATTERY SIMULATOR</h2>
+                        <p className="text-xs text-slate-500">Simulate Driving Loads, Thermal Stress & Fast Charging</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-electric-green/15 text-electric-green border border-electric-green/40">
+                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
                       SIMULATED DATA
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-bold text-slate-300 uppercase">VEHICLE SPEED: {simSpeed} KM/H</label>
+                      <label className="text-xs font-bold text-slate-700 uppercase">VEHICLE SPEED: {simSpeed} KM/H</label>
                       <input
                         type="range"
                         min="0"
                         max="160"
                         value={simSpeed}
                         onChange={(e) => setSimSpeed(Number(e.target.value))}
-                        className="w-full accent-electric-green cursor-pointer mt-2"
+                        className="w-full accent-emerald-500 cursor-pointer mt-2"
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-slate-300 uppercase">AMBIENT TEMP: {simTemp} °C</label>
+                      <label className="text-xs font-bold text-slate-700 uppercase">AMBIENT TEMP: {simTemp} °C</label>
                       <input
                         type="range"
                         min="-10"
                         max="55"
                         value={simTemp}
                         onChange={(e) => setSimTemp(Number(e.target.value))}
-                        className="w-full accent-electric-red cursor-pointer mt-2"
+                        className="w-full accent-red-500 cursor-pointer mt-2"
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-slate-300 uppercase">AUXILIARY LOAD: {simAux} KW</label>
+                      <label className="text-xs font-bold text-slate-700 uppercase">AUXILIARY LOAD: {simAux} KW</label>
                       <input
                         type="range"
                         min="0"
@@ -603,16 +603,16 @@ export function App() {
                         step="0.5"
                         value={simAux}
                         onChange={(e) => setSimAux(Number(e.target.value))}
-                        className="w-full accent-electric-green cursor-pointer mt-2"
+                        className="w-full accent-emerald-500 cursor-pointer mt-2"
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-slate-300 uppercase">CHARGING MODE</label>
+                      <label className="text-xs font-bold text-slate-700 uppercase">CHARGING MODE</label>
                       <select
                         value={simMode}
                         onChange={(e) => setSimMode(e.target.value)}
-                        className="input-high-contrast mt-1 text-white bg-brain-navy"
+                        className="input-high-contrast mt-1 text-slate-900 bg-white"
                       >
                         <option value="FAST_CHARGE">DC Fast Charge (150 kW)</option>
                         <option value="NORMAL">AC Level 2 (11 kW)</option>
@@ -624,42 +624,42 @@ export function App() {
                   <button
                     onClick={runWhatIfSimulation}
                     disabled={isSimulating}
-                    className="w-full py-3.5 bg-electric-green text-brain-black font-extrabold text-sm rounded-xl hover:bg-emerald-300 transition uppercase tracking-wider shadow-neon-green heading-tech"
+                    className="w-full py-3.5 bg-emerald-500 text-white font-extrabold text-sm rounded-xl hover:bg-emerald-600 transition uppercase tracking-wider shadow-emerald heading-tech"
                   >
                     {isSimulating ? 'RUNNING PHYSICAL SIMULATION...' : 'RUN SIMULATION'}
                   </button>
                 </div>
 
                 {simResults && (
-                  <div className="glass-panel-premium p-6 rounded-2xl border border-brain-border space-y-4 animate-fadeIn">
-                    <div className="flex items-center justify-between border-b border-brain-border pb-3">
-                      <h3 className="text-lg font-bold text-white heading-tech uppercase">CURRENT VS SIMULATED COMPARISON</h3>
-                      <span className="text-xs font-mono font-bold text-electric-green">SIMULATED DATA</span>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-4 animate-fadeIn shadow-md">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                      <h3 className="text-lg font-black text-slate-900 heading-tech uppercase">CURRENT VS SIMULATED COMPARISON</h3>
+                      <span className="text-xs font-mono font-bold text-emerald-600">SIMULATED DATA</span>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="bg-brain-navy p-3.5 rounded-xl border border-brain-border">
-                        <div className="text-[10px] font-bold text-slate-400">PREDICTED TEMP</div>
-                        <div className="text-2xl font-extrabold text-electric-red mt-1">{simResults.predictedTemp} °C</div>
-                        <div className="text-[10px] text-slate-400">Current: 34.2 °C</div>
+                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div className="text-[10px] font-bold text-slate-500">PREDICTED TEMP</div>
+                        <div className="text-2xl font-extrabold text-red-500 mt-1">{simResults.predictedTemp} °C</div>
+                        <div className="text-[10px] text-slate-500">Current: 34.2 °C</div>
                       </div>
 
-                      <div className="bg-brain-navy p-3.5 rounded-xl border border-brain-border">
-                        <div className="text-[10px] font-bold text-slate-400">PREDICTED SOC</div>
-                        <div className="text-2xl font-extrabold text-electric-green mt-1">{simResults.predictedSoc}%</div>
-                        <div className="text-[10px] text-slate-400">Current: 84%</div>
+                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div className="text-[10px] font-bold text-slate-500">PREDICTED SOC</div>
+                        <div className="text-2xl font-extrabold text-emerald-600 mt-1">{simResults.predictedSoc}%</div>
+                        <div className="text-[10px] text-slate-500">Current: 84%</div>
                       </div>
 
-                      <div className="bg-brain-navy p-3.5 rounded-xl border border-brain-border">
-                        <div className="text-[10px] font-bold text-slate-400">RISK SCORE</div>
-                        <div className="text-2xl font-extrabold text-electric-red mt-1">{simResults.riskScore}%</div>
-                        <div className="text-[10px] text-slate-400">Current: 23%</div>
+                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div className="text-[10px] font-bold text-slate-500">RISK SCORE</div>
+                        <div className="text-2xl font-extrabold text-red-500 mt-1">{simResults.riskScore}%</div>
+                        <div className="text-[10px] text-slate-500">Current: 23%</div>
                       </div>
 
-                      <div className="bg-brain-navy p-3.5 rounded-xl border border-brain-border">
-                        <div className="text-[10px] font-bold text-slate-400">SAFE WINDOW</div>
-                        <div className="text-lg font-extrabold text-electric-green mt-1">{simResults.safeWindow}</div>
-                        <div className="text-[10px] text-slate-400">Model-based estimate</div>
+                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div className="text-[10px] font-bold text-slate-500">SAFE WINDOW</div>
+                        <div className="text-lg font-extrabold text-emerald-600 mt-1">{simResults.safeWindow}</div>
+                        <div className="text-[10px] text-slate-500">Model-based estimate</div>
                       </div>
                     </div>
                   </div>
@@ -670,32 +670,32 @@ export function App() {
             {/* TAB 5: ANALYTICS */}
             {activeTab === 'analytics' && (
               <div className="space-y-6">
-                <div className="glass-panel-premium p-6 rounded-2xl border border-brain-border space-y-4">
-                  <div className="flex items-center justify-between border-b border-brain-border pb-3">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-4 shadow-md">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                     <div>
-                      <h2 className="text-lg font-bold text-electric-green heading-tech uppercase">BATTERY TELEMETRY & RIDE ANALYTICS</h2>
-                      <p className="text-xs text-slate-400">Historical Temperature, SOC, SOH & Imbalance Metrics</p>
+                      <h2 className="text-lg font-black text-slate-900 heading-tech uppercase">BATTERY TELEMETRY & RIDE ANALYTICS</h2>
+                      <p className="text-xs text-slate-500">Historical Temperature, SOC, SOH & Imbalance Metrics</p>
                     </div>
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-electric-green/15 text-electric-green border border-electric-green/40">
+                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
                       RESEARCH DATA
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-brain-navy p-4 rounded-xl border border-brain-border space-y-2">
-                      <div className="text-xs font-bold text-slate-300 uppercase">TEMPERATURE VS TIME (°C)</div>
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                      <div className="text-xs font-bold text-slate-700 uppercase">TEMPERATURE VS TIME (°C)</div>
                       <div className="h-40 flex items-end gap-1.5 pt-4">
                         {[28, 30, 31, 33, 34, 34.2, 35, 36, 38, 40, 39, 37].map((v, idx) => (
-                          <div key={idx} className="flex-1 bg-electric-red/80 hover:bg-electric-red rounded-t transition-all" style={{ height: `${(v / 50) * 100}%` }} />
+                          <div key={idx} className="flex-1 bg-red-500 hover:bg-red-600 rounded-t transition-all" style={{ height: `${(v / 50) * 100}%` }} />
                         ))}
                       </div>
                     </div>
 
-                    <div className="bg-brain-navy p-4 rounded-xl border border-brain-border space-y-2">
-                      <div className="text-xs font-bold text-slate-300 uppercase">SOC VS TIME (%)</div>
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                      <div className="text-xs font-bold text-slate-700 uppercase">SOC VS TIME (%)</div>
                       <div className="h-40 flex items-end gap-1.5 pt-4">
                         {[100, 98, 94, 91, 88, 85, 84, 82, 79, 75, 72, 68].map((v, idx) => (
-                          <div key={idx} className="flex-1 bg-electric-green/80 hover:bg-electric-green rounded-t transition-all" style={{ height: `${v}%` }} />
+                          <div key={idx} className="flex-1 bg-emerald-500 hover:bg-emerald-600 rounded-t transition-all" style={{ height: `${v}%` }} />
                         ))}
                       </div>
                     </div>

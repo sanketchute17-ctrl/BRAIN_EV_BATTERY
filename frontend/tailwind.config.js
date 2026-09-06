@@ -8,37 +8,42 @@ export default {
     extend: {
       colors: {
         brain: {
-          black: '#07090E',
-          charcoal: '#0F1420',
-          navy: '#131A2B',
-          card: '#182238',
-          border: '#2A3854',
-          green: '#00FF87',  // Electric Light Green
-          red: '#FF2A55',    // Electric Light Red
-          cyan: '#00FF87',
-          yellow: '#00FF87',
-          orange: '#FF2A55',
-          muted: '#A0AEC0',
+          white: '#FFFFFF',
+          bg: '#F8FAFC',
+          lightBg: '#F1F5F9',
+          card: '#FFFFFF',
+          border: '#E2E8F0',
+          darkBorder: '#CBD5E1',
+          text: '#0F172A',
+          subtext: '#475569',
+          muted: '#64748B',
+          black: '#0F172A',
+          charcoal: '#FFFFFF',
+          navy: '#F1F5F9',
+          green: '#10B981',  // Ola/Ather Emerald Green
+          red: '#EF4444',    // Electric Red
         },
         electric: {
-          green: '#00FF87',  // Electric Light Neon Green
-          red: '#FF2A55',    // Electric Light Neon Red
-          lightGreen: '#00FF87',
-          lightRed: '#FF2A55',
+          green: '#10B981',  // Ola/Ather Emerald Green
+          red: '#EF4444',    // Electric Red
+          lightGreen: '#059669',
+          lightRed: '#DC2626',
+          darkGreen: '#047857',
         }
       },
       fontFamily: {
-        heading: ['Rajdhani', 'Outfit', 'sans-serif'],
-        serif: ['Georgia', 'Times New Roman', 'serif'],
-        sans: ['Outfit', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        heading: ['Plus Jakarta Sans', 'Outfit', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Outfit', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       boxShadow: {
-        'neon-green': '0 0 20px rgba(0, 255, 135, 0.65)',
-        'neon-red': '0 0 20px rgba(255, 42, 85, 0.65)',
-        'neon-cyan': '0 0 20px rgba(0, 255, 135, 0.65)',
-        'neon-yellow': '0 0 20px rgba(0, 255, 135, 0.65)',
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.8)',
+        'soft': '0 4px 20px -2px rgba(15, 23, 42, 0.08)',
+        'card': '0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(226, 232, 240, 0.8)',
+        'emerald': '0 4px 20px rgba(16, 185, 129, 0.25)',
+        'red': '0 4px 20px rgba(239, 68, 68, 0.25)',
+        'neon-green': '0 4px 20px rgba(16, 185, 129, 0.3)',
+        'neon-red': '0 4px 20px rgba(239, 68, 68, 0.3)',
+        'glass': '0 8px 30px rgba(0, 0, 0, 0.06)',
       }
     },
   },

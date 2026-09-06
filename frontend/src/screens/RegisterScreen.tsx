@@ -60,18 +60,18 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-brain-black text-slate-100 flex flex-col justify-between p-4 sm:p-6 max-w-lg mx-auto relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between p-4 sm:p-6 max-w-lg mx-auto relative overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between pt-2 pb-3">
         <button
           onClick={step === 1 ? onNavigateLogin : () => setStep((prev) => (prev - 1) as 1 | 2)}
-          className="p-2.5 glass-panel-premium rounded-xl text-electric-green hover:bg-electric-green/20 transition border border-brain-border"
+          className="p-2.5 bg-white rounded-xl text-slate-700 hover:text-emerald-700 transition border border-slate-200 shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="text-center">
-          <h2 className="text-lg font-bold text-electric-green tracking-wide heading-tech uppercase">OPERATOR ONBOARDING</h2>
-          <p className="text-xs font-semibold text-slate-400">STEP {step} OF 3</p>
+          <h2 className="text-lg font-black text-slate-900 tracking-tight heading-tech uppercase">OPERATOR ONBOARDING</h2>
+          <p className="text-xs font-semibold text-slate-500">STEP {step} OF 3</p>
         </div>
         <div className="w-10" />
       </div>
@@ -90,16 +90,16 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border transition ${
                   active
-                    ? 'bg-electric-green text-brain-black border-emerald-200 shadow-neon-green'
-                    : 'bg-brain-navy border-brain-border text-slate-500'
+                    ? 'bg-emerald-500 text-white border-emerald-400 shadow-emerald'
+                    : 'bg-slate-100 border-slate-300 text-slate-400'
                 }`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4 h-4" />
               </div>
               {s.num < 3 && (
                 <div
-                  className={`w-16 h-1 transition ${
-                    step > s.num ? 'bg-electric-green' : 'bg-brain-border'
+                  className={`w-16 h-1 transition rounded-full ${
+                    step > s.num ? 'bg-emerald-500' : 'bg-slate-200'
                   }`}
                 />
               )}
@@ -109,17 +109,17 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
       </div>
 
       {/* Form Card */}
-      <div className="glass-panel-premium rounded-2xl p-5 border border-brain-border shadow-2xl my-2">
+      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xl my-2">
         <form onSubmit={handleNext} className="space-y-4">
           {/* STEP 1 */}
           {step === 1 && (
             <>
-              <h3 className="text-base text-electric-green font-bold flex items-center gap-2 mb-3 heading-tech">
-                <User className="w-5 h-5 text-electric-green" />
+              <h3 className="text-base text-slate-900 font-extrabold flex items-center gap-2 mb-3 heading-tech">
+                <User className="w-5 h-5 text-emerald-600" />
                 <span>Operator Profile Information</span>
               </h3>
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">FULL NAME</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">FULL NAME</label>
                 <input
                   type="text"
                   required
@@ -130,7 +130,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">EMAIL ADDRESS</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">EMAIL ADDRESS</label>
                 <input
                   type="email"
                   required
@@ -141,7 +141,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">MOBILE NUMBER</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">MOBILE NUMBER</label>
                 <input
                   type="tel"
                   required
@@ -153,7 +153,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">PASSWORD</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">PASSWORD</label>
                   <input
                     type="password"
                     required
@@ -164,7 +164,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">CONFIRM</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">CONFIRM</label>
                   <input
                     type="password"
                     required
@@ -181,13 +181,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           {/* STEP 2 */}
           {step === 2 && (
             <>
-              <h3 className="text-base text-electric-green font-bold flex items-center gap-2 mb-3 heading-tech">
-                <Car className="w-5 h-5 text-electric-green" />
+              <h3 className="text-base text-slate-900 font-extrabold flex items-center gap-2 mb-3 heading-tech">
+                <Car className="w-5 h-5 text-emerald-600" />
                 <span>Vehicle Specifications</span>
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">MAKE</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">MAKE</label>
                   <input
                     type="text"
                     required
@@ -197,7 +197,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">MODEL</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">MODEL</label>
                   <input
                     type="text"
                     required
@@ -209,7 +209,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">VARIANT</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">VARIANT</label>
                   <input
                     type="text"
                     value={formData.variant}
@@ -218,7 +218,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">YEAR</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">YEAR</label>
                   <input
                     type="text"
                     value={formData.modelYear}
@@ -233,17 +233,17 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           {/* STEP 3 */}
           {step === 3 && (
             <>
-              <h3 className="text-base text-electric-green font-bold flex items-center gap-2 mb-3 heading-tech">
-                <Battery className="w-5 h-5 text-electric-green" />
+              <h3 className="text-base text-slate-900 font-extrabold flex items-center gap-2 mb-3 heading-tech">
+                <Battery className="w-5 h-5 text-emerald-600" />
                 <span>Battery & BMS Details</span>
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">CHEMISTRY</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">CHEMISTRY</label>
                   <select
                     value={formData.chemistry}
                     onChange={(e) => handleChange('chemistry', e.target.value)}
-                    className="input-high-contrast text-white bg-brain-navy"
+                    className="input-high-contrast text-slate-900 bg-white"
                   >
                     <option value="NMC">NMC (Nickel Manganese)</option>
                     <option value="LFP">LFP (Lithium Iron)</option>
@@ -251,7 +251,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">CAPACITY (KWH)</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">CAPACITY (KWH)</label>
                   <input
                     type="number"
                     value={formData.capacityKwh}
@@ -268,7 +268,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               <button
                 type="button"
                 onClick={() => setStep((prev) => (prev - 1) as 1 | 2)}
-                className="py-3 px-5 bg-brain-navy border border-brain-border text-slate-200 rounded-xl text-sm font-bold hover:bg-brain-border"
+                className="py-3 px-5 bg-slate-100 border border-slate-300 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-200"
               >
                 BACK
               </button>
@@ -276,7 +276,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3.5 bg-electric-green text-brain-black font-extrabold text-sm rounded-xl hover:bg-emerald-300 transition flex items-center justify-center gap-2 shadow-neon-green border border-emerald-200 heading-tech uppercase"
+              className="flex-1 py-3.5 bg-emerald-500 text-white font-extrabold text-sm rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-emerald border border-emerald-400 heading-tech uppercase"
             >
               <span>{step === 3 ? (isSubmitting ? 'REGISTERING...' : 'COMPLETE REGISTRATION') : 'NEXT STEP'}</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -285,9 +285,9 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         </form>
       </div>
 
-      <div className="text-center text-xs font-semibold text-slate-400 pb-2">
+      <div className="text-center text-xs font-semibold text-slate-500 pb-2">
         Already registered?{' '}
-        <button onClick={onNavigateLogin} className="text-electric-green hover:underline font-bold">
+        <button onClick={onNavigateLogin} className="text-emerald-600 hover:underline font-extrabold">
           Sign In
         </button>
       </div>

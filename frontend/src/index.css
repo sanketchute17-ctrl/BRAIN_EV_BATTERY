@@ -1,91 +1,87 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, sans-serif;
   box-sizing: border-box;
 }
 
 @layer base {
   body {
-    @apply bg-[#07090E] text-white antialiased min-h-screen selection:bg-[#00FF87]/40 selection:text-white;
+    @apply bg-[#F8FAFC] text-[#0F172A] antialiased min-h-screen selection:bg-[#10B981]/25 selection:text-[#0F172A];
     background-image: 
-      radial-gradient(circle at 50% 0%, rgba(0, 255, 135, 0.12) 0%, transparent 70%),
-      radial-gradient(circle at 100% 100%, rgba(255, 42, 85, 0.12) 0%, transparent 60%);
+      radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.06) 0%, transparent 60%),
+      radial-gradient(circle at 100% 100%, rgba(239, 68, 68, 0.04) 0%, transparent 50%);
     background-attachment: fixed;
   }
 
   h1, h2, h3, .heading-tech {
-    font-family: 'Rajdhani', 'Outfit', sans-serif;
-    letter-spacing: 0.04em;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.01em;
   }
 }
 
-/* Glassmorphism Panels & Cards */
+/* Light Ola/Ather Automotive Panels & Cards */
 .glass-panel-premium {
-  background: rgba(15, 20, 32, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(0, 255, 135, 0.35);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 0 1px rgba(15, 23, 42, 0.08);
 }
 
 .glass-card-premium {
-  background: rgba(19, 26, 42, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 2px solid rgba(0, 255, 135, 0.5);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
+  background: #FFFFFF;
+  border: 2px solid #10B981;
+  box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.12), 0 0 1px rgba(15, 23, 42, 0.08);
 }
 
 .glass-card-hover {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-card-hover:hover {
-  border-color: #00FF87;
+  border-color: #10B981;
   transform: translateY(-2px);
-  box-shadow: 0 14px 40px rgba(0, 255, 135, 0.3);
+  box-shadow: 0 12px 30px -4px rgba(16, 185, 129, 0.2);
 }
 
-/* High Contrast Input Fields */
+/* High Contrast Input Fields (Light Mode) */
 .input-high-contrast {
-  @apply w-full px-4 py-3 bg-[#131A2B] border-2 border-[#2A3854] rounded-xl text-base font-bold text-white placeholder-slate-400 focus:outline-none focus:border-[#00FF87] focus:ring-2 focus:ring-[#00FF87]/50 transition-all shadow-inner;
+  @apply w-full px-4 py-3.5 bg-white border-2 border-slate-300 rounded-xl text-base font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm;
 }
 
-/* Bright Electric Glow Utilities */
+/* Bright Electric Indicators */
 .glow-border-green {
-  border: 2px solid #00FF87 !important;
-  box-shadow: 0 0 25px rgba(0, 255, 135, 0.5) !important;
+  border: 2px solid #10B981 !important;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.35) !important;
 }
 
 .glow-border-red {
-  border: 2px solid #FF2A55 !important;
-  box-shadow: 0 0 25px rgba(255, 42, 85, 0.5) !important;
+  border: 2px solid #EF4444 !important;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.35) !important;
 }
 
 /* Status Pulse Animations */
 @keyframes softPulseGreen {
   0%, 100% {
-    box-shadow: 0 0 12px rgba(0, 255, 135, 0.7);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(0, 255, 135, 1);
-    transform: scale(1.05);
+    box-shadow: 0 0 18px rgba(16, 185, 129, 0.9);
+    transform: scale(1.06);
   }
 }
 
 @keyframes pulseRed {
   0%, 100% {
-    box-shadow: 0 0 14px rgba(255, 42, 85, 0.8);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 30px rgba(255, 42, 85, 1);
-    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.95);
+    transform: scale(1.08);
   }
 }
 
@@ -97,18 +93,18 @@
   animation: pulseRed 1.2s infinite ease-in-out;
 }
 
-/* Custom High Visibility Scrollbar */
+/* Custom Light Mode Scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #07090E;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #00FF87;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF2A55;
+  background: #10B981;
 }

@@ -25,7 +25,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   ] as const;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0F1420]/98 backdrop-blur-md border-t-2 border-[#00FF87]/40 py-2.5 px-4 shadow-[0_-10px_30px_rgba(0,0,0,0.9)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-4 shadow-[0_-5px_25px_rgba(15,23,42,0.08)]">
       <div className="max-w-4xl mx-auto flex items-center justify-around">
         {tabs.map((t) => {
           const Icon = t.icon;
@@ -34,23 +34,23 @@ export const Navigation: React.FC<NavigationProps> = ({
             <button
               key={t.id}
               onClick={() => onSelectTab(t.id)}
-              className={`flex flex-col items-center gap-1 px-3.5 py-1.5 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
                 isActive
-                  ? 'text-[#00FF87] font-black bg-[#00FF87]/25 border-2 border-[#00FF87] shadow-[0_0_15px_rgba(0,255,135,0.6)]'
-                  : 'text-slate-200 hover:text-white hover:bg-[#182238]'
+                  ? 'text-emerald-700 font-extrabold bg-emerald-50 border border-emerald-500/80 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
               }`}
             >
-              <Icon className={`w-6 h-6 ${isActive ? 'text-[#00FF87] stroke-[2.5]' : 'stroke-[2]'}`} />
+              <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-600 stroke-[2.5]' : 'stroke-[2]'}`} />
               <span className="text-xs font-bold tracking-tight">{t.label}</span>
             </button>
           );
         })}
         <button
           onClick={onOpenDrawer}
-          className="flex flex-col items-center gap-1 px-3.5 py-1.5 text-[#FF2A55] hover:text-white rounded-xl transition-all border-2 border-[#FF2A55]/40 bg-[#FF2A55]/15 hover:bg-[#FF2A55]/30 shadow-[0_0_15px_rgba(255,42,85,0.3)]"
+          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-slate-700 hover:text-emerald-700 rounded-xl transition-all border border-slate-200 bg-slate-100 hover:bg-emerald-50 hover:border-emerald-300"
         >
-          <Menu className="w-6 h-6 stroke-[2.5]" />
-          <span className="text-xs font-black tracking-tight">Menu</span>
+          <Menu className="w-5 h-5 stroke-[2.5]" />
+          <span className="text-xs font-bold tracking-tight">Menu</span>
         </button>
       </div>
     </nav>
