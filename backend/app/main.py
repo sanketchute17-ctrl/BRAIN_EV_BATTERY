@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.api import auth, pkl_router
+from app.api import auth, pkl_router, bms_bluetooth
 
 # Create database tables automatically
 Base.metadata.create_all(bind=engine)
@@ -32,6 +32,7 @@ app.add_middleware(
 # Include API Routers
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(pkl_router.router, prefix=settings.API_V1_STR)
+app.include_router(bms_bluetooth.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 @app.get("/health")

@@ -133,4 +133,60 @@ export const apiService = {
     }
     return null;
   },
+
+  /**
+   * Register Connected BLE Hardware BMS Device
+   */
+  async connectBleDevice(payload: { device_id: str; name: str; rssi?: number; firmware?: str }): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/bms/connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+    return { status: 'CONNECTED_LOCAL', device_id: payload.device_id };
+  },
+
+  /**
+   * Post Live Telemetry Packet from BLE BMS Hardware to Backend & Cloud DB
+   */
+  async postBleTelemetry(payload: {
+    battery_id?: str;
+    pack_voltage: number;
+    pack_current: number;
+    pack_temperature: number;
+    soc: number;
+    soh?: number;
+    power_kw?: number;
+    bms_status?: str;
+  }): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/bms/telemetry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+    return null;
+  },
+
+  /**
+   * Get Active BLE Devices Status from Backend
+   */
+  async getBleDevices(): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/bms/devices`);
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+    return { active_devices: [], total_connected: 0 };
+  },
 };

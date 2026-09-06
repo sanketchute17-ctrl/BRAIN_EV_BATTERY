@@ -7,6 +7,8 @@ import { MenuDrawer } from './components/MenuDrawer';
 import { Battery3DView } from './components/Battery3DView';
 import { BrainLogo } from './components/BrainLogo';
 import { apiService } from './services/api';
+import { bluetoothService } from './services/bluetoothService';
+import type { BLEDeviceState } from './services/bluetoothService';
 import {
   ArrowLeft,
   Zap,
@@ -20,7 +22,11 @@ import {
   Radio,
   RefreshCw,
   X,
-  Info
+  Info,
+  Bluetooth,
+  Wifi,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 
 export function App() {
@@ -61,6 +67,11 @@ export function App() {
     safeWindow: string;
   } | null>(null);
 
+  // Bluetooth BLE BMS State
+  const [bleState, setBleState] = useState<BLEDeviceState>(bluetoothService.getState());
+  const [bleConnecting, setBleConnecting] = useState(false);
+  const [bleError, setBleError] = useState('');
+
   useEffect(() => {
     const checkBackend = async () => {
       const res = await apiService.checkBackendStatus();
@@ -68,7 +79,16 @@ export function App() {
     };
     checkBackend();
     const interval = setInterval(checkBackend, 15000);
-    return () => clearInterval(interval);
+
+    // Subscribe to live BLE telemetry updates
+    const unsubscribeBle = bluetoothService.subscribe(() => {
+      setBleState(bluetoothService.getState());
+    });
+
+    return () => {
+      clearInterval(interval);
+      unsubscribeBle();
+    };
   }, []);
 
   const runWhatIfSimulation = () => {
@@ -225,6 +245,140 @@ export function App() {
 
                 <div className="h-80 rounded-xl overflow-hidden border border-slate-200 relative">
                   <Battery3DView status={demoStatus} expanded={true} interactive={true} />
+                </div>
+              </div>
+            ) : activeDrawerItem === 'bms' ? (
+              <div className="space-y-5 animate-fadeIn">
+                {/* BLE BMS STATUS CARD */}
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-white border border-slate-200 text-emerald-600 shadow-sm">
+                        <Bluetooth className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-slate-900 heading-tech">BLUETOOTH LOW ENERGY (BLE) BMS</h3>
+                        <p className="text-xs font-semibold text-slate-500">Physical Hardware & Cloud Database Sync</p>
+                      </div>
+                    </div>
+                    <span
+                      className={`text-xs font-mono font-extrabold px-3 py-1 rounded-full border ${
+                        bleState.connected
+                          ? 'bg-emerald-50 border-emerald-400 text-emerald-700'
+                          : 'bg-slate-100 border-slate-300 text-slate-500'
+                      }`}
+                    >
+                      ● {bleState.connected ? bleState.mode : 'DISCONNECTED'}
+                    </span>
+                  </div>
+
+                  {bleError && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                      <span>{bleError}</span>
+                    </div>
+                  )}
+
+                  {/* Device Info & RSSI */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase">DEVICE NAME</div>
+                      <div className="text-sm font-extrabold text-slate-900 mt-0.5">
+                        {bleState.deviceName || 'No BLE Device Paired'}
+                      </div>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase">DEVICE MAC / ID</div>
+                      <div className="text-sm font-mono font-bold text-emerald-600 mt-0.5">
+                        {bleState.deviceId || 'N/A'}
+                      </div>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase">SIGNAL STRENGTH (RSSI)</div>
+                      <div className="text-sm font-mono font-bold text-slate-700 mt-0.5">
+                        {bleState.rssi ? `${bleState.rssi} dBm (Strong)` : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Realtime BLE Telemetry Frame */}
+                  {bleState.lastTelemetry && (
+                    <div className="bg-white p-4 rounded-xl border border-emerald-300 shadow-sm space-y-3">
+                      <div className="flex items-center justify-between text-xs font-bold border-b border-slate-100 pb-2">
+                        <span className="flex items-center gap-1.5 text-emerald-600 font-extrabold">
+                          <CheckCircle2 className="w-4 h-4" /> LIVE BLE TELEMETRY STREAMING
+                        </span>
+                        <span className="font-mono text-[10px] text-slate-400">
+                          {bleState.lastTelemetry.timestamp.split('T')[1]?.slice(0, 8)}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase block">VOLTAGE</span>
+                          <span className="text-lg font-black text-emerald-600">{bleState.lastTelemetry.voltage} V</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase block">CURRENT</span>
+                          <span className="text-lg font-black text-emerald-600">{bleState.lastTelemetry.current} A</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase block">TEMPERATURE</span>
+                          <span className="text-lg font-black text-red-500">{bleState.lastTelemetry.temp} °C</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase block">SOC / SOH</span>
+                          <span className="text-lg font-black text-slate-900">{bleState.lastTelemetry.soc}% / {bleState.lastTelemetry.soh}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bluetooth Controls */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    <button
+                      onClick={async () => {
+                        setBleConnecting(true);
+                        setBleError('');
+                        try {
+                          await bluetoothService.requestAndConnectDevice();
+                          setBleState(bluetoothService.getState());
+                        } catch (err: any) {
+                          setBleError(err.message || 'BLE scan failed');
+                        } finally {
+                          setBleConnecting(false);
+                        }
+                      }}
+                      disabled={bleConnecting}
+                      className="py-3 px-4 bg-emerald-500 text-white font-extrabold text-xs rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-emerald uppercase"
+                    >
+                      <Bluetooth className="w-4 h-4" />
+                      <span>{bleConnecting ? 'SCANNING...' : 'SCAN & PAIR BLE BMS'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setBleError('');
+                        bluetoothService.startSimulatedBleConnection();
+                        setBleState(bluetoothService.getState());
+                      }}
+                      className="py-3 px-4 bg-emerald-50 text-emerald-700 border-2 border-emerald-500 font-extrabold text-xs rounded-xl hover:bg-emerald-100 transition flex items-center justify-center gap-2 shadow-sm uppercase"
+                    >
+                      <Wifi className="w-4 h-4 text-emerald-600" />
+                      <span>CONNECT SIMULATED BLE</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        bluetoothService.disconnect();
+                        setBleState(bluetoothService.getState());
+                      }}
+                      disabled={!bleState.connected}
+                      className="py-3 px-4 bg-slate-100 text-slate-700 border border-slate-300 font-extrabold text-xs rounded-xl hover:bg-slate-200 disabled:opacity-50 transition flex items-center justify-center gap-2 uppercase"
+                    >
+                      <span>DISCONNECT BLE</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (

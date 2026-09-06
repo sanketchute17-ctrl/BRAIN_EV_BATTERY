@@ -53,3 +53,28 @@ class PKLUploadResponse(BaseModel):
     status: str
     file_type: str
     summary: dict
+
+# Bluetooth BLE Schemas
+class BLEDeviceConnectPayload(BaseModel):
+    device_id: str
+    name: str
+    mac_address: Optional[str] = "00:11:22:33:FF:EE"
+    rssi: Optional[int] = -65
+    firmware: Optional[str] = "v2.4.1"
+
+class BLETelemetryPayload(BaseModel):
+    battery_id: Optional[str] = "DEFAULT_PACK_96S"
+    pack_voltage: float
+    pack_current: float
+    pack_temperature: float
+    soc: float
+    soh: Optional[float] = 96.4
+    power_kw: Optional[float] = 42.2
+    cell_voltages: Optional[List[float]] = []
+    bms_status: Optional[str] = "HEALTHY"
+
+class BLEDeviceResponse(BaseModel):
+    status: str
+    device_id: str
+    connected_at: str
+    message: str
