@@ -37,7 +37,8 @@ import {
   Navigation as NavigationIcon,
   BarChart2,
   ShieldCheck,
-  Clock
+  Clock,
+  BatteryCharging
 } from 'lucide-react';
 
 export function App() {
@@ -207,6 +208,7 @@ export function App() {
 
         {/* 2. MAIN CONTENT BODY */}
         <main className="p-3 sm:p-4 space-y-4 flex-1 overflow-y-auto">
+          <ErrorBoundary>
         {activeDrawerItem ? (
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xl space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
@@ -960,6 +962,7 @@ export function App() {
             )}
           </>
         )}
+          </ErrorBoundary>
       </main>
 
       {/* 3. BOTTOM NAVIGATION */}
