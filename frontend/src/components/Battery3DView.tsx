@@ -22,6 +22,7 @@ interface Battery3DViewProps {
   interactive?: boolean;
   flowMode?: FlowMode;
   isSimulated?: boolean;
+  hideControls?: boolean;
   onCellSelect?: (cellId: number) => void;
 }
 
@@ -30,6 +31,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   expanded = false,
   interactive = true,
   isSimulated = true,
+  hideControls = false,
   onCellSelect,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -634,58 +636,64 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   }, [casingMode]);
 
   return (
-    <div className="relative w-full h-full min-h-[380px] flex items-center justify-center bg-gradient-to-b from-slate-100 via-white to-slate-100 rounded-2xl overflow-hidden border border-slate-200 select-none shadow-md">
+    <div className={`relative w-full h-full min-h-[340px] flex items-center justify-center select-none ${
+      hideControls
+        ? 'bg-transparent'
+        : 'bg-gradient-to-b from-slate-100 via-white to-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-md'
+    }`}>
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
       {/* TOP AUTOMOTIVE LIGHT HUD CONTROLS */}
-      <div className="absolute top-3 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto">
-        <div className="flex items-center gap-1.5 bg-white/95 border border-slate-200 p-1.5 rounded-xl backdrop-blur-md shadow-md">
-          {(['SOLID', 'TRANSPARENT', 'X-RAY'] as CasingMode[]).map((mode) => (
+      {!hideControls && (
+        <div className="absolute top-3 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto">
+          <div className="flex items-center gap-1.5 bg-white/95 border border-slate-200 p-1.5 rounded-xl backdrop-blur-md shadow-md">
+            {(['SOLID', 'TRANSPARENT', 'X-RAY'] as CasingMode[]).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setCasingMode(mode)}
+                className={`px-3 py-1.5 text-xs font-extrabold rounded-lg transition ${
+                  casingMode === mode
+                    ? 'bg-emerald-500 text-white shadow-emerald'
+                    : 'text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200'
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
             <button
-              key={mode}
-              onClick={() => setCasingMode(mode)}
-              className={`px-3 py-1.5 text-xs font-extrabold rounded-lg transition ${
-                casingMode === mode
-                  ? 'bg-emerald-500 text-white shadow-emerald'
-                  : 'text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200'
+              onClick={() => setIsExploded(!isExploded)}
+              className={`px-3.5 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition shadow-md ${
+                isExploded
+                  ? 'bg-red-500 text-white border-red-400 shadow-red'
+                  : 'bg-white/95 text-emerald-700 border-emerald-400 hover:bg-emerald-50'
               }`}
             >
-              {mode}
+              {isExploded ? 'ASSEMBLE' : 'EXPLODED VIEW'}
             </button>
-          ))}
+
+            <button
+              onClick={() => setAutoRotate(!autoRotate)}
+              className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${
+                autoRotate
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-400 shadow-sm'
+                  : 'bg-white/95 text-slate-700 border-slate-200'
+              }`}
+            >
+              AUTO ROTATE ↻
+            </button>
+
+            <button
+              onClick={resetCamera}
+              className="px-3 py-1.5 text-xs font-extrabold rounded-xl bg-white/95 text-slate-800 border border-slate-300 hover:border-emerald-500 backdrop-blur-md shadow-sm"
+            >
+              RESET ↺
+            </button>
+          </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsExploded(!isExploded)}
-            className={`px-3.5 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition shadow-md ${
-              isExploded
-                ? 'bg-red-500 text-white border-red-400 shadow-red'
-                : 'bg-white/95 text-emerald-700 border-emerald-400 hover:bg-emerald-50'
-            }`}
-          >
-            {isExploded ? 'ASSEMBLE' : 'EXPLODED VIEW'}
-          </button>
-
-          <button
-            onClick={() => setAutoRotate(!autoRotate)}
-            className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${
-              autoRotate
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-400 shadow-sm'
-                : 'bg-white/95 text-slate-700 border-slate-200'
-            }`}
-          >
-            AUTO ROTATE ↻
-          </button>
-
-          <button
-            onClick={resetCamera}
-            className="px-3 py-1.5 text-xs font-extrabold rounded-xl bg-white/95 text-slate-800 border border-slate-300 hover:border-emerald-500 backdrop-blur-md shadow-sm"
-          >
-            RESET ↺
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* COMPONENT INSPECTION POPUP BADGE */}
       {selectedInfo && (
@@ -732,14 +740,16 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       )}
 
       {/* GESTURE HINT BANNER */}
-      <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none text-xs font-mono font-bold">
-        <span className="bg-slate-900/90 text-white px-3 py-1.5 rounded-xl border border-slate-700 backdrop-blur-md shadow-md">
-          Drag/Swipe to rotate 360° • Pinch to zoom • Tap to inspect
-        </span>
-        <span className="bg-emerald-50 text-emerald-700 border border-emerald-500 px-2.5 py-1 rounded-xl font-extrabold shadow-sm">
-          {isSimulated ? 'SIMULATED DATA' : 'REAL BMS'}
-        </span>
-      </div>
+      {!hideControls && (
+        <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none text-xs font-mono font-bold">
+          <span className="bg-slate-900/90 text-white px-3 py-1.5 rounded-xl border border-slate-700 backdrop-blur-md shadow-md">
+            Drag/Swipe to rotate 360° • Pinch to zoom • Tap to inspect
+          </span>
+          <span className="bg-emerald-50 text-emerald-700 border border-emerald-500 px-2.5 py-1 rounded-xl font-extrabold shadow-sm">
+            {isSimulated ? 'SIMULATED DATA' : 'REAL BMS'}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
