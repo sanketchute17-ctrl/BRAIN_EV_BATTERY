@@ -4,7 +4,7 @@
  * Fallbacks seamlessly to Demo/Simulated Mode if offline.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://brain-backend-wrhg.onrender.com/api/v1';
 const ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
 export interface UserLoginPayload {
