@@ -125,7 +125,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     targetCamPos.current.set(0, 5.2, 9.2);
     targetLookAt.current.set(0, 0.1, 0);
     if (rootGroupRef.current) {
-      rootGroupRef.current.rotation.set(0.28, 0.45, 0); // Start facing BMS/Logo side
+      rootGroupRef.current.rotation.set(0.22, 1.05, 0); // Reset facing BRAIN logo side
     }
     rotationVelocity.current = { x: 0, y: 0 };
     setSelectedInfo(null);
@@ -183,8 +183,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     }
 
     const rootGroup = new THREE.Group();
-    // Starting angle: Facing the BMS / Logo side at medium viewing distance
-    rootGroup.rotation.set(0.28, 0.45, 0);
+    // Starting angle: Facing the BRAIN logo side directly at startup
+    rootGroup.rotation.set(0.22, 1.05, 0);
     rootGroupRef.current = rootGroup;
     scene.add(rootGroup);
 
@@ -672,7 +672,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
       if (rootGroupRef.current) {
         if (!isDragging.current && autoRotateRef.current) {
-          rootGroupRef.current.rotation.y += 0.003; // Smooth slow continuous 0.3 speed rotation
+          rootGroupRef.current.rotation.y += 0.002; // Smooth slow continuous 0.2 speed rotation
         } else if (!isDragging.current) {
           rootGroupRef.current.rotation.y += rotationVelocity.current.x;
           rootGroupRef.current.rotation.x += rotationVelocity.current.y;

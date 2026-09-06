@@ -67,8 +67,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         </div>
 
         {/* 2. REAL 3D INTERACTIVE BATTERY VISUAL */}
-        <div className="relative z-10 my-1 flex flex-col items-center">
-          <div className="w-full h-44 sm:h-48 relative overflow-visible bg-transparent border-0 shadow-none">
+        <div className="relative z-10 my-1 flex flex-col items-center justify-center">
+          <div className="w-full max-w-[280px] h-36 sm:h-40 relative flex items-center justify-center mx-auto overflow-visible bg-transparent border-0 shadow-none">
             <ErrorBoundary>
               <Battery3DView status="HEALTHY" interactive={true} hideControls={true} />
             </ErrorBoundary>
