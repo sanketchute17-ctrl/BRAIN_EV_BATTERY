@@ -158,13 +158,16 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20">
+    <div 
+      className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 bg-cover bg-center relative"
+      style={{ backgroundImage: "linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.6)), url('/ev_scooter_hero.png')" }}
+    >
       {/* MOBILE APP CONTAINER FRAME (Full Viewport on Mobile, Phone Shell on Desktop) */}
-      <div className="w-full sm:max-w-md min-h-screen sm:min-h-[840px] sm:max-h-[920px] sm:rounded-[40px] relative overflow-hidden shadow-2xl border-0 sm:border-[8px] sm:border-slate-800 bg-slate-100 text-slate-900 flex flex-col justify-between">
+      <div className="w-full sm:max-w-md min-h-screen sm:min-h-[840px] sm:max-h-[920px] sm:rounded-[40px] relative overflow-hidden shadow-2xl border-0 sm:border-[8px] sm:border-slate-800 bg-slate-100/90 text-slate-900 flex flex-col justify-between backdrop-blur-xs">
         
-        {/* EV SCOOTER BACKGROUND OVERLAY FOR DASHBOARD */}
+        {/* EV SCOOTER BACKGROUND OVERLAY FOR DASHBOARD (DASHBOARD VISIBILITY CONTROLLED BY dashboardBgOpacity) */}
         <div 
-          className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none transition-opacity duration-300 mix-blend-multiply"
+          className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none transition-opacity duration-300"
           style={{ backgroundImage: "url('/ev_scooter_hero.png')", opacity: dashboardBgOpacity / 100 }}
         />
 

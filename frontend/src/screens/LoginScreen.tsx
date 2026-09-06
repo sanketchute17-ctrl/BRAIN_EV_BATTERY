@@ -40,18 +40,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#EAF7EF] flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20">
+    <div 
+      className="min-h-screen bg-slate-900 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 bg-cover bg-center relative"
+      style={{ backgroundImage: "linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.4)), url('/ev_scooter_hero.png')" }}
+    >
       {/* MOBILE APP CONTAINER FRAME */}
-      <div className="w-full sm:max-w-[400px] min-h-screen sm:min-h-[850px] sm:max-h-[920px] sm:rounded-[46px] relative overflow-hidden shadow-2xl border-0 sm:border-[10px] sm:border-slate-900 bg-[#F2FBF5] text-slate-900 flex flex-col justify-between p-4 sm:p-5">
+      <div className="w-full sm:max-w-[400px] min-h-screen sm:min-h-[850px] sm:max-h-[920px] sm:rounded-[46px] relative overflow-hidden shadow-2xl border-0 sm:border-[10px] sm:border-slate-900 bg-white/80 text-slate-900 flex flex-col justify-between p-4 sm:p-5 backdrop-blur-xs">
         
         {/* 60% VISIBILITY BACKGROUND IMAGE OVERLAY */}
         <div 
-          className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none opacity-60 mix-blend-overlay"
+          className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none opacity-60"
           style={{ backgroundImage: "url('/ev_scooter_hero.png')" }}
         />
-        
-        {/* LIGHT BLUR BACKDROP COVER FOR CONTENT LEGIBILITY */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/70 via-white/50 to-emerald-50/70 backdrop-blur-[1px] pointer-events-none" />
 
         {/* iOS TOP STATUS BAR */}
         <div className="relative z-10 flex items-center justify-between text-xs font-black text-slate-900 select-none pt-1 pb-1">
