@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Battery3DView } from '../components/Battery3DView';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { BrainLogo } from '../components/BrainLogo';
 import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus, Leaf, ShieldCheck, BarChart2 } from 'lucide-react';
 import { apiService } from '../services/api';
 import scooterBg from '../assets/scooter_bg.jpg';
@@ -62,19 +63,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
         {/* 1. BRANDING LOGO & TAGLINE */}
         <div className="relative z-10 flex flex-col items-center text-center space-y-1 my-1">
-          <div className="w-16 h-16 rounded-2xl bg-white/95 border-2 border-[#059669] shadow-md flex items-center justify-center p-2 backdrop-blur-md">
-            <svg viewBox="0 0 100 100" className="w-full h-full text-[#059669] fill-current">
-              <path d="M35 15 h30 v10 h-30 z M25 25 h50 v60 a10 10 0 0 1 -10 10 h-30 a10 10 0 0 1 -10 -10 z" fill="none" stroke="currentColor" strokeWidth="6" />
-              <path d="M42 45 l16 -12 l-6 18 l16 -4 l-20 22 l4 -16 z" fill="currentColor" />
-            </svg>
-          </div>
-
-          <div className="flex items-center gap-1 mt-1">
-            <span className="text-2xl font-black tracking-tight text-slate-900 drop-shadow-sm">BRAIN</span>
-            <span className="text-2xl font-black tracking-tight text-[#059669] drop-shadow-sm">EV</span>
-          </div>
-          <p className="text-xs font-bold text-slate-800 drop-shadow-xs">Battery Intelligence</p>
-          <p className="text-[11px] font-extrabold italic text-[#047857] drop-shadow-xs">“Think Ahead. Protect Every Battery.”</p>
+          <BrainLogo size="xl" layout="vertical" showFullForm={true} showQuote={true} />
         </div>
 
         {/* 2. REAL 3D INTERACTIVE BATTERY VISUAL */}
