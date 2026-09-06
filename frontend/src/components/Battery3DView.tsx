@@ -62,27 +62,28 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const bmsGroupRef = useRef<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
-  const targetCamPos = useRef(new THREE.Vector3(0, 5.5, 9.5));
+  // Medium Viewing Camera Position
+  const targetCamPos = useRef(new THREE.Vector3(0, 5.2, 9.2));
   const targetLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
 
-  // Side Controller Plate Texture (Matching Reference Photo: BRAI in Crisp White, N in Glowing Electric Green)
+  // Procedural Side Controller Plate Texture (BRAI in Crisp White, N in Glowing Electric Green)
   const createBrainLogoTexture = () => {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 256;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      // Dark Slate / Metallic Black Plate
+      // Dark Metallic Black Plate
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, 512, 256);
 
-      // Plate Bezel
+      // Plate Metallic Bezel Edge
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 8;
       ctx.strokeRect(10, 10, 492, 236);
 
-      // Corner Bolts
+      // Corner Mounting Screws
       const screws = [
         [28, 28],
         [484, 28],
@@ -112,7 +113,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       // N text in Glowing Electric Green (#00E676)
       ctx.fillStyle = '#00E676';
       ctx.shadowColor = '#00E676';
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 22;
       ctx.fillText('N', 380, 130);
     }
     const texture = new THREE.CanvasTexture(canvas);
@@ -121,10 +122,10 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   };
 
   const resetCamera = () => {
-    targetCamPos.current.set(0, 5.5, 9.5);
+    targetCamPos.current.set(0, 5.2, 9.2);
     targetLookAt.current.set(0, 0.1, 0);
     if (rootGroupRef.current) {
-      rootGroupRef.current.rotation.set(0.35, -0.55, 0);
+      rootGroupRef.current.rotation.set(0.28, 0.45, 0); // Start facing BMS/Logo side
     }
     rotationVelocity.current = { x: 0, y: 0 };
     setSelectedInfo(null);
@@ -182,40 +183,47 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     }
 
     const rootGroup = new THREE.Group();
-    rootGroup.rotation.set(0.35, -0.55, 0);
+    // Starting angle: Facing the BMS / Logo side at medium viewing distance
+    rootGroup.rotation.set(0.28, 0.45, 0);
     rootGroupRef.current = rootGroup;
     scene.add(rootGroup);
 
-    let cellGlowHex = 0x00e676; // Electric Green
+    let cellGlowHex = 0x00e676; // Electric Green for Healthy State
     if (status === 'WATCH') cellGlowHex = 0xf59e0b;
     if (status === 'WARNING') cellGlowHex = 0xf97316;
     if (status === 'CRITICAL') cellGlowHex = 0xef4444;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.6);
+    // STUDIO LIGHTING SETUP
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.8);
     scene.add(ambientLight);
 
-    const mainKeyLight = new THREE.DirectionalLight(0xffffff, 4.0);
+    const mainKeyLight = new THREE.DirectionalLight(0xffffff, 4.2);
     mainKeyLight.position.set(12, 20, 14);
     mainKeyLight.castShadow = true;
     scene.add(mainKeyLight);
 
-    const fillBlueLight = new THREE.DirectionalLight(0x38bdf8, 1.8);
+    const fillBlueLight = new THREE.DirectionalLight(0x38bdf8, 2.0);
     fillBlueLight.position.set(-14, 10, -10);
     scene.add(fillBlueLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 3.0);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 3.2);
     rimLight.position.set(0, 10, -14);
     scene.add(rimLight);
 
-    const cellInternalGlowLight = new THREE.PointLight(cellGlowHex, 6.0, 12);
+    const cellInternalGlowLight = new THREE.PointLight(cellGlowHex, 6.5, 12);
     cellInternalGlowLight.position.set(0.5, 0.0, 1.2);
     rootGroup.add(cellInternalGlowLight);
 
-    const packWidth = 8.6;
-    const packHeight = 2.8;
+    // Subtle cyan/green ground ambient light glow underneath battery
+    const groundGlowLight = new THREE.PointLight(0x00e676, 3.0, 8);
+    groundGlowLight.position.set(0, -1.8, 0);
+    rootGroup.add(groundGlowLight);
+
+    const packWidth = 8.8;
+    const packHeight = 2.4;
     const packDepth = 4.4;
 
-    // Dark Metal Bottom Chassis Base
+    // 1. METALLIC STRUCTURAL FRAME & BOTTOM CHASSIS
     const chassisGeo = new THREE.BoxGeometry(packWidth - 0.2, 0.35, packDepth - 0.2);
     const chassisMat = new THREE.MeshStandardMaterial({
       color: 0x0f172a,
@@ -224,13 +232,22 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     });
     const chassisMesh = new THREE.Mesh(chassisGeo, chassisMat);
     chassisMesh.position.y = -1.2;
+    chassisMesh.userData = { name: 'Lower Structural Chassis', type: 'Aluminum Chassis', status: 'HEALTHY', risk: '0%', description: 'Heavy-duty high strength alloy bottom tray protecting battery cells.' };
     rootGroup.add(chassisMesh);
 
-    // Chassis Corner Mounting Brackets
+    // Bottom Cooling Plate Structure
+    const coolingPlateGeo = new THREE.BoxGeometry(packWidth - 0.6, 0.08, packDepth - 0.6);
+    const coolingPlateMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, metalness: 0.8, roughness: 0.2, emissive: 0x0284c7, emissiveIntensity: 0.2 });
+    const coolingPlate = new THREE.Mesh(coolingPlateGeo, coolingPlateMat);
+    coolingPlate.position.y = -1.0;
+    coolingPlate.userData = { name: 'Integrated Liquid Cooling Plate', type: 'Thermal Management Plate', status: 'ACTIVE', risk: '0%', description: 'Cold-plate heat exchanger channels routing liquid coolant under cells.' };
+    rootGroup.add(coolingPlate);
+
+    // Corner Mounting Brackets
     const bracketGeo = new THREE.BoxGeometry(0.5, 0.25, 0.4);
     const bracketMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9, roughness: 0.2 });
 
-    [-3.2, -1.2, 1.2, 3.2].forEach((bx) => {
+    [-3.4, -1.2, 1.2, 3.4].forEach((bx) => {
       [-2.1, 2.1].forEach((bz) => {
         const bracket = new THREE.Mesh(bracketGeo, bracketMat);
         bracket.position.set(bx, -1.35, bz);
@@ -238,9 +255,9 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       });
     });
 
-    // 8 FRONT ROW ILLUMINATED PRISMATIC BLADE BATTERY CELLS (MATCHING REFERENCE PHOTO EXACTLY)
+    // 2. PRISMATIC LITHIUM-ION BATTERY MODULES / BLADE CELLS (2 ROWS OF 8 CELLS = 16 CELLS)
     const cellWidth = 0.42;
-    const cellHeight = 2.1;
+    const cellHeight = 1.95;
     const cellDepth = 1.6;
 
     const glowingCellGeo = new THREE.BoxGeometry(cellWidth, cellHeight, cellDepth);
@@ -250,7 +267,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       const cellX = -1.8 + i * 0.52;
       const cellZ = 1.05;
 
-      // Check if specific cell has anomaly under warning/critical status
+      // Telemetry anomaly check under warning/critical status
       const hasProblem = (status === 'WARNING' || status === 'CRITICAL') && (cellId === 3 || cellId === 6);
       const activeCellGlow = hasProblem ? 0xef4444 : cellGlowHex;
 
@@ -258,32 +275,39 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
         color: activeCellGlow,
         emissive: activeCellGlow,
         emissiveIntensity: hasProblem ? 3.0 : 2.2,
-        metalness: 0.3,
+        metalness: 0.35,
         roughness: 0.1,
       });
 
       const cellMesh = new THREE.Mesh(glowingCellGeo, glowingCellMat);
-      cellMesh.position.set(cellX, 0.0, cellZ);
+      cellMesh.position.set(cellX, -0.02, cellZ);
       cellMesh.userData = {
         cellId,
-        name: `Prismatic Lithium Blade Cell C0${cellId}`,
-        type: 'High-Voltage Blade Cell',
-        voltage: hasProblem ? '2.92 V (Low Voltage Drop)' : '3.65 V',
-        temp: hasProblem ? '52.4 °C (Elevated Thermal Load)' : '32.1 °C',
+        name: `Prismatic Blade Cell C0${cellId}`,
+        type: 'Lithium Blade Cell',
+        voltage: hasProblem ? '2.92 V (Degraded Voltage Drop)' : '3.65 V',
+        temp: hasProblem ? '52.4 °C (Elevated Thermal Spike)' : '32.1 °C',
         status: hasProblem ? 'FAULT DETECTED' : 'HEALTHY',
         risk: hasProblem ? '88%' : '2%',
         description: hasProblem
-          ? 'Thermal anomaly & internal impedance spike detected. Active balancing active.'
-          : 'High energy density blade cell operating within optimal voltage & thermal limits.',
+          ? 'Internal impedance spike & localized overheating detected. Active cell balancing active.'
+          : 'High energy density blade cell operating within optimal voltage & thermal thresholds.',
       };
       rootGroup.add(cellMesh);
 
-      // Top White LED Neon Stripe Bar
+      // Top White LED Indicator Stripe
       const neonBarGeo = new THREE.BoxGeometry(0.06, cellHeight - 0.1, 0.06);
       const neonBarMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
       const neonBar = new THREE.Mesh(neonBarGeo, neonBarMat);
-      neonBar.position.set(cellX, 0.0, cellZ + 0.81);
+      neonBar.position.set(cellX, -0.02, cellZ + 0.81);
       rootGroup.add(neonBar);
+
+      // Electrical Busbar Connectors
+      const busbarGeo = new THREE.BoxGeometry(0.48, 0.06, 0.12);
+      const busbarMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.1 });
+      const busbar = new THREE.Mesh(busbarGeo, busbarMat);
+      busbar.position.set(cellX, 0.98, cellZ);
+      rootGroup.add(busbar);
     }
 
     // BACK ROW METALLIC MODULE CELLS
@@ -291,15 +315,76 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const darkCellMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85, roughness: 0.25 });
 
     for (let col = 0; col < 8; col++) {
+      const cellId = col + 9;
       const cellX = -1.8 + col * 0.52;
       const cellZ = -1.05;
 
       const darkCell = new THREE.Mesh(darkCellGeo, darkCellMat);
-      darkCell.position.set(cellX, 0.0, cellZ);
+      darkCell.position.set(cellX, -0.02, cellZ);
+      darkCell.userData = {
+        cellId,
+        name: `Prismatic Module Cell C${cellId}`,
+        type: 'Lithium Blade Cell',
+        voltage: '3.64 V',
+        temp: '31.8 °C',
+        status: 'HEALTHY',
+        risk: '1%',
+        description: 'Rear row prismatic cell block with active voltage telemetry sync.',
+      };
       rootGroup.add(darkCell);
     }
 
-    // SIDE CONTROLLER BRANDING PLATE (EXACT MATCH TO REFERENCE PHOTO: BLACK METALLIC PLATE WITH BRAIN LOGO)
+    // Cell Separator Plates
+    const separatorGeo = new THREE.BoxGeometry(0.04, cellHeight, cellDepth + 0.1);
+    const separatorMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 });
+    for (let s = 0; s < 7; s++) {
+      const sepX = -1.54 + s * 0.52;
+      const sepFront = new THREE.Mesh(separatorGeo, separatorMat);
+      sepFront.position.set(sepX, -0.02, 1.05);
+      rootGroup.add(sepFront);
+
+      const sepBack = new THREE.Mesh(separatorGeo, separatorMat);
+      sepBack.position.set(sepX, -0.02, -1.05);
+      rootGroup.add(sepBack);
+    }
+
+    // 3. BMS ENCLOSURE & DETAILED ELECTRONICS PCB BOARD
+    const bmsGroup = new THREE.Group();
+    bmsGroup.position.set(3.2, 0.9, -0.5);
+    bmsGroupRef.current = bmsGroup;
+    rootGroup.add(bmsGroup);
+
+    // BMS Enclosure Top Box
+    const bmsBoxGeo = new THREE.BoxGeometry(1.6, 0.55, 1.2);
+    const bmsBoxMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.85 });
+    const bmsBox = new THREE.Mesh(bmsBoxGeo, bmsBoxMat);
+    bmsBox.userData = { name: 'BMS Primary Master Enclosure', type: 'Control Unit Box', status: 'ONLINE', risk: '0%', description: 'Houses main BMS processing unit & safety disconnect control logic.' };
+    bmsGroup.add(bmsBox);
+
+    // Green PCB Circuit Board Beneath Enclosure
+    const pcbGeo = new THREE.BoxGeometry(1.5, 0.08, 1.1);
+    const pcbMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.3, metalness: 0.2 });
+    const pcbBoard = new THREE.Mesh(pcbGeo, pcbMat);
+    pcbBoard.position.set(0, -0.32, 0);
+    pcbBoard.userData = { name: 'BMS Logic PCB Board', type: 'Electronics Board', status: 'ACTIVE', risk: '0%', description: 'Multilayer PCB with microcontrollers, voltage sensing ICs & CAN-bus interface.' };
+    bmsGroup.add(pcbBoard);
+
+    // Microchip / IC Capacitors on PCB
+    const icGeo = new THREE.BoxGeometry(0.35, 0.08, 0.35);
+    const icMat = new THREE.MeshStandardMaterial({ color: 0x020617, metalness: 0.9, roughness: 0.1 });
+    const icChip = new THREE.Mesh(icGeo, icMat);
+    icChip.position.set(-0.3, -0.24, 0.2);
+    bmsGroup.add(icChip);
+
+    const capGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.18, 12);
+    const capMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.9 });
+    [-0.2, 0.1, 0.4].forEach((cx, idx) => {
+      const cap = new THREE.Mesh(capGeo, capMat);
+      cap.position.set(cx, -0.20, -0.2);
+      bmsGroup.add(cap);
+    });
+
+    // 4. SIDE CONTROLLER BRANDING PLATE WITH BRAIN LOGO (BRAI White, N Green)
     const logoTexture = createBrainLogoTexture();
     const logoPlateGeo = new THREE.BoxGeometry(2.4, 1.4, 0.08);
     const logoPlateMat = new THREE.MeshStandardMaterial({
@@ -314,16 +399,16 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       type: 'BMS Controller Panel',
       status: 'ONLINE',
       risk: '0%',
-      description: 'BRAIN Master Intelligence Unit housing real-time battery risk telemetry & PINN AI algorithms.',
+      description: 'BRAIN Master Unit housing real-time risk telemetry & PINN AI algorithms.',
     };
     rootGroup.add(logoPlate);
 
-    // HEAVY HIGH VOLTAGE ORANGE CABLING TRACES (CURVED OVER MODULE TOPS)
-    const createCurvedHVCable = (points: THREE.Vector3[], radius = 0.11) => {
+    // 5. ORANGE HIGH-VOLTAGE (HV) HEAVY POWER CABLES
+    const createCurvedHVCable = (points: THREE.Vector3[], radius = 0.10) => {
       const curve = new THREE.CatmullRomCurve3(points);
-      const tubeGeo = new THREE.TubeGeometry(curve, 40, radius, 12, false);
+      const tubeGeo = new THREE.TubeGeometry(curve, 36, radius, 12, false);
       const tubeMat = new THREE.MeshStandardMaterial({
-        color: 0xff5500, // Vibrant Glossy HV Orange
+        color: 0xff5500, // Vibrant HV Orange
         roughness: 0.25,
         metalness: 0.3,
       });
@@ -332,11 +417,12 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
     [-0.2, 0.0, 0.2].forEach((offsetZ) => {
       const cablePoints = [
-        new THREE.Vector3(-3.8, 0.95, -0.6 + offsetZ),
-        new THREE.Vector3(-2.2, 0.95, -0.6 + offsetZ),
-        new THREE.Vector3(-0.8, 0.95, -0.6 + offsetZ),
+        new THREE.Vector3(-3.8, 0.92, -0.6 + offsetZ),
+        new THREE.Vector3(-2.2, 0.92, -0.6 + offsetZ),
+        new THREE.Vector3(-0.8, 0.92, -0.6 + offsetZ),
       ];
-      const cable = createCurvedHVCable(cablePoints, 0.09);
+      const cable = createCurvedHVCable(cablePoints, 0.085);
+      cable.userData = { name: 'High-Voltage Heavy Power Cable', type: 'HV Bus Cable', status: 'HEALTHY', risk: '0%', description: 'Flexible insulated orange cable routing high power current from cells to BMS.' };
       rootGroup.add(cable);
     });
 
@@ -344,29 +430,71 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const clampMat = new THREE.MeshStandardMaterial({ color: 0x020617 });
     [-3.0, -1.5].forEach((cx) => {
       const clamp = new THREE.Mesh(clampGeo, clampMat);
-      clamp.position.set(cx, 1.0, -0.6);
+      clamp.position.set(cx, 0.98, -0.6);
       rootGroup.add(clamp);
     });
 
     const bmsCable1 = createCurvedHVCable([
-      new THREE.Vector3(1.8, 1.0, -0.6),
-      new THREE.Vector3(2.8, 1.1, -0.8),
-      new THREE.Vector3(3.5, 1.2, -0.6),
+      new THREE.Vector3(1.8, 0.95, -0.6),
+      new THREE.Vector3(2.8, 1.05, -0.8),
+      new THREE.Vector3(3.5, 1.15, -0.6),
     ]);
     rootGroup.add(bmsCable1);
 
     const bmsCable2 = createCurvedHVCable([
-      new THREE.Vector3(2.0, 1.0, -0.4),
-      new THREE.Vector3(3.0, 1.1, -0.5),
-      new THREE.Vector3(3.6, 1.2, -0.3),
+      new THREE.Vector3(2.0, 0.95, -0.4),
+      new THREE.Vector3(3.0, 1.05, -0.5),
+      new THREE.Vector3(3.6, 1.15, -0.3),
     ]);
     rootGroup.add(bmsCable2);
 
-    // FRONT HV CONNECTOR HOUSING & PLUGS
+    // 6. BLUE COOLANT PIPES & RADIATOR MANIFOLD (PHYSICALLY SEPARATE GEOMETRY)
+    const createCoolantPipe = (points: THREE.Vector3[], radius = 0.075) => {
+      const curve = new THREE.CatmullRomCurve3(points);
+      const tubeGeo = new THREE.TubeGeometry(curve, 30, radius, 10, false);
+      const tubeMat = new THREE.MeshStandardMaterial({
+        color: 0x0284c7, // Vibrant Electric Blue
+        roughness: 0.15,
+        metalness: 0.5,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.35,
+      });
+      return new THREE.Mesh(tubeGeo, tubeMat);
+    };
+
+    // Lower Side Rail Coolant Tube
+    const coolantTube1 = createCoolantPipe([
+      new THREE.Vector3(-4.0, -0.9, 1.9),
+      new THREE.Vector3(-1.0, -0.9, 1.9),
+      new THREE.Vector3(2.2, -0.9, 1.9),
+      new THREE.Vector3(3.8, -0.9, 1.7),
+    ]);
+    coolantTube1.userData = { name: 'Primary Coolant Inlet Hose', type: 'Liquid Cooling Pipe', status: 'ACTIVE', risk: '0%', description: 'Carries ethylene glycol coolant to bottom cold plate manifold.' };
+    rootGroup.add(coolantTube1);
+
+    // Front Heat Exchanger Radiator Pipe Loop
+    const coolantLoop = createCoolantPipe([
+      new THREE.Vector3(-4.2, -0.9, 1.8),
+      new THREE.Vector3(-4.3, 0.1, 1.7),
+      new THREE.Vector3(-4.3, 0.7, 1.2),
+      new THREE.Vector3(-4.2, 0.8, 0.4),
+    ]);
+    rootGroup.add(coolantLoop);
+
+    // Front Heat Exchanger / Radiator Assembly
+    const radiatorGeo = new THREE.BoxGeometry(0.3, 1.4, 1.4);
+    const radiatorMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.9, roughness: 0.2 });
+    const radiator = new THREE.Mesh(radiatorGeo, radiatorMat);
+    radiator.position.set(-4.2, 0.0, -1.2);
+    radiator.userData = { name: 'Front Radiator Heat Exchanger', type: 'Cooling Radiator', status: 'OPTIMAL', risk: '0%', description: 'Exchanges thermal heat from cell coolant loop with ambient air.' };
+    rootGroup.add(radiator);
+
+    // 7. FRONT HV CONNECTOR HOUSING & TERMINAL PLUGS
     const connectorHousingGeo = new THREE.BoxGeometry(0.4, 1.1, 1.2);
     const connectorHousingMat = new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3, metalness: 0.4 });
     const connectorHousing = new THREE.Mesh(connectorHousingGeo, connectorHousingMat);
     connectorHousing.position.set(-4.4, 0.0, 0.0);
+    connectorHousing.userData = { name: 'HV Service Plug Connector', type: 'HV Connection', status: 'LOCKED', risk: '0%', description: 'High-voltage manual service disconnect safety plug.' };
     rootGroup.add(connectorHousing);
 
     const plugGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.4, 16);
@@ -378,23 +506,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       rootGroup.add(plug);
     });
 
-    // TOP BMS CONTROL BOX
-    const bmsGroup = new THREE.Group();
-    bmsGroup.position.set(3.4, 1.1, -0.5);
-    bmsGroupRef.current = bmsGroup;
-    rootGroup.add(bmsGroup);
-
-    const bmsBoxGeo = new THREE.BoxGeometry(1.2, 0.45, 0.9);
-    const bmsBoxMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.8 });
-    const bmsBox = new THREE.Mesh(bmsBoxGeo, bmsBoxMat);
-    bmsGroup.add(bmsBox);
-
-    const goldPinMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.1 });
-    const goldPin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.3), goldPinMat);
-    goldPin.position.set(0, 0.25, 0);
-    bmsGroup.add(goldPin);
-
-    // TRANSPARENT ACRYLIC COVER & CHROME CORNER RAILS
+    // 8. TRANSPARENT CASING & CHROME CORNER PILLARS
     const coverGroup = new THREE.Group();
     coverGroup.position.y = 0.0;
     rootGroup.add(coverGroup);
@@ -405,7 +517,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       metalness: 0.1,
       roughness: 0.05,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.32,
     });
     const coverMesh = new THREE.Mesh(coverGeo, coverMat);
     coverMeshRef.current = coverMesh;
@@ -417,7 +529,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     coverWireframeRef.current = coverEdgeLines;
     coverGroup.add(coverEdgeLines);
 
-    // CHROME CORNER PILLARS & CORNER BOLTS
+    // Chrome Corner Pillars & Bolted Mechanical Fasteners
     const pillarGeo = new THREE.CylinderGeometry(0.38, 0.38, packHeight, 24);
     const pillarMat = new THREE.MeshStandardMaterial({
       color: 0xe2e8f0,
@@ -446,6 +558,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       });
     });
 
+    // INTERACTION RAYCASTING & TOUCH / MOUSE CONTROLS
     const raycaster = new THREE.Raycaster();
     const mousePos = new THREE.Vector2();
 
@@ -469,7 +582,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const handlePointerUp = () => {
       isDragging.current = false;
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-      inactivityTimer.current = setTimeout(() => { setAutoRotate(true); }, 3000);
+      inactivityTimer.current = setTimeout(() => { setAutoRotate(true); }, 2500);
     };
 
     const handleCanvasClick = (clientX: number, clientY: number) => {
@@ -492,7 +605,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
           const worldPos = new THREE.Vector3();
           hitObj.getWorldPosition(worldPos);
           targetLookAt.current.copy(worldPos);
-          targetCamPos.current.set(worldPos.x, worldPos.y + 3.5, worldPos.z + 5.5);
+          targetCamPos.current.set(worldPos.x, worldPos.y + 3.2, worldPos.z + 5.2);
           setSelectedInfo({
             name: hitObj.userData.name,
             type: hitObj.userData.type || 'Component',
@@ -519,7 +632,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (!cameraRef.current) return;
-      targetCamPos.current.z = Math.max(4.5, Math.min(20, targetCamPos.current.z + e.deltaY * 0.01));
+      targetCamPos.current.z = Math.max(4.2, Math.min(18, targetCamPos.current.z + e.deltaY * 0.01));
     };
 
     const onTouchStart = (e: TouchEvent) => {
@@ -534,7 +647,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       if (e.touches.length === 1) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
       else if (e.touches.length === 2 && touchStartDist.current && cameraRef.current) {
         const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        targetCamPos.current.z = Math.max(4.5, Math.min(20, targetCamPos.current.z + (touchStartDist.current - dist) * 0.05));
+        targetCamPos.current.z = Math.max(4.2, Math.min(18, targetCamPos.current.z + (touchStartDist.current - dist) * 0.05));
         touchStartDist.current = dist;
       }
     };
@@ -553,13 +666,13 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     window.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('touchend', onTouchEnd);
 
-    // ANIMATION LOOP (WITH SLOW CONTINUOUS 360-DEGREE AUTO-ROTATION)
+    // ANIMATION LOOP (WITH SLOW CONTINUOUS 0.3 SPEED 360-DEGREE AUTO-ROTATION)
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
       if (rootGroupRef.current) {
         if (!isDragging.current && autoRotateRef.current) {
-          rootGroupRef.current.rotation.y += 0.003; // Smooth slow continuous 360 rotation
+          rootGroupRef.current.rotation.y += 0.003; // Smooth slow continuous 0.3 speed rotation
         } else if (!isDragging.current) {
           rootGroupRef.current.rotation.y += rotationVelocity.current.x;
           rootGroupRef.current.rotation.x += rotationVelocity.current.y;
@@ -604,7 +717,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     const coverMat = coverMeshRef.current.material as THREE.MeshStandardMaterial;
     const wireMat = coverWireframeRef.current.material as THREE.LineBasicMaterial;
     if (casingMode === 'SOLID') { coverMat.opacity = 0.95; wireMat.opacity = 0.3; }
-    else if (casingMode === 'TRANSPARENT') { coverMat.opacity = 0.35; wireMat.opacity = 0.45; }
+    else if (casingMode === 'TRANSPARENT') { coverMat.opacity = 0.32; wireMat.opacity = 0.45; }
     else if (casingMode === 'X-RAY') { coverMat.opacity = 0.1; wireMat.opacity = 0.95; }
   }, [casingMode]);
 
