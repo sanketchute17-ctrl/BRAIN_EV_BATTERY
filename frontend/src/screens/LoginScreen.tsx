@@ -3,6 +3,7 @@ import { Battery3DView } from '../components/Battery3DView';
 import { BrainLogo } from '../components/BrainLogo';
 import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus, RotateCcw } from 'lucide-react';
 import { apiService } from '../services/api';
+import scooterBg from '../assets/scooter_bg.jpg';
 
 interface LoginScreenProps {
   onLoginSuccess: (isDemo?: boolean) => void;
@@ -45,7 +46,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       {/* MOBILE APP CONTAINER FRAME (On Desktop: Mobile Frame, On Mobile: Full Viewport) */}
       <div 
         className="w-full sm:max-w-md min-h-screen sm:min-h-[840px] sm:max-h-[920px] sm:rounded-[40px] relative overflow-hidden shadow-2xl border-0 sm:border-[8px] sm:border-slate-800 flex flex-col justify-between p-4 sm:p-5 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url('/scooter_bg.jpg')` }}
+        style={{ backgroundImage: `url(${scooterBg})` }}
       >
         {/* Subtle Dark Vignette Top & Bottom Only (Leaves Central Scooter Image Vivid & Fully Visible) */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/40 pointer-events-none z-0" />
