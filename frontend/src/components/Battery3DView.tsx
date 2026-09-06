@@ -63,7 +63,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
   // Medium Viewing Camera Position
-  const targetCamPos = useRef(new THREE.Vector3(0, 5.2, 9.2));
+  const targetCamPos = useRef(new THREE.Vector3(0, 4.8, 10.5));
   const targetLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
 
@@ -122,10 +122,10 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   };
 
   const resetCamera = () => {
-    targetCamPos.current.set(0, 5.2, 9.2);
+    targetCamPos.current.set(0, 4.8, 10.5);
     targetLookAt.current.set(0, 0.1, 0);
     if (rootGroupRef.current) {
-      rootGroupRef.current.rotation.set(0.22, 1.05, 0); // Reset facing BRAIN logo side
+      rootGroupRef.current.rotation.set(0.28, 0.08, 0); // Directly facing front BRAIN logo plate
     }
     rotationVelocity.current = { x: 0, y: 0 };
     setSelectedInfo(null);
@@ -183,8 +183,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     }
 
     const rootGroup = new THREE.Group();
-    // Starting angle: Facing the BRAIN logo side directly at startup
-    rootGroup.rotation.set(0.22, 1.05, 0);
+    // Starting angle: Facing the BRAIN logo plate directly at startup
+    rootGroup.rotation.set(0.28, 0.08, 0);
     rootGroupRef.current = rootGroup;
     scene.add(rootGroup);
 
@@ -386,14 +386,17 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
     // 4. SIDE CONTROLLER BRANDING PLATE WITH BRAIN LOGO (BRAI White, N Green)
     const logoTexture = createBrainLogoTexture();
-    const logoPlateGeo = new THREE.BoxGeometry(2.4, 1.4, 0.08);
+    const logoPlateGeo = new THREE.BoxGeometry(2.6, 1.4, 0.08);
     const logoPlateMat = new THREE.MeshStandardMaterial({
       map: logoTexture,
-      metalness: 0.7,
-      roughness: 0.2,
+      metalness: 0.4,
+      roughness: 0.15,
+      emissive: 0xffffff,
+      emissiveMap: logoTexture,
+      emissiveIntensity: 0.35,
     });
     const logoPlate = new THREE.Mesh(logoPlateGeo, logoPlateMat);
-    logoPlate.position.set(2.8, 0.0, 2.12);
+    logoPlate.position.set(0.5, 0.0, 2.21);
     logoPlate.userData = {
       name: 'BRAIN Master Intelligence Module Plate',
       type: 'BMS Controller Panel',
