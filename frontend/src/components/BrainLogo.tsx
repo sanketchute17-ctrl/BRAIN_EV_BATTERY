@@ -1,80 +1,80 @@
 import React from 'react';
 
-export const BrainLogoIcon: React.FC<{ className?: string }> = ({ className = 'w-10 h-10' }) => (
+export const BrainLogoIcon: React.FC<{ className?: string }> = ({ className = 'w-9 h-10' }) => (
   <svg
     viewBox="0 0 100 120"
-    className={`${className} drop-shadow-[0_0_12px_rgba(0,230,118,0.6)]`}
+    className={`${className} drop-shadow-[0_0_10px_rgba(0,230,118,0.6)]`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    {/* Battery Top Positive Terminal Cap */}
-    <rect x="38" y="5" width="24" height="10" rx="4" fill="#00E676" />
+    {/* Battery Top Positive Terminal Nub */}
+    <rect x="38" y="5" width="24" height="9" rx="4" fill="#00E676" />
 
-    {/* Outer Battery Casing with Glowing Rounded Corners */}
+    {/* Outer Battery Casing with Glowing Rounded Edge */}
     <rect
       x="14"
-      y="17"
+      y="16"
       width="72"
-      height="96"
-      rx="20"
+      height="98"
+      rx="18"
       stroke="#00E676"
-      strokeWidth="7"
+      strokeWidth="6.5"
       fill="#022C22"
-      fillOpacity="0.4"
+      fillOpacity="0.35"
     />
 
-    {/* Central Vertical Stem */}
-    <line x1="50" y1="27" x2="50" y2="103" stroke="#00E676" strokeWidth="4.5" strokeLinecap="round" />
+    {/* Central Vertical Stem Axis */}
+    <line x1="50" y1="26" x2="50" y2="104" stroke="#00E676" strokeWidth="4" strokeLinecap="round" />
 
-    {/* LEFT HALF: ORGANIC BRAIN LOBE FOLDS */}
+    {/* LEFT HALF: ORGANIC BRAIN LOBES (HIGH ACCURACY CONVOLUTIONS) */}
     <path
-      d="M 50 27 C 34 27, 24 37, 24 53 C 24 63, 30 69, 24 79 C 24 91, 34 103, 50 103"
+      d="M 50 26 C 34 26, 24 36, 24 52 C 24 62, 30 68, 24 78 C 24 90, 34 104, 50 104"
       fill="none"
       stroke="#00E676"
       strokeWidth="4.5"
       strokeLinecap="round"
     />
     <path
-      d="M 46 37 C 34 39, 32 49, 42 55 C 32 61, 32 73, 44 77"
+      d="M 46 36 C 34 38, 32 48, 42 54 C 32 60, 32 72, 44 76"
       fill="none"
       stroke="#00E676"
       strokeWidth="3.5"
       strokeLinecap="round"
     />
     <path
-      d="M 48 57 C 36 63, 34 81, 46 87"
+      d="M 48 56 C 36 62, 34 80, 46 86"
       fill="none"
       stroke="#00E676"
       strokeWidth="3.5"
       strokeLinecap="round"
     />
     <path
-      d="M 38 45 C 30 47, 28 53, 34 59"
+      d="M 38 44 C 30 46, 28 52, 34 58"
       fill="none"
       stroke="#00E676"
       strokeWidth="3"
       strokeLinecap="round"
     />
     <path
-      d="M 36 69 C 30 73, 28 79, 36 83"
+      d="M 36 68 C 30 72, 28 78, 36 82"
       fill="none"
       stroke="#00E676"
       strokeWidth="3"
       strokeLinecap="round"
     />
 
-    {/* RIGHT HALF: NEURAL CIRCUIT TELEMETRY & NODES */}
-    <path d="M 50 37 H 68 L 76 31" fill="none" stroke="#00E676" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-    <circle cx="76" cy="31" r="5" fill="#00E676" />
+    {/* RIGHT HALF: NEURAL CIRCUIT TELEMETRY TRACES & NODES */}
+    <path d="M 50 36 H 68 L 76 30" fill="none" stroke="#00E676" strokeWidth="3.8" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="76" cy="30" r="4.5" fill="#00E676" />
 
-    <path d="M 50 51 H 72" fill="none" stroke="#00E676" strokeWidth="4" strokeLinecap="round" />
-    <circle cx="72" cy="51" r="5" fill="#00E676" />
+    <path d="M 50 50 H 73" fill="none" stroke="#00E676" strokeWidth="3.8" strokeLinecap="round" />
+    <circle cx="73" cy="50" r="4.5" fill="#00E676" />
 
-    <path d="M 50 67 H 66 L 76 73" fill="none" stroke="#00E676" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-    <circle cx="76" cy="73" r="5" fill="#00E676" />
+    <path d="M 50 66 H 66 L 76 72" fill="none" stroke="#00E676" strokeWidth="3.8" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="76" cy="72" r="4.5" fill="#00E676" />
 
-    <path d="M 50 83 H 64" fill="none" stroke="#00E676" strokeWidth="4" strokeLinecap="round" />
-    <circle cx="64" cy="83" r="4.5" fill="#00E676" />
+    <path d="M 50 82 H 64" fill="none" stroke="#00E676" strokeWidth="3.8" strokeLinecap="round" />
+    <circle cx="64" cy="82" r="4" fill="#00E676" />
   </svg>
 );
 
@@ -101,30 +101,32 @@ export const BrainLogo: React.FC<BrainLogoProps> = ({
   }[size];
 
   const titleSizes = {
-    sm: 'text-base',
+    sm: 'text-lg',
     md: 'text-xl',
     lg: 'text-2xl sm:text-3xl',
     xl: 'text-3xl sm:text-4xl',
   }[size];
 
-  // BR in Electric Light Red (#FF3366), AIN EV in Electric Light Green (#00E676)
+  // BRAI in Dark White (#E2E8F0), N in Electric Green (#00E676), EV in Electric Green (#00E676)
   const brainTitle = (
-    <div className={`font-black tracking-tight leading-none ${titleSizes} select-none`}>
-      <span className="text-[#FF3366] drop-shadow-[0_0_8px_rgba(255,51,102,0.6)]">BR</span>
-      <span className="text-[#00E676] drop-shadow-[0_0_8px_rgba(0,230,118,0.6)]">AIN</span>
+    <div className={`font-black tracking-tight leading-none ${titleSizes} select-none flex items-center`}>
+      <span className="text-[#E2E8F0] drop-shadow-sm">BRAI</span>
+      <span className="text-[#00E676] drop-shadow-[0_0_8px_rgba(0,230,118,0.6)]">N</span>
       <span className="text-[#00E676] drop-shadow-[0_0_8px_rgba(0,230,118,0.6)] ml-1.5">EV</span>
     </div>
   );
 
+  // Full form in Dark White (#E2E8F0) + Network in Electric Green (#00E676)
   const fullFormText = showFullForm && (
     <div className="text-[11px] sm:text-xs font-extrabold tracking-wide mt-1.5 text-center leading-tight">
-      <span className="text-[#FF3366] drop-shadow-[0_0_4px_rgba(255,51,102,0.5)]">Battery Risk &amp; </span>
-      <span className="text-[#00E676] drop-shadow-[0_0_4px_rgba(0,230,118,0.5)]">Analytics Intelligence Network</span>
+      <span className="text-[#E2E8F0]">Battery Risk &amp; Analytics Intelligence </span>
+      <span className="text-[#00E676] drop-shadow-[0_0_4px_rgba(0,230,118,0.5)]">Network</span>
     </div>
   );
 
+  // Quote in Dark White (#CBD5E1)
   const quoteText = showQuote && (
-    <div className="text-[10px] sm:text-[11px] font-extrabold italic text-[#00E676] mt-1 tracking-tight text-center drop-shadow-[0_0_4px_rgba(0,230,118,0.4)]">
+    <div className="text-[10px] sm:text-[11px] font-extrabold italic text-[#CBD5E1] mt-1 tracking-tight text-center">
       “Think Ahead. Protect Every Battery.”
     </div>
   );
@@ -142,15 +144,15 @@ export const BrainLogo: React.FC<BrainLogoProps> = ({
     );
   }
 
-  // Horizontal Layout (for Dashboard Header)
+  // Horizontal Layout (for Dashboard Header) - Exact 1-line alignment between logo icon and title
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
-      <div className="shrink-0 p-1 rounded-xl bg-slate-900/60 border border-[#00E676]/30 backdrop-blur-xs">
+    <div className={`flex items-center gap-2 ${className}`}>
+      <div className="shrink-0 p-1 rounded-xl bg-slate-900/60 border border-[#00E676]/30 backdrop-blur-xs flex items-center justify-center">
         <BrainLogoIcon className={iconSizes} />
       </div>
-      <div className="flex flex-col text-left">
+      <div className="flex items-center">
         {brainTitle}
-        {quoteText}
+        {showQuote && quoteText}
       </div>
     </div>
   );

@@ -170,7 +170,7 @@ export function App() {
                 <ArrowLeft className="w-4 h-4" />
               </button>
             ) : (
-              <BrainLogo size="sm" layout="horizontal" showFullForm={false} showQuote={true} />
+              <BrainLogo size="sm" layout="horizontal" showFullForm={false} showQuote={false} />
             )}
 
             {/* Connection Status Badge */}
