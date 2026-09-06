@@ -99,10 +99,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </span>
         </div>
 
-        {/* 4. TRANSPARENT GLASSMORPHIC LOGIN CARD */}
-        <div className="bg-white/35 backdrop-blur-xl rounded-3xl p-4 sm:p-5 border border-white/60 shadow-2xl max-w-sm w-full mx-auto z-10 my-1 space-y-3">
+        {/* 4. 100% TRANSPARENT LOGIN CARD */}
+        <div className="bg-transparent rounded-3xl p-4 sm:p-5 max-w-sm w-full mx-auto z-10 my-1 space-y-3">
           {errorMsg && (
-            <div className="p-2.5 rounded-xl bg-red-500/90 text-white text-xs font-bold shadow-md">
+            <div className="p-2.5 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">
               {errorMsg}
             </div>
           )}
@@ -117,7 +117,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-3 py-2.5 bg-white/85 border border-white/80 rounded-xl text-xs font-extrabold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/20 transition shadow-sm"
+                  className="w-full pl-10 pr-3 py-2.5 bg-white/90 border border-slate-300 rounded-xl text-xs font-extrabold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/20 transition shadow-md"
                   placeholder="researcher@brain-ev.org"
                 />
               </div>
@@ -132,7 +132,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-10 py-2.5 bg-white/85 border border-white/80 rounded-xl text-xs font-extrabold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/20 transition shadow-sm"
+                  className="w-full pl-10 pr-10 py-2.5 bg-white/90 border border-slate-300 rounded-xl text-xs font-extrabold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/20 transition shadow-md"
                   placeholder="••••••••••••"
                 />
                 <button
@@ -149,7 +149,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               <button
                 type="button"
                 onClick={() => alert('Forgot password instructions sent to your email.')}
-                className="text-[11px] font-extrabold text-emerald-950 hover:underline bg-white/50 backdrop-blur-md px-2 py-0.5 rounded-md"
+                className="text-[11px] font-extrabold text-white bg-slate-900/60 backdrop-blur-md px-2.5 py-1 rounded-md shadow-xs hover:bg-slate-900/80 transition"
               >
                 Forgot Password?
               </button>
@@ -159,7 +159,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-black text-xs sm:text-sm rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition flex items-center justify-center gap-2 shadow-emerald uppercase tracking-wider heading-tech cursor-pointer active:scale-[0.99]"
+              className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-black text-xs sm:text-sm rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition flex items-center justify-center gap-2 shadow-emerald uppercase tracking-wider heading-tech cursor-pointer active:scale-[0.99]"
             >
               <span>{isSubmitting ? 'AUTHENTICATING...' : 'Sign In'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
@@ -169,9 +169,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           {/* DIVIDER */}
           <div className="relative my-2 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-800/20" />
+              <div className="w-full border-t border-white/40" />
             </div>
-            <span className="relative bg-white/70 backdrop-blur-md px-2 py-0.5 rounded-full text-[9px] font-extrabold text-slate-800 uppercase tracking-widest">
+            <span className="relative bg-slate-900/70 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[9px] font-extrabold text-white uppercase tracking-widest">
               OR
             </span>
           </div>
@@ -181,7 +181,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             <button
               type="button"
               onClick={handleDemoClick}
-              className="py-2.5 px-2 bg-white/80 backdrop-blur-md text-emerald-900 border-2 border-emerald-500 rounded-xl text-[11px] font-black hover:bg-white transition flex items-center justify-center gap-1.5 shadow-sm"
+              className="py-2.5 px-2 bg-white/90 backdrop-blur-md text-emerald-900 border-2 border-emerald-500 rounded-xl text-[11px] font-black hover:bg-white transition flex items-center justify-center gap-1.5 shadow-md"
             >
               <PlayCircle className="w-3.5 h-3.5 text-emerald-600" />
               <span>Demo Mode</span>
@@ -189,7 +189,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             <button
               type="button"
               onClick={onNavigateRegister}
-              className="py-2.5 px-2 bg-white/80 backdrop-blur-md text-slate-900 border-2 border-slate-300 rounded-xl text-[11px] font-black hover:bg-white transition flex items-center justify-center gap-1.5 shadow-sm"
+              className="py-2.5 px-2 bg-white/90 backdrop-blur-md text-slate-900 border-2 border-slate-300 rounded-xl text-[11px] font-black hover:bg-white transition flex items-center justify-center gap-1.5 shadow-md"
             >
               <UserPlus className="w-3.5 h-3.5 text-slate-700" />
               <span>Register</span>
@@ -197,30 +197,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </div>
         </div>
 
-        {/* 5. FOOTER FEATURE BADGES & INFORMATION */}
-        <div className="relative z-10 pt-1 pb-1 space-y-2">
-          <div className="grid grid-cols-3 gap-1.5 max-w-xs mx-auto text-center">
-            <div className="flex flex-col items-center gap-0.5 p-1 bg-white/60 backdrop-blur-md rounded-xl border border-white/50 shadow-xs">
-              <div className="p-1 rounded-full bg-emerald-500 text-white">
-                <ShieldCheck className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-[10px] font-extrabold text-slate-900">Safer Batteries</span>
-            </div>
-            <div className="flex flex-col items-center gap-0.5 p-1 bg-white/60 backdrop-blur-md rounded-xl border border-white/50 shadow-xs">
-              <div className="p-1 rounded-full bg-emerald-500 text-white">
-                <Leaf className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-[10px] font-extrabold text-slate-900">Smarter Mobility</span>
-            </div>
-            <div className="flex flex-col items-center gap-0.5 p-1 bg-white/60 backdrop-blur-md rounded-xl border border-white/50 shadow-xs">
-              <div className="p-1 rounded-full bg-emerald-500 text-white">
-                <LineChart className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-[10px] font-extrabold text-slate-900">Cleaner Tomorrow</span>
-            </div>
-          </div>
-
-          <div className="text-center text-[10px] font-extrabold text-slate-900 bg-white/60 backdrop-blur-md py-1 px-3 rounded-full max-w-xs mx-auto border border-white/50">
+        {/* 5. FOOTER INFORMATION */}
+        <div className="relative z-10 pt-1 pb-1">
+          <div className="text-center text-[10px] font-extrabold text-slate-900 bg-white/70 backdrop-blur-md py-1 px-3 rounded-full max-w-xs mx-auto border border-white/60 shadow-xs">
             BRAIN Mobile App v1.0.0 • EV Risk Analytics
           </div>
         </div>
