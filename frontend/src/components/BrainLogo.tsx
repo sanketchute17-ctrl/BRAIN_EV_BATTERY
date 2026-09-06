@@ -107,34 +107,36 @@ export const BrainLogo: React.FC<BrainLogoProps> = ({
     xl: 'text-3xl sm:text-4xl',
   }[size];
 
-  // BRAI in Dark White (#E2E8F0), N in Electric Green (#00E676), EV in Electric Green (#00E676)
+  const isVertical = layout === 'vertical';
+
+  // BRAI: Dark White (#FFFFFF / #F8FAFC) on Login Screen, Crisp Dark Slate (#0F172A) on Dashboard Header
+  // N: Electric Green (#00E676)
   const brainTitle = (
     <div className={`font-black tracking-tight leading-none ${titleSizes} select-none flex items-center`}>
-      <span className="text-[#E2E8F0] drop-shadow-sm">BRAI</span>
+      <span className={isVertical ? 'text-white drop-shadow-sm' : 'text-slate-900'}>BRAI</span>
       <span className="text-[#00E676] drop-shadow-[0_0_8px_rgba(0,230,118,0.6)]">N</span>
-      <span className="text-[#00E676] drop-shadow-[0_0_8px_rgba(0,230,118,0.6)] ml-1.5">EV</span>
     </div>
   );
 
-  // Full form in Dark White (#E2E8F0) + Network in Electric Green (#00E676)
+  // Full form (Login Page): BRAI part in Dark White, Network in Electric Green
   const fullFormText = showFullForm && (
     <div className="text-[11px] sm:text-xs font-extrabold tracking-wide mt-1.5 text-center leading-tight">
-      <span className="text-[#E2E8F0]">Battery Risk &amp; Analytics Intelligence </span>
+      <span className="text-slate-100">Battery Risk &amp; Analytics Intelligence </span>
       <span className="text-[#00E676] drop-shadow-[0_0_4px_rgba(0,230,118,0.5)]">Network</span>
     </div>
   );
 
-  // Quote in Dark White (#CBD5E1)
+  // Quote (Login Page): Dark White
   const quoteText = showQuote && (
-    <div className="text-[10px] sm:text-[11px] font-extrabold italic text-[#CBD5E1] mt-1 tracking-tight text-center">
+    <div className="text-[10px] sm:text-[11px] font-extrabold italic text-slate-200 mt-1 tracking-tight text-center">
       “Think Ahead. Protect Every Battery.”
     </div>
   );
 
-  if (layout === 'vertical') {
+  if (isVertical) {
     return (
-      <div className={`flex flex-col items-center text-center ${className}`}>
-        <div className="p-2 rounded-2xl bg-slate-900/60 border border-[#00E676]/40 backdrop-blur-md shadow-lg mb-2">
+      <div className={`flex flex-col items-center justify-center text-center w-full ${className}`}>
+        <div className="p-2 rounded-2xl bg-slate-900/60 border border-[#00E676]/40 backdrop-blur-md shadow-lg mb-2 flex items-center justify-center">
           <BrainLogoIcon className={iconSizes} />
         </div>
         {brainTitle}
@@ -144,15 +146,14 @@ export const BrainLogo: React.FC<BrainLogoProps> = ({
     );
   }
 
-  // Horizontal Layout (for Dashboard Header) - Exact 1-line alignment between logo icon and title
+  // Horizontal Layout (for Dashboard Header) - Perfect 1-line alignment between logo icon and title
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="shrink-0 p-1 rounded-xl bg-slate-900/60 border border-[#00E676]/30 backdrop-blur-xs flex items-center justify-center">
+      <div className="shrink-0 p-1 rounded-xl bg-slate-900/80 border border-[#00E676]/40 backdrop-blur-xs flex items-center justify-center">
         <BrainLogoIcon className={iconSizes} />
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center justify-center">
         {brainTitle}
-        {showQuote && quoteText}
       </div>
     </div>
   );
