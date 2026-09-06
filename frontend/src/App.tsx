@@ -429,17 +429,23 @@ export function App() {
                   </div>
 
                   {/* Interactive 3D WebGL Battery View Canvas with Left/Right Arrows */}
-                  <div className="relative h-44 rounded-2xl overflow-hidden border border-slate-100 bg-[#F8FAFC]">
-                    <ErrorBoundary>
-                      <Battery3DView status={demoStatus} interactive={true} hideControls={true} />
-                    </ErrorBoundary>
+                  <div className="relative flex flex-col items-center justify-center">
+                    <div className="w-full h-36 sm:h-40 relative rounded-2xl overflow-hidden border border-slate-100 bg-[#F8FAFC]">
+                      <ErrorBoundary>
+                        <Battery3DView status={demoStatus} interactive={true} hideControls={true} />
+                      </ErrorBoundary>
 
-                    <button className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-white transition cursor-pointer z-10">
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-white transition cursor-pointer z-10">
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+                      <button className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-white transition cursor-pointer z-10">
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-white transition cursor-pointer z-10">
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="text-[10px] font-extrabold text-slate-700 tracking-wide mt-1.5 bg-slate-100/90 px-3 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                      Drag to <span className="text-[#059669]">rotate</span> • Pinch to <span className="text-[#059669]">zoom</span>
+                    </div>
                   </div>
 
                   {/* 4 KEY METRICS HORIZONTAL ROW */}

@@ -74,7 +74,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             </ErrorBoundary>
           </div>
 
-          <div className="text-[10px] font-extrabold text-slate-100 tracking-wide mt-1 bg-slate-900/60 px-3 py-0.5 rounded-full border border-slate-700/60 backdrop-blur-xs shadow-sm">
+          <div className="text-[10px] font-extrabold text-slate-100 tracking-wide mt-1.5 bg-slate-900/75 px-3 py-0.5 rounded-full border border-slate-700/70 backdrop-blur-xs shadow-sm">
             Drag to <span className="text-[#00E676]">rotate</span> • Pinch to <span className="text-[#00E676]">zoom</span>
           </div>
         </div>
