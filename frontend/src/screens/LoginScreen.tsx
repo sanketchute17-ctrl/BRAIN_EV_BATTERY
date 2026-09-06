@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Battery3DView } from '../components/Battery3DView';
 import { BrainLogo } from '../components/BrainLogo';
-import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, ShieldCheck, Leaf, LineChart, UserPlus } from 'lucide-react';
+import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus } from 'lucide-react';
 import { apiService } from '../services/api';
 
 interface LoginScreenProps {
@@ -67,21 +66,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </div>
         </div>
 
-        {/* 2. HERO 3D BATTERY MODEL (IMAGE 1 MINIMAL HERO VIEW) */}
-        <div className="relative z-10 my-1 flex flex-col items-center">
-          {/* Subtle Pedestal Glow under Battery */}
-          <div className="absolute inset-0 bg-radial from-emerald-500/20 via-emerald-500/5 to-transparent blur-xl pointer-events-none" />
 
-          {/* 3D WebGL Canvas Container */}
-          <div className="w-full h-52 sm:h-60 relative cursor-grab active:cursor-grabbing">
-            <Battery3DView status="HEALTHY" interactive={true} hideControls={true} />
-          </div>
-
-          {/* Minimal Gesture Instruction Line */}
-          <div className="text-[11px] font-bold text-slate-800 tracking-wide mt-0.5 bg-white/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/60 shadow-sm pointer-events-none">
-            Drag to rotate &nbsp;•&nbsp; Pinch to zoom &nbsp;•&nbsp; Tap to explore
-          </div>
-        </div>
 
         {/* 3. STATUS PILLS BAR (IMAGE 1 REQUIREMENT) */}
         <div className="flex items-center justify-center gap-1.5 z-10 my-1 flex-wrap">
