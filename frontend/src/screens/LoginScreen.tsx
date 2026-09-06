@@ -41,27 +41,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   };
 
   return (
-    <div 
-      className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 bg-cover bg-center relative overflow-hidden"
-      style={{ backgroundImage: `url(${scooterBg})` }}
-    >
-      {/* 70% VISIBILITY BACKGROUND OVERLAY */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none opacity-70"
-        style={{ backgroundImage: `url(${scooterBg})` }}
-      />
-
-      {/* MOBILE APP CONTAINER FRAME (100% TRANSPARENT CONTAINER) */}
-      <div className="w-full sm:max-w-[400px] min-h-screen sm:min-h-[850px] sm:max-h-[920px] sm:rounded-[46px] relative overflow-hidden shadow-2xl border-0 sm:border-[10px] sm:border-slate-900/80 bg-transparent text-slate-900 flex flex-col justify-between p-4 sm:p-5 z-10 backdrop-blur-none">
-
-        {/* iOS TOP STATUS BAR */}
-        <div className="relative z-10 flex items-center justify-between text-xs font-black text-slate-900 select-none pt-1 pb-1">
-          <span>9:41</span>
-          <div className="flex items-center gap-1.5 text-slate-900 text-[10px]">
-            <span className="font-mono">5G</span>
-            <span className="w-2.5 h-2.5 rounded-full border border-slate-900 inline-block" />
-          </div>
-        </div>
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative overflow-hidden">
+      
+      {/* MOBILE APP CONTAINER FRAME */}
+      <div className="w-full sm:max-w-[400px] min-h-screen sm:min-h-[850px] sm:max-h-[920px] sm:rounded-[46px] relative overflow-hidden shadow-2xl border-0 sm:border-[10px] sm:border-slate-900 bg-slate-900 text-slate-900 flex flex-col justify-between p-4 sm:p-5 z-10">
+        
+        {/* 70% VISIBILITY SCOOTER BACKGROUND OVERLAY (ONLY INSIDE MOBILE VIEW) */}
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none opacity-70"
+          style={{ backgroundImage: `url(${scooterBg})` }}
+        />
 
         {/* TOP SUB-TAGLINE */}
         <div className="relative z-10 flex items-center justify-end text-[10px] font-bold text-slate-800 gap-1.5 pt-1">
@@ -108,8 +97,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </div>
         </div>
 
-        {/* 3. INPUT FORM CARD - 100% TRANSPARENT LOGIN BOX */}
-        <div className="relative z-10 space-y-2.5 my-1 bg-transparent p-3.5 rounded-3xl border border-white/30">
+        {/* 3. INPUT FORM CARD - 100% TRANSPARENT LOGIN BOX WITHOUT BORDER LINES */}
+        <div className="relative z-10 space-y-2.5 my-1 bg-transparent p-2 border-0 shadow-none">
           {errorMsg && (
             <div className="p-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">
               {errorMsg}
@@ -200,7 +189,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         </div>
 
         {/* 4. THREE BOTTOM FEATURE BADGES */}
-        <div className="relative z-10 grid grid-cols-3 gap-2 pt-2 border-t border-white/40 text-center bg-white/50 backdrop-blur-xs rounded-2xl p-1.5">
+        <div className="relative z-10 grid grid-cols-3 gap-2 pt-2 text-center bg-white/50 backdrop-blur-xs rounded-2xl p-1.5">
           <div className="flex flex-col items-center gap-0.5">
             <ShieldCheck className="w-4 h-4 text-[#059669]" />
             <span className="text-[9px] font-extrabold text-slate-900 leading-tight">Safer<br />Batteries</span>
