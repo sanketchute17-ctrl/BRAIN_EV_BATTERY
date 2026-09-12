@@ -3,10 +3,19 @@
  * EV Battery Risk & Analytics Intelligence Network
  * 
  * Multi-Tier Authentication Strategy:
- * 1. Supabase Cloud DB (When VITE_SUPABASE_URL & VITE_SUPABASE_ANON_KEY are set)
- * 2. FastAPI Backend Server (Local localhost:8000 or Cloud Render)
- * 3. Local DB Persistence Sync (Zero-block fallback so authentication works anywhere without errors)
+ * 1. Firebase Cloud Auth (When VITE_FIREBASE_API_KEY is set in .env)
+ * 2. Supabase Cloud Auth (When VITE_SUPABASE_URL is set in .env)
+ * 3. FastAPI Backend Server (Local localhost:8000 or Cloud Render)
+ * 4. Local DB Persistence Sync (Zero-block fallback so authentication works anywhere without errors)
  */
+
+import { firebaseAuth, isFirebaseConfigured } from './firebaseClient';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+  User as FirebaseUser,
+} from 'firebase/auth';
 
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 
@@ -59,7 +68,6 @@ export interface AuthResponse {
   battery_chemistry?: string;
 }
 
-// Local persistent DB key for local fallback users
 const LOCAL_USERS_DB_KEY = 'brain_registered_users_db';
 
 function getLocalUsersDB(): Record<string, any> {
@@ -109,6 +117,9 @@ export const apiService = {
    * Check backend health status
    */
   async checkBackendStatus(): Promise<{ online: boolean; system?: string; mode: string }> {
+    if (isFirebaseConfigured()) {
+      return { online: true, system: 'Google Firebase Cloud Auth', mode: 'FIREBASE_CLOUD' };
+    }
     if (isSupabaseConfigured()) {
       return { online: true, system: 'Supabase Cloud PostgreSQL', mode: 'SUPABASE_CLOUD' };
     }
@@ -126,13 +137,26 @@ export const apiService = {
   },
 
   /**
-   * Fetch authenticated user profile using active JWT token or session
+   * Fetch authenticated user profile
    */
   async getCurrentUser(): Promise<any> {
     const token = this.getStoredToken();
     if (!token) return null;
 
-    // 1. Supabase Auth check
+    // 1. Firebase Auth check
+    if (isFirebaseConfigured() && firebaseAuth?.currentUser) {
+      const user: FirebaseUser = firebaseAuth.currentUser;
+      return {
+        id: user.uid,
+        email: user.email,
+        full_name: user.displayName || 'EV Operator',
+        role: 'EV Rider / Owner',
+        ev_model: 'Ather 450X',
+        battery_chemistry: 'NMC',
+      };
+    }
+
+    // 2. Supabase Auth check
     if (isSupabaseConfigured() && supabase) {
       try {
         const { data } = await supabase.auth.getUser();
@@ -151,7 +175,7 @@ export const apiService = {
       }
     }
 
-    // 2. FastAPI Backend check
+    // 3. FastAPI Backend check
     try {
       const response = await fetchWithFailover('/auth/me', {
         headers: this.getAuthHeaders(),
@@ -163,7 +187,7 @@ export const apiService = {
       // Fallthrough
     }
 
-    // 3. Local stored profile fallback
+    // 4. Local stored profile fallback
     try {
       const profile = localStorage.getItem('brain_user_profile');
       if (profile) return JSON.parse(profile);
@@ -175,13 +199,42 @@ export const apiService = {
   },
 
   /**
-   * User Login API Call (Strict DB Validation - Supabase -> FastAPI -> Local DB)
+   * User Login API Call (Firebase -> Supabase -> FastAPI -> Local DB)
    */
   async login(payload: UserLoginPayload): Promise<AuthResponse> {
     const emailKey = payload.email.toLowerCase().trim();
     const password = payload.password || '';
 
-    // TIER 1: Supabase Cloud Auth
+    // TIER 1: Firebase Cloud Auth
+    if (isFirebaseConfigured() && firebaseAuth) {
+      try {
+        const userCredential = await signInWithEmailAndPassword(firebaseAuth, emailKey, password);
+        const fbUser = userCredential.user;
+        const idToken = await fbUser.getIdToken();
+
+        const authData: AuthResponse = {
+          access_token: idToken,
+          user_id: fbUser.uid,
+          email: fbUser.email || emailKey,
+          full_name: fbUser.displayName || 'EV Operator',
+          role: 'EV Rider / Owner',
+          ev_model: 'Ather 450X',
+          battery_chemistry: 'NMC',
+        };
+        this.setStoredToken(authData.access_token, authData);
+        return authData;
+      } catch (fbErr: any) {
+        let msg = 'Firebase login failed.';
+        if (fbErr.code === 'auth/invalid-credential' || fbErr.code === 'auth/wrong-password') {
+          msg = 'Invalid email or password.';
+        } else if (fbErr.code === 'auth/user-not-found') {
+          msg = 'No account found with this email address.';
+        }
+        throw new Error(msg);
+      }
+    }
+
+    // TIER 2: Supabase Cloud Auth
     if (isSupabaseConfigured() && supabase) {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: emailKey,
@@ -205,7 +258,7 @@ export const apiService = {
       return authData;
     }
 
-    // TIER 2: FastAPI Backend Server
+    // TIER 3: FastAPI Backend Server
     try {
       const response = await fetchWithFailover('/auth/login', {
         method: 'POST',
@@ -227,12 +280,11 @@ export const apiService = {
       }
     }
 
-    // TIER 3: Local DB Persistence Sync (Offline fallback)
+    // TIER 4: Local DB Persistence Sync (Offline fallback)
     const localUsers = getLocalUsersDB();
     const userRecord = localUsers[emailKey];
 
     if (!userRecord) {
-      // Default seeded researcher account fallback if not registered yet
       if (emailKey === 'researcher@brain-ev.org' && (password === 'password123' || password === '••••••••••••')) {
         const seededUser: AuthResponse = {
           access_token: 'local_jwt_token_researcher_2026',
@@ -267,12 +319,46 @@ export const apiService = {
   },
 
   /**
-   * User Registration API Call (Supabase -> FastAPI -> Local DB)
+   * User Registration API Call (Firebase -> Supabase -> FastAPI -> Local DB)
    */
   async register(payload: UserRegisterPayload): Promise<AuthResponse> {
     const emailKey = payload.email.toLowerCase().trim();
 
-    // TIER 1: Supabase Cloud Auth
+    // TIER 1: Firebase Cloud Auth
+    if (isFirebaseConfigured() && firebaseAuth) {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(firebaseAuth, emailKey, payload.password || '');
+        const fbUser = userCredential.user;
+
+        await updateProfile(fbUser, {
+          displayName: payload.fullName,
+        });
+
+        const idToken = await fbUser.getIdToken();
+
+        const authData: AuthResponse = {
+          access_token: idToken,
+          user_id: fbUser.uid,
+          email: emailKey,
+          full_name: payload.fullName,
+          role: payload.role,
+          ev_model: payload.evModel,
+          battery_chemistry: payload.batteryChemistry,
+        };
+        this.setStoredToken(authData.access_token, authData);
+        return authData;
+      } catch (fbErr: any) {
+        let msg = 'Firebase registration failed.';
+        if (fbErr.code === 'auth/email-already-in-use') {
+          msg = 'Email address is already registered. Please sign in instead.';
+        } else if (fbErr.code === 'auth/weak-password') {
+          msg = 'Password should be at least 6 characters long.';
+        }
+        throw new Error(msg);
+      }
+    }
+
+    // TIER 2: Supabase Cloud Auth
     if (isSupabaseConfigured() && supabase) {
       const { data, error } = await supabase.auth.signUp({
         email: emailKey,
@@ -305,7 +391,7 @@ export const apiService = {
       return authData;
     }
 
-    // TIER 2: FastAPI Backend Server
+    // TIER 3: FastAPI Backend Server
     try {
       const response = await fetchWithFailover('/auth/register', {
         method: 'POST',
@@ -335,7 +421,7 @@ export const apiService = {
       }
     }
 
-    // TIER 3: Local DB Persistence Sync (Offline fallback)
+    // TIER 4: Local DB Persistence Sync (Offline fallback)
     const localUsers = getLocalUsersDB();
     if (localUsers[emailKey]) {
       throw new Error('Email is already registered. Please sign in instead.');
