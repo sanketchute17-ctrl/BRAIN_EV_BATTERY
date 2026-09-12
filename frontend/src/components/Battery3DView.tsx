@@ -62,8 +62,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const bmsGroupRef = useRef<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Camera Position (Closer zoom for login screen mode)
-  const targetCamPos = useRef(new THREE.Vector3(0, 2.8, hideControls ? 7.5 : 10.5));
+  // Camera Position (Sleek compact size for login screen mode)
+  const targetCamPos = useRef(new THREE.Vector3(0, 3.6, 9.8));
   const targetLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
 
@@ -674,8 +674,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       animId = requestAnimationFrame(animate);
 
       if (rootGroupRef.current) {
-        if (!isDragging.current && autoRotateRef.current && !hideControls) {
-          rootGroupRef.current.rotation.y += 0.002; // Smooth slow continuous rotation when controls enabled
+        if (!isDragging.current && autoRotateRef.current) {
+          rootGroupRef.current.rotation.y += 0.0008; // Ultra smooth 0.1x speed continuous rotation
         } else if (!isDragging.current) {
           rootGroupRef.current.rotation.y += rotationVelocity.current.x;
           rootGroupRef.current.rotation.x += rotationVelocity.current.y;
