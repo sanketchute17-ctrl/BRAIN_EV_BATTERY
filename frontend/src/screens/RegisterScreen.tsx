@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, User, Car, Battery } from 'lucide-react';
+import { ArrowLeft, ArrowRight, User, Mail, Lock, Phone, Car, ShieldCheck } from 'lucide-react';
 import { apiService } from '../services/api';
 
 interface RegisterScreenProps {
@@ -11,7 +11,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   onRegisterComplete,
   onNavigateLogin,
 }) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -21,289 +20,211 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
     mobile: '',
     password: '',
     confirmPassword: '',
-    make: 'Tesla',
-    model: 'Model Y',
-    variant: 'Long Range',
-    modelYear: '2024',
-    vin: '',
-    odometer: '12500',
-    chemistry: 'NMC',
-    capacityKwh: '75',
-    serialNumber: 'BAT-2024-8849',
-    bmsModel: 'BRAIN Smart BMS v2',
-    cellCount: '96',
+    evModel: 'Ather 450X / Ola S1',
   });
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleNext = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (step === 1 && formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       setErrorMsg('Passwords do not match. Please verify your password entry.');
       return;
     }
 
-    if (step < 3) {
-      setStep((prev) => (prev + 1) as 2 | 3);
-    } else {
-      setIsSubmitting(true);
-      try {
-        await apiService.register({
-          fullName: formData.fullName,
-          email: formData.email,
-          mobile: formData.mobile,
-          password: formData.password,
-        });
-        onRegisterComplete();
-      } catch (err: any) {
-        setErrorMsg(err.message || 'Registration failed. Please check your information.');
-      } finally {
-        setIsSubmitting(false);
-      }
+    if (formData.password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await apiService.register({
+        fullName: formData.fullName,
+        email: formData.email,
+        mobile: formData.mobile,
+        password: formData.password,
+      });
+      onRegisterComplete();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Registration failed. Please check your details.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between p-4 sm:p-6 max-w-lg mx-auto relative overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between pt-2 pb-3">
-        <button
-          onClick={step === 1 ? onNavigateLogin : () => setStep((prev) => (prev - 1) as 1 | 2)}
-          className="p-2.5 bg-white rounded-xl text-slate-700 hover:text-emerald-700 transition border border-slate-200 shadow-sm"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div className="text-center">
-          <h2 className="text-lg font-black text-slate-900 tracking-tight heading-tech uppercase">OPERATOR ONBOARDING</h2>
-          <p className="text-xs font-semibold text-slate-500">STEP {step} OF 3</p>
-        </div>
-        <div className="w-10" />
-      </div>
-
-      {/* Stepper Progress Bar */}
-      <div className="flex items-center justify-between my-3 px-2">
-        {[
-          { num: 1, label: 'User', icon: User },
-          { num: 2, label: 'Vehicle', icon: Car },
-          { num: 3, label: 'Battery', icon: Battery },
-        ].map((s) => {
-          const Icon = s.icon;
-          const active = step >= s.num;
-          return (
-            <div key={s.num} className="flex items-center gap-2">
-              <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border transition ${
-                  active
-                    ? 'bg-emerald-500 text-white border-emerald-400 shadow-emerald'
-                    : 'bg-slate-100 border-slate-300 text-slate-400'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-              </div>
-              {s.num < 3 && (
-                <div
-                  className={`w-16 h-1 transition rounded-full ${
-                    step > s.num ? 'bg-emerald-500' : 'bg-slate-200'
-                  }`}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Form Card */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xl my-2">
-        {errorMsg && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold shadow-sm">
-            {errorMsg}
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative overflow-hidden">
+      
+      {/* MOBILE CONTAINER FRAME */}
+      <div className="w-full sm:max-w-[400px] min-h-screen sm:min-h-[850px] sm:max-h-[920px] sm:rounded-[46px] relative overflow-hidden shadow-2xl border-0 sm:border-[10px] sm:border-slate-900 bg-slate-900 text-slate-900 flex flex-col justify-between p-4 sm:p-5 z-10">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between pt-1 pb-2 relative z-10">
+          <button
+            type="button"
+            onClick={onNavigateLogin}
+            className="p-2 bg-slate-800/90 rounded-xl text-slate-300 hover:text-white transition border border-slate-700 shadow-sm cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+          <div className="text-center">
+            <h2 className="text-sm font-black text-white tracking-wider uppercase">CREATE OPERATOR ACCOUNT</h2>
+            <p className="text-[10px] font-semibold text-emerald-400">BRAIN EV Intelligence Network</p>
           </div>
-        )}
-        <form onSubmit={handleNext} className="space-y-4">
-          {/* STEP 1 */}
-          {step === 1 && (
-            <>
-              <h3 className="text-base text-slate-900 font-extrabold flex items-center gap-2 mb-3 heading-tech">
-                <User className="w-5 h-5 text-emerald-600" />
-                <span>Operator Profile Information</span>
-              </h3>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">FULL NAME</label>
+          <div className="w-8" />
+        </div>
+
+        {/* Form Card */}
+        <div className="relative z-10 my-auto bg-white/95 backdrop-blur-md rounded-3xl p-5 border border-slate-200 shadow-2xl space-y-3.5">
+          {errorMsg && (
+            <div className="p-3 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">
+              {errorMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {/* FULL NAME */}
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                Full Name
+              </label>
+              <div className="relative">
+                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   required
                   value={formData.fullName}
                   onChange={(e) => handleChange('fullName', e.target.value)}
                   placeholder="Dr. Alex Mercer"
-                  className="input-high-contrast"
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">EMAIL ADDRESS</label>
+            </div>
+
+            {/* EMAIL */}
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   required
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   placeholder="alex.mercer@ev-research.org"
-                  className="input-high-contrast"
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">MOBILE NUMBER</label>
+            </div>
+
+            {/* MOBILE */}
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                Mobile Number
+              </label>
+              <div className="relative">
+                <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="tel"
                   required
                   value={formData.mobile}
                   onChange={(e) => handleChange('mobile', e.target.value)}
                   placeholder="+1 (555) 019-2834"
-                  className="input-high-contrast"
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">PASSWORD</label>
+            </div>
+
+            {/* EV VEHICLE SELECTION */}
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                Primary EV Scooter / Vehicle
+              </label>
+              <div className="relative">
+                <Car className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <select
+                  value={formData.evModel}
+                  onChange={(e) => handleChange('evModel', e.target.value)}
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 cursor-pointer"
+                >
+                  <option value="Ather 450X / Ola S1">Ather 450X / Ola S1 Pro</option>
+                  <option value="Tesla Model Y / 3">Tesla Model Y / Model 3</option>
+                  <option value="TVS iQube / Bajaj Chetak">TVS iQube / Bajaj Chetak</option>
+                  <option value="NIO / BYD EV">NIO / BYD / MG ZS EV</option>
+                  <option value="Custom EV BMS Prototype">Custom EV / Smart BMS Prototype</option>
+                </select>
+              </div>
+            </div>
+
+            {/* PASSWORD & CONFIRM */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <div>
+                <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
                     value={formData.password}
                     onChange={(e) => handleChange('password', e.target.value)}
                     placeholder="••••••••"
-                    className="input-high-contrast"
+                    className="w-full pl-9 pr-2.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">CONFIRM</label>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                  Confirm
+                </label>
+                <div className="relative">
+                  <ShieldCheck className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange('confirmPassword', e.target.value)}
                     placeholder="••••••••"
-                    className="input-high-contrast"
+                    className="w-full pl-9 pr-2.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20"
                   />
                 </div>
               </div>
-            </>
-          )}
+            </div>
 
-          {/* STEP 2 */}
-          {step === 2 && (
-            <>
-              <h3 className="text-base text-slate-900 font-extrabold flex items-center gap-2 mb-3 heading-tech">
-                <Car className="w-5 h-5 text-emerald-600" />
-                <span>Vehicle Specifications</span>
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">MAKE</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.make}
-                    onChange={(e) => handleChange('make', e.target.value)}
-                    className="input-high-contrast"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">MODEL</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.model}
-                    onChange={(e) => handleChange('model', e.target.value)}
-                    className="input-high-contrast"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">VARIANT</label>
-                  <input
-                    type="text"
-                    value={formData.variant}
-                    onChange={(e) => handleChange('variant', e.target.value)}
-                    className="input-high-contrast"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">YEAR</label>
-                  <input
-                    type="text"
-                    value={formData.modelYear}
-                    onChange={(e) => handleChange('modelYear', e.target.value)}
-                    className="input-high-contrast"
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* STEP 3 */}
-          {step === 3 && (
-            <>
-              <h3 className="text-base text-slate-900 font-extrabold flex items-center gap-2 mb-3 heading-tech">
-                <Battery className="w-5 h-5 text-emerald-600" />
-                <span>Battery & BMS Details</span>
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">CHEMISTRY</label>
-                  <select
-                    value={formData.chemistry}
-                    onChange={(e) => handleChange('chemistry', e.target.value)}
-                    className="input-high-contrast text-slate-900 bg-white"
-                  >
-                    <option value="NMC">NMC (Nickel Manganese)</option>
-                    <option value="LFP">LFP (Lithium Iron)</option>
-                    <option value="NCA">NCA (Nickel Cobalt)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">CAPACITY (KWH)</label>
-                  <input
-                    type="number"
-                    value={formData.capacityKwh}
-                    onChange={(e) => handleChange('capacityKwh', e.target.value)}
-                    className="input-high-contrast"
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          <div className="pt-3 flex items-center gap-3">
-            {step > 1 && (
-              <button
-                type="button"
-                onClick={() => setStep((prev) => (prev - 1) as 1 | 2)}
-                className="py-3 px-5 bg-slate-100 border border-slate-300 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-200"
-              >
-                BACK
-              </button>
-            )}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3.5 bg-emerald-500 text-white font-extrabold text-sm rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-emerald border border-emerald-400 heading-tech uppercase"
+              className="w-full mt-2 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-2xl transition flex items-center justify-center gap-2 shadow-lg uppercase tracking-wider cursor-pointer active:scale-[0.99]"
             >
-              <span>{step === 3 ? (isSubmitting ? 'REGISTERING...' : 'COMPLETE REGISTRATION') : 'NEXT STEP'}</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              <span>{isSubmitting ? 'CREATING ACCOUNT...' : 'REGISTER ACCOUNT'}</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
 
-      <div className="text-center text-xs font-semibold text-slate-500 pb-2">
-        Already registered?{' '}
-        <button onClick={onNavigateLogin} className="text-emerald-600 hover:underline font-extrabold">
-          Sign In
-        </button>
+        {/* Footer */}
+        <div className="relative z-10 text-center text-xs font-semibold text-slate-400 py-2">
+          Already have an account?{' '}
+          <button
+            type="button"
+            onClick={onNavigateLogin}
+            className="text-emerald-400 hover:underline font-extrabold cursor-pointer"
+          >
+            Sign In
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+
+export default RegisterScreen;

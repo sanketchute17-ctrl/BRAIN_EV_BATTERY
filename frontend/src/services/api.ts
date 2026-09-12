@@ -4,8 +4,31 @@
  * Fallbacks seamlessly to Demo/Simulated Mode if offline.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-const ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
+const PRIMARY_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const FALLBACK_API_URL = 'https://brain-backend-wrhg.onrender.com/api/v1';
+
+let activeApiUrl = PRIMARY_API_URL;
+
+async function fetchWithFailover(endpoint: string, options: RequestInit = {}): Promise<Response> {
+  // Attempt 1: Primary API URL (Local localhost:8000 or custom VITE_API_URL)
+  try {
+    const res = await fetch(`${activeApiUrl}${endpoint}`, options);
+    return res;
+  } catch (err) {
+    // If primary failed and was local, attempt fallback production URL
+    if (activeApiUrl !== FALLBACK_API_URL) {
+      try {
+        console.warn(`Primary backend ${activeApiUrl} unreachable, trying production server ${FALLBACK_API_URL}...`);
+        const fallbackRes = await fetch(`${FALLBACK_API_URL}${endpoint}`, options);
+        activeApiUrl = FALLBACK_API_URL; // Lock onto working server
+        return fallbackRes;
+      } catch {
+        // Fallthrough to throw helpful offline error below
+      }
+    }
+    throw new Error('Unable to connect to backend server. Please verify your local backend server is running on port 8000 (run: cd backend && python app/main.py) or check your network connection.');
+  }
+}
 
 export interface UserLoginPayload {
   email: string;
@@ -61,7 +84,8 @@ export const apiService = {
    */
   async checkBackendStatus(): Promise<{ online: boolean; system?: string }> {
     try {
-      const response = await fetch(`${ROOT_URL}/`, { method: 'GET' });
+      const rootUrl = activeApiUrl.replace(/\/api\/v1\/?$/, '');
+      const response = await fetch(`${rootUrl}/`, { method: 'GET' });
       if (response.ok) {
         const data = await response.json();
         return { online: true, system: data.system };
@@ -79,7 +103,7 @@ export const apiService = {
     const token = this.getStoredToken();
     if (!token) return null;
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      const response = await fetchWithFailover('/auth/me', {
         headers: this.getAuthHeaders(),
       });
       if (response.ok) {
@@ -95,62 +119,48 @@ export const apiService = {
    * User Login API Call (Strict DB Authentication - No Fake Bypass)
    */
   async login(payload: UserLoginPayload): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: payload.email,
-          password: payload.password || '',
-        }),
-      });
+    const response = await fetchWithFailover('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: payload.email,
+        password: payload.password || '',
+      }),
+    });
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({ detail: 'Authentication failed' }));
-        throw new Error(err.detail || 'Invalid email or password');
-      }
-
-      const data: AuthResponse = await response.json();
-      this.setStoredToken(data.access_token, data);
-      return data;
-    } catch (err: any) {
-      if (err.message && err.message.includes('fetch')) {
-        throw new Error('Unable to connect to authentication server. Please verify backend service is active.');
-      }
-      throw err;
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Authentication failed' }));
+      throw new Error(err.detail || 'Invalid email or password');
     }
+
+    const data: AuthResponse = await response.json();
+    this.setStoredToken(data.access_token, data);
+    return data;
   },
 
   /**
    * User Registration API Call (Strict DB Creation)
    */
   async register(payload: UserRegisterPayload): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: payload.email,
-          password: payload.password || '',
-          fullName: payload.fullName,
-          mobile: payload.mobile || '',
-        }),
-      });
+    const response = await fetchWithFailover('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: payload.email,
+        password: payload.password || '',
+        fullName: payload.fullName,
+        mobile: payload.mobile || '',
+      }),
+    });
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({ detail: 'Registration failed' }));
-        throw new Error(err.detail || 'Registration failed');
-      }
-
-      const data: AuthResponse = await response.json();
-      this.setStoredToken(data.access_token, data);
-      return data;
-    } catch (err: any) {
-      if (err.message && err.message.includes('fetch')) {
-        throw new Error('Unable to connect to registration server. Please verify backend service is active.');
-      }
-      throw err;
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Registration failed' }));
+      throw new Error(err.detail || 'Registration failed');
     }
+
+    const data: AuthResponse = await response.json();
+    this.setStoredToken(data.access_token, data);
+    return data;
   },
 
   /**
