@@ -17,8 +17,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateRegister,
   initialEmail,
 }) => {
-  const [email, setEmail] = useState(initialEmail || 'researcher@brain-ev.org');
-  const [password, setPassword] = useState(initialEmail ? '' : 'password123');
+  const [email, setEmail] = useState(initialEmail || '');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -104,8 +104,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3 bg-white/90 border border-slate-300 rounded-2xl text-xs font-bold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/20 transition shadow-xs focus:bg-white"
-                placeholder="researcher@brain-ev.org"
+                className="w-full pl-11 pr-4 py-3 bg-white/90 border border-slate-300 rounded-2xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/20 transition shadow-xs focus:bg-white"
+                placeholder="Enter your registered email"
               />
             </div>
 
@@ -116,8 +116,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-11 pr-11 py-3 bg-white/90 border border-slate-300 rounded-2xl text-xs font-bold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/20 transition shadow-xs focus:bg-white"
-                placeholder="••••••••••••"
+                className="w-full pl-11 pr-11 py-3 bg-white/90 border border-slate-300 rounded-2xl text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/20 transition shadow-xs focus:bg-white"
+                placeholder="Enter your password"
               />
               <button
                 type="button"
