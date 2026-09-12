@@ -20,10 +20,22 @@ export const isFirebaseConfigured = (): boolean => {
   );
 };
 
-export const firebaseApp: FirebaseApp | null = isFirebaseConfigured()
-  ? getApps().length === 0
-    ? initializeApp(firebaseConfig)
-    : getApp()
-  : null;
+let appInstance: FirebaseApp | null = null;
+try {
+  if (isFirebaseConfigured()) {
+    appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  }
+} catch (e) {
+  console.warn('Firebase init safe fallback:', e);
+}
+export const firebaseApp: FirebaseApp | null = appInstance;
 
-export const firebaseAuth: Auth | null = firebaseApp ? getAuth(firebaseApp) : null;
+let authInstance: Auth | null = null;
+try {
+  if (firebaseApp) {
+    authInstance = getAuth(firebaseApp);
+  }
+} catch (e) {
+  console.warn('Firebase Auth init safe fallback:', e);
+}
+export const firebaseAuth: Auth | null = authInstance;

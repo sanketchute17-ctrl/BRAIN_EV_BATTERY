@@ -13,6 +13,12 @@ export const isSupabaseConfigured = (): boolean => {
   );
 };
 
-export const supabase: SupabaseClient | null = isSupabaseConfigured()
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+let clientInstance: SupabaseClient | null = null;
+try {
+  if (isSupabaseConfigured()) {
+    clientInstance = createClient(supabaseUrl, supabaseAnonKey);
+  }
+} catch (e) {
+  console.warn('Supabase init safe fallback:', e);
+}
+export const supabase: SupabaseClient | null = clientInstance;
