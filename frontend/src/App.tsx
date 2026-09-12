@@ -148,7 +148,7 @@ export function App() {
         predictedSoc: calcSoc,
         thermalStress: calcTemp > 45 ? 'HIGH THERMAL LOAD' : 'MODERATE STRESS',
         riskScore: calcRisk,
-        safeWindow: calcTemp > 48 ? '8 ΓÇô 14 MIN' : '18 ΓÇô 25 MIN',
+        safeWindow: calcTemp > 48 ? '8 - 14 MIN' : '18 - 25 MIN',
       });
       setIsSimulating(false);
     }, 600);
@@ -380,7 +380,7 @@ export function App() {
                         </div>
                         <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                           <span className="text-[10px] font-bold text-slate-500 uppercase block">TEMPERATURE</span>
-                          <span className="text-lg font-black text-red-500">{bleState.lastTelemetry.temp} ┬░C</span>
+                          <span className="text-lg font-black text-red-500">{bleState.lastTelemetry.temp} °C</span>
                         </div>
                         <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                           <span className="text-[10px] font-bold text-slate-500 uppercase block">SOC / SOH</span>
@@ -497,7 +497,7 @@ export function App() {
                     </div>
 
                     <div className="text-[10px] font-extrabold text-slate-700 tracking-wide mt-1.5 bg-slate-100/90 px-3 py-0.5 rounded-full border border-slate-200 shadow-2xs">
-                      Drag to <span className="text-[#059669]">rotate</span> ΓÇó Pinch to <span className="text-[#059669]">zoom</span>
+                      Drag to <span className="text-[#059669]">rotate</span> • Pinch to <span className="text-[#059669]">zoom</span>
                     </div>
                   </div>
 
@@ -521,7 +521,7 @@ export function App() {
                       <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
                         <Thermometer className="w-3 h-3 text-[#EA580C]" /> Temp
                       </div>
-                      <div className="text-sm font-black text-[#EA580C] mt-0.5">34.2┬░C</div>
+                      <div className="text-sm font-black text-[#EA580C] mt-0.5">34.2°C</div>
                     </div>
 
                     <div className="bg-[#F8FAFC] p-2 rounded-2xl border border-slate-200/60 text-center">
@@ -591,7 +591,7 @@ export function App() {
                     <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
                       <Thermometer className="w-4 h-4 text-[#EA580C]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Temperature</div>
-                      <div className="text-xs font-black text-[#EA580C]">34.2 ┬░C</div>
+                      <div className="text-xs font-black text-[#EA580C]">34.2 °C</div>
                     </div>
                   </div>
                 </div>
@@ -680,11 +680,11 @@ export function App() {
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">POWER / TEMP</div>
-                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">42.2 kW / 34.2 ┬░C</div>
+                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">42.2 kW / 34.2 °C</div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">INTERNAL RESISTANCE</div>
-                      <div className="text-lg font-extrabold text-red-500 mt-0.5">1.25 m╬⌐ / cell</div>
+                      <div className="text-lg font-extrabold text-red-500 mt-0.5">1.25 mΩ / cell</div>
                     </div>
                   </div>
                 </div>
@@ -753,7 +753,7 @@ export function App() {
                         </div>
                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                           <div className="text-[10px] font-bold text-slate-500">TEMPERATURE</div>
-                          <div className="text-xl font-extrabold text-red-500">{selectedCell.temp} ┬░C</div>
+                          <div className="text-xl font-extrabold text-red-500">{selectedCell.temp} °C</div>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                           <div className="text-[10px] font-bold text-slate-500">DEVIATION</div>
@@ -825,7 +825,7 @@ export function App() {
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
                       <div>
                         <div className="text-xs font-bold text-slate-500 uppercase">ESTIMATED SAFE OPERATING WINDOW</div>
-                        <div className="text-2xl font-extrabold text-red-500 mt-1">18 ΓÇô 25 MIN</div>
+                        <div className="text-2xl font-extrabold text-red-500 mt-1">18 – 25 MIN</div>
                       </div>
                       <p className="text-[11px] font-serif italic text-slate-500 mt-2">
                         * Model-based estimate, not a guaranteed countdown.
@@ -900,7 +900,7 @@ export function App() {
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-slate-700 uppercase">AMBIENT TEMP: {simTemp} ┬░C</label>
+                      <label className="text-xs font-bold text-slate-700 uppercase">AMBIENT TEMP: {simTemp} °C</label>
                       <input
                         type="range"
                         min="-10"
@@ -957,8 +957,8 @@ export function App() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                         <div className="text-[10px] font-bold text-slate-500">PREDICTED TEMP</div>
-                        <div className="text-2xl font-extrabold text-red-500 mt-1">{simResults.predictedTemp} ┬░C</div>
-                        <div className="text-[10px] text-slate-500">Current: 34.2 ┬░C</div>
+                        <div className="text-2xl font-extrabold text-red-500 mt-1">{simResults.predictedTemp} °C</div>
+                        <div className="text-[10px] text-slate-500">Current: 34.2 °C</div>
                       </div>
 
                       <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
@@ -1000,7 +1000,7 @@ export function App() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                      <div className="text-xs font-bold text-slate-700 uppercase">TEMPERATURE VS TIME (┬░C)</div>
+                      <div className="text-xs font-bold text-slate-700 uppercase">TEMPERATURE VS TIME (°C)</div>
                       <div className="h-40 flex items-end gap-1.5 pt-4">
                         {[28, 30, 31, 33, 34, 34.2, 35, 36, 38, 40, 39, 37].map((v, idx) => (
                           <div key={idx} className="flex-1 bg-red-500 hover:bg-red-600 rounded-t transition-all" style={{ height: `${(v / 50) * 100}%` }} />

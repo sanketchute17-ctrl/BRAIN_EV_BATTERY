@@ -286,7 +286,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
         name: `Prismatic Blade Cell C0${cellId}`,
         type: 'Lithium Blade Cell',
         voltage: hasProblem ? '2.92 V (Degraded Voltage Drop)' : '3.65 V',
-        temp: hasProblem ? '52.4 ┬░C (Elevated Thermal Spike)' : '32.1 ┬░C',
+        temp: hasProblem ? '52.4 °C (Elevated Thermal Spike)' : '32.1 °C',
         status: hasProblem ? 'FAULT DETECTED' : 'HEALTHY',
         risk: hasProblem ? '88%' : '2%',
         description: hasProblem
@@ -326,7 +326,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
         name: `Prismatic Module Cell C${cellId}`,
         type: 'Lithium Blade Cell',
         voltage: '3.64 V',
-        temp: '31.8 ┬░C',
+        temp: '31.8 °C',
         status: 'HEALTHY',
         risk: '1%',
         description: 'Rear row prismatic cell block with active voltage telemetry sync.',
@@ -778,7 +778,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       {!hideControls && (
         <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none text-xs font-mono font-bold">
           <span className="bg-slate-900/90 text-white px-3 py-1.5 rounded-xl border border-slate-700 backdrop-blur-md shadow-md">
-            Drag to rotate ΓÇó Pinch to zoom ΓÇó Tap cell for telemetry
+            Drag to rotate • Pinch to zoom • Tap cell for telemetry
           </span>
           <span className="bg-emerald-50 text-emerald-700 border border-emerald-500 px-2.5 py-1 rounded-xl font-extrabold shadow-sm">
             {isSimulated ? 'LIVE PINN MODEL' : 'PHYSICAL BLE BMS'}
