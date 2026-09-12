@@ -13,6 +13,7 @@ import { batteryStateService } from './services/batteryStateService';
 import type { NormalizedBatteryState } from './types/telemetry';
 import { bluetoothService } from './services/bluetoothService';
 import type { BLEDeviceState } from './services/bluetoothService';
+import { apiService } from './services/api';
 import {
   ArrowLeft,
   Zap,
