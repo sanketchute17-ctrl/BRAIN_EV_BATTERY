@@ -325,7 +325,7 @@ export function App() {
                           : 'bg-slate-100 border-slate-300 text-slate-500'
                       }`}
                     >
-                      ΓùÅ {bleState.connected ? bleState.mode : 'DISCONNECTED'}
+                      • {bleState.connected ? bleState.mode : 'DISCONNECTED'}
                     </span>
                   </div>
 
@@ -548,7 +548,7 @@ export function App() {
                     </div>
 
                     <span className="inline-flex items-center gap-1 bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#047857]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" /> Healthy Γû╛
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" /> Healthy ▾
                     </span>
                   </div>
 
