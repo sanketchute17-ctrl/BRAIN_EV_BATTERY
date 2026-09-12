@@ -47,8 +47,8 @@ import {
 } from 'lucide-react';
 
 export function App() {
-  const [authState, setAuthState] = useState<'LOGIN' | 'REGISTER' | 'AUTHENTICATED'>('LOGIN');
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [authState, setAuthState] = useState<'LOGIN' | 'REGISTER' | 'AUTHENTICATED'>('AUTHENTICATED');
+  const [isDemoMode, setIsDemoMode] = useState(true);
   const [backendOnline, setBackendOnline] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -196,9 +196,9 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative">
-      {/* MOBILE APP CONTAINER FRAME (Full Viewport on Mobile, Phone Shell on Desktop) */}
-      <div className="w-full sm:max-w-md min-h-screen sm:min-h-[840px] sm:max-h-[920px] sm:rounded-[40px] relative overflow-hidden shadow-2xl border-0 sm:border-[8px] sm:border-slate-800 bg-[#e2e8f0] text-slate-900 flex flex-col justify-between">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative">
+      {/* APP CONTAINER FRAME */}
+      <div className="w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl min-h-screen sm:min-h-[840px] sm:rounded-3xl relative overflow-hidden shadow-xl border-0 sm:border border-slate-200 bg-[#f8fafc] text-slate-900 flex flex-col justify-between">
         
         {/* 1. CLEAN, UNCLUTTERED HEADER */}
         <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs shrink-0">
