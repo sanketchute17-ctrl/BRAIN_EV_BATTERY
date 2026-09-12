@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LoginScreen } from './screens/LoginScreen';
 import { RegisterScreen } from './screens/RegisterScreen';
+import { ProfileScreen } from './screens/ProfileScreen';
 import { Navigation } from './components/Navigation';
 import type { TabType, DrawerType } from './components/Navigation';
 import { MenuDrawer } from './components/MenuDrawer';
@@ -39,7 +40,8 @@ import {
   ShieldCheck,
   Clock,
   BatteryCharging,
-  LogOut
+  LogOut,
+  User
 } from 'lucide-react';
 
 export function App() {
@@ -189,13 +191,13 @@ export function App() {
       {/* MOBILE APP CONTAINER FRAME (Full Viewport on Mobile, Phone Shell on Desktop) */}
       <div className="w-full sm:max-w-md min-h-screen sm:min-h-[840px] sm:max-h-[920px] sm:rounded-[40px] relative overflow-hidden shadow-2xl border-0 sm:border-[8px] sm:border-slate-800 bg-[#e2e8f0] text-slate-900 flex flex-col justify-between">
         
-        {/* 1. HEADER WITH OLA/ATHER BRANDING */}
-        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-3 py-2 flex items-center justify-between shadow-sm shrink-0">
-          <div className="flex items-center gap-1.5">
+        {/* 1. CLEAN, UNCLUTTERED HEADER */}
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs shrink-0">
+          <div className="flex items-center gap-2">
             {activeDrawerItem ? (
               <button
                 onClick={() => setActiveDrawerItem(null)}
-                className="p-1.5 bg-white rounded-xl text-emerald-600 hover:bg-emerald-50 border border-slate-200 shadow-sm cursor-pointer"
+                className="p-1.5 bg-white rounded-xl text-emerald-600 hover:bg-emerald-50 border border-slate-200 shadow-xs cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
@@ -203,51 +205,32 @@ export function App() {
               <BrainLogo size="sm" layout="horizontal" showFullForm={false} showQuote={false} />
             )}
 
-            {/* Connection Status Badge */}
+            {/* Connection Status Dot */}
             <span
-              className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border ${
-                backendOnline
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                  : 'bg-red-50 border-red-300 text-red-700'
+              className={`w-2.5 h-2.5 rounded-full border border-white shadow-2xs ${
+                backendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'
               }`}
-            >
-              ● {backendOnline ? 'ONLINE' : 'OFFLINE'}
-            </span>
-
-            {/* Authenticated Operator Profile Badge */}
-            {currentUser && (
-              <span className="text-[9px] font-extrabold bg-slate-100 text-slate-800 border border-slate-300 px-2 py-0.5 rounded-full flex items-center gap-1">
-                👤 {currentUser.full_name?.split(' ')[0] || 'Operator'}
-              </span>
-            )}
+              title={backendOnline ? 'Database & Backend Online' : 'Offline Mode Active'}
+            />
           </div>
 
-          {/* Status Light & Scenario Switcher */}
-          <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-1 bg-slate-100/90 border border-slate-200 rounded-xl px-2 py-1 shadow-2xs">
-              <span className={`w-2 h-2 rounded-full ${getStatusLightClass(demoStatus)}`} />
-              <span className="text-[10px] font-mono font-extrabold tracking-wider text-slate-800">
-                {demoStatus}
-              </span>
-            </div>
-
-            <select
-              value={demoStatus}
-              onChange={(e) => setDemoStatus(e.target.value as any)}
-              className="text-[9px] font-bold bg-white/90 border border-slate-300 rounded-xl px-1.5 py-1 text-emerald-700 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-2xs"
-            >
-              <option value="HEALTHY">🟢 HEALTHY</option>
-              <option value="WATCH">🟢 WATCH</option>
-              <option value="WARNING">🔴 WARNING</option>
-              <option value="CRITICAL">🔴 CRITICAL</option>
-            </select>
-
+          {/* Right Header: User Profile Avatar & Access Button */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={handleLogout}
-              title="Sign Out"
-              className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition cursor-pointer"
+              onClick={() => {
+                setActiveDrawerItem(null);
+                setActiveTab('profile');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition cursor-pointer ${
+                activeTab === 'profile'
+                  ? 'bg-slate-900 text-emerald-400 border-slate-700 shadow-sm font-black'
+                  : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200 font-extrabold'
+              }`}
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <User className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-xs truncate max-w-[110px]">
+                {currentUser?.full_name?.split(' ')[0] || 'Operator'}
+              </span>
             </button>
           </div>
         </header>
@@ -1011,6 +994,15 @@ export function App() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* TAB 6: OPERATOR PROFILE DASHBOARD */}
+            {activeTab === 'profile' && (
+              <ProfileScreen
+                currentUser={currentUser}
+                onLogout={handleLogout}
+                onBackToDashboard={() => setActiveTab('home')}
+              />
             )}
           </>
         )}

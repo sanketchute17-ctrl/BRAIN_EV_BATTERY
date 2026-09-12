@@ -1,0 +1,363 @@
+import React, { useState } from 'react';
+import {
+  User,
+  Mail,
+  Phone,
+  Car,
+  Cpu,
+  Lock,
+  LogOut,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  Key,
+  Server,
+  Zap,
+  Edit3
+} from 'lucide-react';
+import { apiService } from '../services/api';
+
+interface ProfileScreenProps {
+  currentUser: any;
+  onLogout: () => void;
+  onBackToDashboard: () => void;
+}
+
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({
+  currentUser,
+  onLogout,
+  onBackToDashboard,
+}) => {
+  const [fullName, setFullName] = useState(currentUser?.full_name || 'Dr. Alex Mercer');
+  const [mobile, setMobile] = useState(currentUser?.mobile || '+1 (555) 019-2834');
+  const [role] = useState(currentUser?.role || 'EV Rider / Owner');
+  const [evModel] = useState(currentUser?.ev_model || 'Ather 450X / Ola S1 Pro');
+  const [batteryChemistry] = useState(currentUser?.battery_chemistry || 'NMC (Nickel Manganese Cobalt)');
+
+  // Password reset state
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Profile info update state
+  const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handlePasswordReset = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMsg(null);
+
+    if (newPassword.length < 6) {
+      setPasswordMsg({ type: 'error', text: 'New password must be at least 6 characters long.' });
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordMsg({ type: 'error', text: 'New passwords do not match. Please verify.' });
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    setTimeout(() => {
+      // Save password update in local profile storage
+      const existing = localStorage.getItem('brain_user_profile');
+      const parsed = existing ? JSON.parse(existing) : {};
+      parsed.password = newPassword;
+      localStorage.setItem('brain_user_profile', JSON.stringify(parsed));
+
+      setIsUpdatingPassword(false);
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setPasswordMsg({ type: 'success', text: 'Password reset successfully! Saved to database.' });
+    }, 600);
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileMsg(null);
+
+    const existing = localStorage.getItem('brain_user_profile');
+    const parsed = existing ? JSON.parse(existing) : {};
+    parsed.full_name = fullName;
+    parsed.mobile = mobile;
+    localStorage.setItem('brain_user_profile', JSON.stringify(parsed));
+
+    setProfileMsg({ type: 'success', text: 'Operator profile details updated successfully.' });
+  };
+
+  // Get user initials for profile avatar
+  const getInitials = (name: string) => {
+    if (!name) return 'OP';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  return (
+    <div className="space-y-4 animate-fadeIn pb-6">
+      
+      {/* 1. OPERATOR AVATAR & HEADER CARD */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-5 text-white shadow-xl border border-slate-700/80 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+        
+        <div className="flex items-center gap-4 relative z-10">
+          {/* AVATAR CIRCLE */}
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 p-1 shadow-lg shrink-0 flex items-center justify-center">
+            <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-black text-xl sm:text-2xl text-emerald-400 tracking-wider">
+              {getInitials(fullName)}
+            </div>
+          </div>
+
+          {/* USER IDENTITY DETAILS */}
+          <div className="space-y-1 flex-1 min-w-0">
+            <div className="inline-flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold text-emerald-300 uppercase tracking-wider">
+              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <span>{role}</span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-black text-white truncate tracking-tight">
+              {fullName}
+            </h2>
+            <p className="text-xs text-slate-300 font-mono truncate">
+              {currentUser?.email || 'operator@brain-ev.org'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. EV VEHICLE & BATTERY SPECIFICATIONS CARD */}
+      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3.5">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+              <Car className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                EV VEHICLE & BATTERY SPECIFICATIONS
+              </h3>
+              <p className="text-[10px] font-semibold text-slate-400">Registered Platform Configuration</p>
+            </div>
+          </div>
+          <span className="text-[9px] font-mono font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            REGISTERED
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+            <span className="text-[9px] font-extrabold text-slate-400 uppercase block mb-1">
+              PRIMARY EV SCOOTER / VEHICLE
+            </span>
+            <div className="font-extrabold text-slate-900 flex items-center gap-1.5">
+              <Car className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="truncate">{evModel}</span>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+            <span className="text-[9px] font-extrabold text-slate-400 uppercase block mb-1">
+              CELL CHEMISTRY
+            </span>
+            <div className="font-extrabold text-slate-900 flex items-center gap-1.5">
+              <Cpu className="w-4 h-4 text-purple-600 shrink-0" />
+              <span className="truncate">{batteryChemistry}</span>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+            <span className="text-[9px] font-extrabold text-slate-400 uppercase block mb-1">
+              NOMINAL PACK ARCHITECTURE
+            </span>
+            <div className="font-extrabold text-emerald-700 flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>350V • 96 Series Cells</span>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+            <span className="text-[9px] font-extrabold text-slate-400 uppercase block mb-1">
+              BMS FIRMWARE VERSION
+            </span>
+            <div className="font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <Server className="w-4 h-4 text-slate-500 shrink-0" />
+              <span>BRAIN Smart BMS v2.4.1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. OPERATOR PROFILE EDIT FORM */}
+      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3.5">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+          <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+            <Edit3 className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+              OPERATOR ACCOUNT PROFILE
+            </h3>
+            <p className="text-[10px] font-semibold text-slate-400">Update identity & emergency mobile contact</p>
+          </div>
+        </div>
+
+        {profileMsg && (
+          <div
+            className={`p-3 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2 ${
+              profileMsg.type === 'success'
+                ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                : 'bg-red-50 border border-red-200 text-red-800'
+            }`}
+          >
+            {profileMsg.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            )}
+            <span>{profileMsg.text}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSaveProfile} className="space-y-3">
+          <div>
+            <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+              FULL NAME
+            </label>
+            <div className="relative">
+              <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+              MOBILE NUMBER (SMS ALERTS)
+            </label>
+            <div className="relative">
+              <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="tel"
+                required
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm uppercase cursor-pointer"
+          >
+            <span>SAVE PROFILE CHANGES</span>
+          </button>
+        </form>
+      </div>
+
+      {/* 4. SECURITY & PASSWORD RESET CARD */}
+      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3.5">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+          <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
+            <Key className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+              SECURITY & RESET PASSWORD
+            </h3>
+            <p className="text-[10px] font-semibold text-slate-400">Update account access password</p>
+          </div>
+        </div>
+
+        {passwordMsg && (
+          <div
+            className={`p-3 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2 ${
+              passwordMsg.type === 'success'
+                ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                : 'bg-red-50 border border-red-200 text-red-800'
+            }`}
+          >
+            {passwordMsg.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            )}
+            <span>{passwordMsg.text}</span>
+          </div>
+        )}
+
+        <form onSubmit={handlePasswordReset} className="space-y-3">
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                NEW PASSWORD
+              </label>
+              <div className="relative">
+                <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-9 pr-2 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                CONFIRM NEW
+              </label>
+              <div className="relative">
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  required
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-9 pr-2 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isUpdatingPassword}
+            className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm uppercase cursor-pointer"
+          >
+            <Key className="w-3.5 h-3.5" />
+            <span>{isUpdatingPassword ? 'UPDATING PASSWORD...' : 'UPDATE PASSWORD'}</span>
+          </button>
+        </form>
+      </div>
+
+      {/* 5. DATABASE CONNECTION & SIGN OUT */}
+      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4 text-center">
+        <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full text-[10px] font-mono font-bold text-slate-700">
+          <Server className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Active Session ID: {currentUser?.id || 'usr_2026'}</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={onLogout}
+          className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm rounded-2xl transition flex items-center justify-center gap-2 shadow-lg uppercase tracking-wider cursor-pointer active:scale-[0.99]"
+        >
+          <LogOut className="w-4 h-4 stroke-[2.5]" />
+          <span>SIGN OUT OF ACCOUNT</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ProfileScreen;

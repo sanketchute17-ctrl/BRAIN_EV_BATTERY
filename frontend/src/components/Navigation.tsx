@@ -1,7 +1,7 @@
 import React from 'react';
-import { Home, BatteryCharging, ShieldAlert, Box, LineChart, Menu } from 'lucide-react';
+import { Home, BatteryCharging, ShieldAlert, Box, LineChart, User, Menu } from 'lucide-react';
 
-export type TabType = 'home' | 'battery' | 'guardian' | 'simulator' | 'analytics';
+export type TabType = 'home' | 'battery' | 'guardian' | 'simulator' | 'analytics' | 'profile';
 export type DrawerType = 'doctor' | 'assistant' | 'twin' | 'charging' | 'alerts' | 'bms' | 'research' | 'reports' | 'settings';
 
 interface NavigationProps {
@@ -21,7 +21,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'battery', label: 'Battery', icon: BatteryCharging },
     { id: 'guardian', label: 'AI Guardian', icon: ShieldAlert },
     { id: 'simulator', label: 'Simulator', icon: Box },
-    { id: 'analytics', label: 'Analytics', icon: LineChart },
+    { id: 'profile', label: 'Profile', icon: User },
   ] as const;
 
   return (
