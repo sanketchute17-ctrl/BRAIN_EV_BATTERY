@@ -25,6 +25,62 @@ class BluetoothService {
   private sequenceCounter: number = 100;
   private reconnectAttempts: number = 0;
   private isManualDisconnect: boolean = false;
+  private listeners: Set<() => void> = new Set();
+
+  public subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  public notify(): void {
+    this.listeners.forEach((cb) => {
+      try {
+        cb();
+      } catch (e) {}
+    });
+  }
+
+  public getState(): {
+    connected: boolean;
+    deviceName: string | null;
+    deviceId: string | null;
+    rssi: number | null;
+    mode: 'HARDWARE' | 'SIMULATED' | 'DISCONNECTED';
+    lastTelemetry?: any;
+  } {
+    const snapshot = batteryStateService.getSnapshot();
+    const isConnected = snapshot.connectionState === 'CONNECTED';
+    const isSim = snapshot.source === 'DEMO' || this.isVirtualGattActive;
+    return {
+      connected: isConnected,
+      deviceName: snapshot.deviceName,
+      deviceId: snapshot.deviceId,
+      rssi: snapshot.rssi,
+      mode: isConnected ? (isSim ? 'SIMULATED' : 'HARDWARE') : 'DISCONNECTED',
+      lastTelemetry: isConnected
+        ? {
+            voltage: snapshot.voltage,
+            current: snapshot.current,
+            temp: snapshot.temperature,
+            soc: snapshot.soc,
+            soh: snapshot.soh,
+            timestamp: snapshot.lastUpdated,
+          }
+        : undefined,
+    };
+  }
+
+  public async requestAndConnectDevice(): Promise<void> {
+    await this.scanAndConnectDevice();
+    this.notify();
+  }
+
+  public startSimulatedBleConnection(): void {
+    this.startVirtualGattPeripheral();
+    this.notify();
+  }
 
   /**
    * Check Web Bluetooth API availability
@@ -340,6 +396,7 @@ class BluetoothService {
     this.gattServer = null;
     this.bleDevice = null;
     batteryStateService.setConnectionState('DISCONNECTED');
+    this.notify();
   }
 }
 
