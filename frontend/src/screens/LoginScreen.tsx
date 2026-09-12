@@ -69,52 +69,52 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </div>
         </div>
 
-        {/* 3. WATER-TRANSPARENT GLASSMORPHIC LOGIN FORM CARD */}
-        <div className="relative z-10 space-y-3.5 my-auto bg-white/[0.04] backdrop-blur-2xl p-5 sm:p-6 rounded-[28px] border border-white/30 border-t-white/50 border-b-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_1px_2px_rgba(255,255,255,0.4)] transition-all duration-300 hover:border-white/40">
+        {/* 3. FLOATING TRANSPARENT INPUT FORM AND BUTTONS */}
+        <div className="relative z-10 space-y-3.5 my-auto w-full max-w-[340px] mx-auto px-1">
           {registeredNotice && (
-            <div className="p-3 rounded-2xl bg-emerald-600/70 backdrop-blur-xl text-white text-xs font-bold shadow-[0_8px_20px_rgba(5,150,105,0.3),inset_0_1px_1px_rgba(255,255,255,0.4)] flex items-center gap-2 animate-fadeIn border border-emerald-400/50 border-t-white/40">
+            <div className="p-3 rounded-full bg-emerald-600/70 backdrop-blur-xl text-white text-xs font-extrabold shadow-[0_8px_20px_rgba(5,150,105,0.3)] flex items-center justify-center gap-2 animate-fadeIn border border-white/30 text-center">
               <ShieldCheck className="w-4 h-4 text-emerald-200 shrink-0" />
               <span>{registeredNotice}</span>
             </div>
           )}
 
           {errorMsg && (
-            <div className="p-3 rounded-2xl bg-red-600/70 backdrop-blur-xl text-white text-xs font-bold shadow-[0_8px_20px_rgba(220,38,38,0.3),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-red-400/50 border-t-white/40">
+            <div className="p-3 rounded-full bg-red-600/85 backdrop-blur-xl text-white text-xs sm:text-sm font-black shadow-[0_8px_20px_rgba(220,38,38,0.4)] border border-red-400/50 text-center">
               {errorMsg}
             </div>
           )}
 
           <form onSubmit={handleLoginSubmit} className="space-y-3.5">
-            {/* EMAIL INPUT (WATER GLASS BAR) */}
+            {/* EMAIL INPUT (TRANSPARENT ROUNDED PILL) */}
             <div className="relative group">
-              <Mail className="w-4 h-4 text-slate-200 group-focus-within:text-emerald-400 absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 z-10" />
+              <Mail className="w-4.5 h-4.5 text-slate-700 group-focus-within:text-emerald-500 absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 z-10" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 bg-white/[0.06] backdrop-blur-xl border border-white/25 border-t-white/40 border-b-white/10 rounded-2xl text-xs font-bold text-white placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.2),0_4px_15px_rgba(0,0,0,0.3)] hover:bg-white/[0.12]"
+                className="w-full pl-12 pr-4 py-3.5 bg-white/20 hover:bg-white/30 focus:bg-white/35 backdrop-blur-xl border border-white/40 border-t-white/60 border-b-white/20 rounded-full text-xs sm:text-sm font-extrabold text-slate-900 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 transition-all duration-300 shadow-[0_8px_25px_rgba(0,0,0,0.15),inset_0_1px_2px_rgba(255,255,255,0.5)]"
                 placeholder="Enter your registered email"
               />
             </div>
 
-            {/* PASSWORD INPUT (WATER GLASS BAR) */}
+            {/* PASSWORD INPUT (TRANSPARENT ROUNDED PILL) */}
             <div className="relative group">
-              <Lock className="w-4 h-4 text-slate-200 group-focus-within:text-emerald-400 absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 z-10" />
+              <Lock className="w-4.5 h-4.5 text-slate-700 group-focus-within:text-emerald-500 absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 z-10" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-11 pr-11 py-3.5 bg-white/[0.06] backdrop-blur-xl border border-white/25 border-t-white/40 border-b-white/10 rounded-2xl text-xs font-bold text-white placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.2),0_4px_15px_rgba(0,0,0,0.3)] hover:bg-white/[0.12]"
+                className="w-full pl-12 pr-12 py-3.5 bg-white/20 hover:bg-white/30 focus:bg-white/35 backdrop-blur-xl border border-white/40 border-t-white/60 border-b-white/20 rounded-full text-xs sm:text-sm font-extrabold text-slate-900 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 transition-all duration-300 shadow-[0_8px_25px_rgba(0,0,0,0.15),inset_0_1px_2px_rgba(255,255,255,0.5)]"
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-200 hover:text-white transition cursor-pointer z-10"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700 hover:text-slate-900 transition cursor-pointer z-10"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
               </button>
             </div>
 
@@ -122,49 +122,49 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               <button
                 type="button"
                 onClick={() => alert('Forgot password instructions sent to your email.')}
-                className="text-[11px] font-black text-emerald-400 hover:text-emerald-300 cursor-pointer bg-white/[0.08] hover:bg-white/[0.18] px-3 py-1 rounded-xl border border-white/25 border-t-white/40 backdrop-blur-xl shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.3)] transition-all active:scale-95"
+                className="text-[11px] font-black text-emerald-700 hover:text-emerald-600 cursor-pointer bg-white/30 hover:bg-white/40 px-3.5 py-1.5 rounded-full border border-white/50 border-t-white/70 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all active:scale-95"
               >
                 Forgot Password?
               </button>
             </div>
 
-            {/* WATER GLASS EMBOSSED SIGN IN BUTTON */}
+            {/* EMBOSSED GREEN SIGN IN BUTTON */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 bg-emerald-600/80 hover:bg-emerald-500/90 backdrop-blur-xl text-white font-black text-xs sm:text-sm rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_10px_25px_rgba(16,185,129,0.4),inset_0_1px_2px_rgba(255,255,255,0.5)] border border-emerald-400/60 border-t-white/50 uppercase tracking-wider cursor-pointer active:translate-y-[1px] active:shadow-[0_4px_10px_rgba(16,185,129,0.3)] disabled:opacity-50"
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black text-sm sm:text-base rounded-full transition-all duration-300 flex items-center justify-center gap-2.5 shadow-[0_10px_25px_rgba(5,150,105,0.4),inset_0_1px_2px_rgba(255,255,255,0.4)] border border-emerald-400/50 border-t-white/40 uppercase tracking-wider cursor-pointer active:scale-98 disabled:opacity-50"
             >
-              <span>{isSubmitting ? 'Authenticating...' : 'Sign In'}</span>
-              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              <span>{isSubmitting ? 'Authenticating...' : 'SIGN IN'}</span>
+              <ArrowRight className="w-5 h-5 stroke-[3]" />
             </button>
           </form>
 
           {/* DIVIDER WITH WATER GLASS PILL */}
-          <div className="relative my-2.5 flex items-center justify-center">
+          <div className="relative my-3 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/20" />
+              <div className="w-full border-t border-white/40" />
             </div>
-            <span className="relative bg-white/[0.1] px-3 py-0.5 text-[9px] font-black text-slate-200 uppercase tracking-widest rounded-full border border-white/30 border-t-white/50 backdrop-blur-xl shadow-[0_2px_6px_rgba(0,0,0,0.3)]">
+            <span className="relative bg-white/40 px-4 py-0.5 text-[10px] font-black text-slate-800 uppercase tracking-widest rounded-full border border-white/60 border-t-white/80 backdrop-blur-xl shadow-[0_2px_6px_rgba(0,0,0,0.15)]">
               OR
             </span>
           </div>
 
-          {/* SECONDARY WATER GLASS BUTTONS */}
+          {/* SECONDARY TRANSPARENT WATER GLASS BUTTONS */}
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={handleDemoClick}
-              className="py-3 px-2 bg-white/[0.06] text-emerald-400 border border-emerald-400/40 border-t-white/40 rounded-2xl text-[11px] font-extrabold hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center gap-1.5 shadow-[0_6px_16px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.3)] backdrop-blur-xl cursor-pointer active:scale-95"
+              className="py-3.5 px-3 bg-white/20 text-emerald-800 border border-white/40 border-t-white/60 rounded-full text-xs font-black hover:bg-white/35 transition-all duration-200 flex items-center justify-center gap-2 shadow-[0_6px_18px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.5)] backdrop-blur-xl cursor-pointer active:scale-95"
             >
-              <PlayCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <PlayCircle className="w-4 h-4 text-emerald-700" />
               <span>Demo Mode</span>
             </button>
             <button
               type="button"
               onClick={onNavigateRegister}
-              className="py-3 px-2 bg-white/[0.06] text-white border border-white/25 border-t-white/40 rounded-2xl text-[11px] font-extrabold hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center gap-1.5 shadow-[0_6px_16px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.3)] backdrop-blur-xl cursor-pointer active:scale-95"
+              className="py-3.5 px-3 bg-white/20 text-slate-900 border border-white/40 border-t-white/60 rounded-full text-xs font-black hover:bg-white/35 transition-all duration-200 flex items-center justify-center gap-2 shadow-[0_6px_18px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.5)] backdrop-blur-xl cursor-pointer active:scale-95"
             >
-              <UserPlus className="w-3.5 h-3.5 text-slate-200" />
+              <UserPlus className="w-4 h-4 text-slate-700" />
               <span>Register</span>
             </button>
           </div>
