@@ -62,10 +62,10 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const bmsGroupRef = useRef<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Camera Position (Compact sleek size for login screen mode)
-  const targetCamPos = useRef(new THREE.Vector3(0, 1.8, hideControls ? 11.2 : 10.5));
-  const targetLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
-  const currentLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
+  // Camera Position (Zoomed-out natural actual size)
+  const targetCamPos = useRef(new THREE.Vector3(0, 0.5, 10.5));
+  const targetLookAt = useRef(new THREE.Vector3(0, 0.0, 0));
+  const currentLookAt = useRef(new THREE.Vector3(0, 0.0, 0));
 
   // Procedural Side Controller Plate Texture (BRAI in Crisp White, N in Glowing Electric Green)
   const createBrainLogoTexture = () => {
@@ -122,8 +122,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   };
 
   const resetCamera = () => {
-    targetCamPos.current.set(0, 1.8, hideControls ? 11.2 : 10.5);
-    targetLookAt.current.set(0, 0.1, 0);
+    targetCamPos.current.set(0, 0.5, 10.5);
+    targetLookAt.current.set(0, 0.0, 0);
     if (rootGroupRef.current) {
       rootGroupRef.current.rotation.set(0.20, 0.08, 0); // Directly facing front BRAIN logo plate
     }
