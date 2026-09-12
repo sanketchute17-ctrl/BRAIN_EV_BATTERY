@@ -146,13 +146,15 @@ export const apiService = {
     // 1. Firebase Auth check
     if (isFirebaseConfigured() && firebaseAuth?.currentUser) {
       const user: FirebaseUser = firebaseAuth.currentUser;
+      const storedProfile = localStorage.getItem('brain_user_profile');
+      const parsed = storedProfile ? JSON.parse(storedProfile) : {};
       return {
         id: user.uid,
         email: user.email,
-        full_name: user.displayName || 'EV Operator',
-        role: 'EV Rider / Owner',
-        ev_model: 'Ather 450X',
-        battery_chemistry: 'NMC',
+        full_name: user.displayName || parsed.full_name || 'EV Operator',
+        role: parsed.role || 'EV Rider / Owner',
+        ev_model: parsed.ev_model || 'Ather 450X',
+        battery_chemistry: parsed.battery_chemistry || 'NMC',
       };
     }
 
@@ -212,14 +214,17 @@ export const apiService = {
         const fbUser = userCredential.user;
         const idToken = await fbUser.getIdToken();
 
+        const localUsers = getLocalUsersDB();
+        const userRecord = localUsers[emailKey] || {};
+
         const authData: AuthResponse = {
           access_token: idToken,
           user_id: fbUser.uid,
           email: fbUser.email || emailKey,
-          full_name: fbUser.displayName || 'EV Operator',
-          role: 'EV Rider / Owner',
-          ev_model: 'Ather 450X',
-          battery_chemistry: 'NMC',
+          full_name: fbUser.displayName || userRecord.fullName || 'EV Operator',
+          role: userRecord.role || 'EV Rider / Owner',
+          ev_model: userRecord.evModel || 'Ather 450X / Ola S1',
+          battery_chemistry: userRecord.batteryChemistry || 'NMC (Nickel Manganese Cobalt)',
         };
         this.setStoredToken(authData.access_token, authData);
         return authData;
@@ -268,6 +273,11 @@ export const apiService = {
 
       if (response.ok) {
         const data: AuthResponse = await response.json();
+        const localUsers = getLocalUsersDB();
+        const userRecord = localUsers[emailKey] || {};
+        data.role = data.role || userRecord.role || 'EV Rider / Owner';
+        data.ev_model = data.ev_model || userRecord.evModel || 'Ather 450X';
+        data.battery_chemistry = data.battery_chemistry || userRecord.batteryChemistry || 'NMC';
         this.setStoredToken(data.access_token, data);
         return data;
       } else {
@@ -319,48 +329,43 @@ export const apiService = {
   },
 
   /**
-   * User Registration API Call (Firebase -> Supabase -> FastAPI -> Local DB)
+   * User Registration API Call (Saves User to DB without auto-login)
    */
-  async register(payload: UserRegisterPayload): Promise<AuthResponse> {
+  async register(payload: UserRegisterPayload): Promise<{ success: boolean; email: string }> {
     const emailKey = payload.email.toLowerCase().trim();
 
-    // TIER 1: Firebase Cloud Auth
+    // Save record to Local DB Persistence
+    const newUserRecord = {
+      id: `usr_${Date.now()}`,
+      fullName: payload.fullName,
+      email: emailKey,
+      mobile: payload.mobile,
+      password: payload.password,
+      role: payload.role || 'EV Rider / Owner',
+      evModel: payload.evModel || 'Ather 450X / Ola S1',
+      batteryChemistry: payload.batteryChemistry || 'NMC (Nickel Manganese Cobalt)',
+      created_at: new Date().toISOString(),
+    };
+    saveLocalUserDB(emailKey, newUserRecord);
+
+    // TIER 1: Firebase Cloud Auth Registration
     if (isFirebaseConfigured() && firebaseAuth) {
       try {
         const userCredential = await createUserWithEmailAndPassword(firebaseAuth, emailKey, payload.password || '');
         const fbUser = userCredential.user;
-
-        await updateProfile(fbUser, {
-          displayName: payload.fullName,
-        });
-
-        const idToken = await fbUser.getIdToken();
-
-        const authData: AuthResponse = {
-          access_token: idToken,
-          user_id: fbUser.uid,
-          email: emailKey,
-          full_name: payload.fullName,
-          role: payload.role,
-          ev_model: payload.evModel,
-          battery_chemistry: payload.batteryChemistry,
-        };
-        this.setStoredToken(authData.access_token, authData);
-        return authData;
+        await updateProfile(fbUser, { displayName: payload.fullName });
       } catch (fbErr: any) {
-        let msg = 'Firebase registration failed.';
         if (fbErr.code === 'auth/email-already-in-use') {
-          msg = 'Email address is already registered. Please sign in instead.';
+          throw new Error('Email address is already registered. Please sign in instead.');
         } else if (fbErr.code === 'auth/weak-password') {
-          msg = 'Password should be at least 6 characters long.';
+          throw new Error('Password should be at least 6 characters long.');
         }
-        throw new Error(msg);
       }
     }
 
-    // TIER 2: Supabase Cloud Auth
+    // TIER 2: Supabase Cloud Auth Registration
     if (isSupabaseConfigured() && supabase) {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: emailKey,
         password: payload.password || '',
         options: {
@@ -377,23 +382,11 @@ export const apiService = {
       if (error) {
         throw new Error(error.message || 'Supabase registration failed');
       }
-
-      const authData: AuthResponse = {
-        access_token: data.session?.access_token || `sb_token_${Date.now()}`,
-        user_id: data.user?.id || `usr_${Date.now()}`,
-        email: emailKey,
-        full_name: payload.fullName,
-        role: payload.role,
-        ev_model: payload.evModel,
-        battery_chemistry: payload.batteryChemistry,
-      };
-      this.setStoredToken(authData.access_token, authData);
-      return authData;
     }
 
-    // TIER 3: FastAPI Backend Server
+    // TIER 3: FastAPI Backend Server Registration
     try {
-      const response = await fetchWithFailover('/auth/register', {
+      await fetchWithFailover('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -403,55 +396,12 @@ export const apiService = {
           mobile: payload.mobile || '',
         }),
       });
-
-      if (response.ok) {
-        const data: AuthResponse = await response.json();
-        data.role = payload.role;
-        data.ev_model = payload.evModel;
-        data.battery_chemistry = payload.batteryChemistry;
-        this.setStoredToken(data.access_token, data);
-        return data;
-      } else {
-        const err = await response.json().catch(() => ({ detail: 'Registration failed' }));
-        throw new Error(err.detail || 'Email address is already registered');
-      }
-    } catch (err: any) {
-      if (err.message !== 'BACKEND_OFFLINE') {
-        throw err;
-      }
+    } catch {
+      // Offline fallback already stored in local DB
     }
 
-    // TIER 4: Local DB Persistence Sync (Offline fallback)
-    const localUsers = getLocalUsersDB();
-    if (localUsers[emailKey]) {
-      throw new Error('Email is already registered. Please sign in instead.');
-    }
-
-    const newUserRecord = {
-      id: `usr_${Date.now()}`,
-      fullName: payload.fullName,
-      email: emailKey,
-      mobile: payload.mobile,
-      password: payload.password,
-      role: payload.role || 'EV Rider / Owner',
-      evModel: payload.evModel || 'Ather 450X / Ola S1',
-      batteryChemistry: payload.batteryChemistry || 'NMC (Nickel Manganese Cobalt)',
-      created_at: new Date().toISOString(),
-    };
-
-    saveLocalUserDB(emailKey, newUserRecord);
-
-    const authResult: AuthResponse = {
-      access_token: `local_jwt_token_${Date.now()}`,
-      user_id: newUserRecord.id,
-      email: emailKey,
-      full_name: payload.fullName,
-      role: newUserRecord.role,
-      ev_model: newUserRecord.evModel,
-      battery_chemistry: newUserRecord.batteryChemistry,
-    };
-    this.setStoredToken(authResult.access_token, authResult);
-    return authResult;
+    // Note: Do NOT setStoredToken() here so user must sign in via Login Screen
+    return { success: true, email: emailKey };
   },
 
   /**

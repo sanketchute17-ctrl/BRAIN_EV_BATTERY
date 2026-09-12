@@ -9,17 +9,20 @@ import scooterBg from '../assets/scooter_bg.jpg';
 interface LoginScreenProps {
   onLoginSuccess: (isDemo?: boolean) => void;
   onNavigateRegister: () => void;
+  initialEmail?: string;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
   onLoginSuccess,
   onNavigateRegister,
+  initialEmail,
 }) => {
-  const [email, setEmail] = useState('researcher@brain-ev.org');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState(initialEmail || 'researcher@brain-ev.org');
+  const [password, setPassword] = useState(initialEmail ? '' : 'password123');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [registeredNotice] = useState(initialEmail ? 'Account created successfully in database! Please sign in with your password.' : '');
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +83,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
         {/* 3. INPUT FORM CARD - 100% TRANSPARENT LOGIN BOX WITHOUT BORDER LINES */}
         <div className="relative z-10 space-y-2.5 my-1 bg-transparent p-2 border-0 shadow-none">
+          {registeredNotice && (
+            <div className="p-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-md flex items-center gap-1.5 animate-fadeIn">
+              <ShieldCheck className="w-4 h-4 text-emerald-200 shrink-0" />
+              <span>{registeredNotice}</span>
+            </div>
+          )}
+
           {errorMsg && (
             <div className="p-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">
               {errorMsg}

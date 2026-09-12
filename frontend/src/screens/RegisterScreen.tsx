@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, User, Mail, Lock, Phone, Car, ShieldCheck, Cpu, Edit3 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, User, Mail, Lock, Phone, Car, ShieldCheck, Cpu, Edit3, CheckCircle2 } from 'lucide-react';
 import { apiService } from '../services/api';
 
 interface RegisterScreenProps {
-  onRegisterComplete: () => void;
+  onRegisterComplete: (email?: string) => void;
   onNavigateLogin: () => void;
 }
 
@@ -13,6 +13,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   // Form State tailored for BRAIN proposed system
   const [role, setRole] = useState<'EV Rider / Owner' | 'Fleet Operations Manager' | 'Battery Researcher / Engineer'>('EV Rider / Owner');
@@ -55,6 +56,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+    setSuccessMsg('');
 
     if (password !== confirmPassword) {
       setErrorMsg('Passwords do not match. Please verify your password entry.');
@@ -71,7 +73,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
     setIsSubmitting(true);
     try {
-      await apiService.register({
+      const res = await apiService.register({
         fullName,
         email,
         mobile,
@@ -80,7 +82,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         evModel: finalEvModel,
         batteryChemistry: finalChemistry,
       });
-      onRegisterComplete();
+
+      setSuccessMsg(`Account created successfully! All registration details saved in database for ${res.email}. Redirecting to sign in...`);
+
+      setTimeout(() => {
+        onRegisterComplete(res.email);
+      }, 1800);
     } catch (err: any) {
       setErrorMsg(err.message || 'Registration failed. Please check your information.');
     } finally {
@@ -115,6 +122,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           {errorMsg && (
             <div className="p-3 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">
               {errorMsg}
+            </div>
+          )}
+
+          {successMsg && (
+            <div className="p-3 rounded-xl bg-emerald-600 text-white text-xs font-extrabold shadow-md flex items-center gap-2 animate-fadeIn">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-white" />
+              <span>{successMsg}</span>
             </div>
           )}
 
@@ -205,7 +219,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               </div>
             </div>
 
-            {/* 4. EV VEHICLE MODEL (PRESET DROPDOWN + CUSTOM MANUAL EDIT) */}
+            {/* 4. EV VEHICLE MODEL */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-[10px] font-black text-slate-700 uppercase tracking-wider">
@@ -252,7 +266,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               )}
             </div>
 
-            {/* 5. BATTERY CHEMISTRY (PRESET DROPDOWN + CUSTOM MANUAL EDIT) */}
+            {/* 5. BATTERY CHEMISTRY */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-[10px] font-black text-slate-700 uppercase tracking-wider">
@@ -340,7 +354,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               disabled={isSubmitting}
               className="w-full mt-2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-2xl transition flex items-center justify-center gap-2 shadow-lg uppercase tracking-wider cursor-pointer active:scale-[0.99]"
             >
-              <span>{isSubmitting ? 'CREATING ACCOUNT...' : 'REGISTER OPERATOR ACCOUNT'}</span>
+              <span>{isSubmitting ? 'SAVING ACCOUNT TO DATABASE...' : 'REGISTER OPERATOR ACCOUNT'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </form>

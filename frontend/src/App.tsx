@@ -143,11 +143,16 @@ export function App() {
     }, 600);
   };
 
+  const [registeredEmail, setRegisteredEmail] = useState('');
+
   if (authState === 'LOGIN') {
     return (
       <LoginScreen
-        onLoginSuccess={(demo) => {
+        initialEmail={registeredEmail}
+        onLoginSuccess={async (demo) => {
           setIsDemoMode(!!demo);
+          const user = await apiService.getCurrentUser();
+          setCurrentUser(user);
           setAuthState('AUTHENTICATED');
         }}
         onNavigateRegister={() => setAuthState('REGISTER')}
@@ -158,7 +163,10 @@ export function App() {
   if (authState === 'REGISTER') {
     return (
       <RegisterScreen
-        onRegisterComplete={() => setAuthState('AUTHENTICATED')}
+        onRegisterComplete={(email) => {
+          if (email) setRegisteredEmail(email);
+          setAuthState('LOGIN');
+        }}
         onNavigateLogin={() => setAuthState('LOGIN')}
       />
     );
@@ -205,6 +213,13 @@ export function App() {
             >
               ● {backendOnline ? 'ONLINE' : 'OFFLINE'}
             </span>
+
+            {/* Authenticated Operator Profile Badge */}
+            {currentUser && (
+              <span className="text-[9px] font-extrabold bg-slate-100 text-slate-800 border border-slate-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+                👤 {currentUser.full_name?.split(' ')[0] || 'Operator'}
+              </span>
+            )}
           </div>
 
           {/* Status Light & Scenario Switcher */}
