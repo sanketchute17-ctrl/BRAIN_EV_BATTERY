@@ -62,8 +62,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const bmsGroupRef = useRef<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Camera Position (Sleek compact size for login screen mode)
-  const targetCamPos = useRef(new THREE.Vector3(0, 3.6, 9.8));
+  // Camera Position (Compact sleek size for login screen mode)
+  const targetCamPos = useRef(new THREE.Vector3(0, 1.8, hideControls ? 11.2 : 10.5));
   const targetLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
 
@@ -122,10 +122,10 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   };
 
   const resetCamera = () => {
-    targetCamPos.current.set(0, 2.8, hideControls ? 7.5 : 10.5);
+    targetCamPos.current.set(0, 1.8, hideControls ? 11.2 : 10.5);
     targetLookAt.current.set(0, 0.1, 0);
     if (rootGroupRef.current) {
-      rootGroupRef.current.rotation.set(0.25, 0.1, 0); // Directly facing front BRAIN logo plate
+      rootGroupRef.current.rotation.set(0.20, 0.08, 0); // Directly facing front BRAIN logo plate
     }
     rotationVelocity.current = { x: 0, y: 0 };
     setSelectedInfo(null);
@@ -184,7 +184,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
     const rootGroup = new THREE.Group();
     // Starting angle: Facing the BRAIN logo plate directly at startup
-    rootGroup.rotation.set(0.28, 0.08, 0);
+    rootGroup.rotation.set(0.18, 0.08, 0);
     rootGroupRef.current = rootGroup;
     scene.add(rootGroup);
 
@@ -675,7 +675,13 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
       if (rootGroupRef.current) {
         if (!isDragging.current && autoRotateRef.current) {
-          rootGroupRef.current.rotation.y += 0.0008; // Ultra smooth 0.1x speed continuous rotation
+          if (hideControls) {
+            // Smooth subtle float sway motion for login screen (keeps battery compact & horizontal without overlapping text)
+            rootGroupRef.current.rotation.y = 0.08 + Math.sin(Date.now() * 0.0008) * 0.18;
+            rootGroupRef.current.rotation.x = 0.18 + Math.cos(Date.now() * 0.0006) * 0.04;
+          } else {
+            rootGroupRef.current.rotation.y += 0.002;
+          }
         } else if (!isDragging.current) {
           rootGroupRef.current.rotation.y += rotationVelocity.current.x;
           rootGroupRef.current.rotation.x += rotationVelocity.current.y;

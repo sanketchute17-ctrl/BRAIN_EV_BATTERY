@@ -60,9 +60,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <BrainLogo size="xl" layout="vertical" showFullForm={true} showQuote={true} />
         </div>
 
-        {/* 2. REAL 3D INTERACTIVE BATTERY VISUAL (COMPACT SLEEK SIZE FROM IMAGE 1) */}
-        <div className="relative z-10 my-1 flex flex-col items-center justify-center">
-          <div className="w-full max-w-[280px] h-32 sm:h-36 relative flex items-center justify-center mx-auto overflow-visible bg-transparent border-0 shadow-none">
+        {/* 2. REAL 3D INTERACTIVE BATTERY VISUAL (COMPACT SLEEK SIZE FROM IMAGE 2) */}
+        <div className="relative z-10 my-0.5 flex flex-col items-center justify-center">
+          <div className="w-full max-w-[260px] h-28 sm:h-32 relative flex items-center justify-center mx-auto overflow-hidden bg-transparent border-0 shadow-none">
             <ErrorBoundary>
               <Battery3DView status="HEALTHY" interactive={true} hideControls={true} />
             </ErrorBoundary>
