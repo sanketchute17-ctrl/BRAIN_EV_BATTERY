@@ -743,8 +743,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setIsExploded(!isExploded)} className={`px-3.5 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${isExploded ? 'bg-red-500 text-white' : 'bg-white/95 text-emerald-700 border-emerald-400'}`}>{isExploded ? 'ASSEMBLE' : 'EXPLODED VIEW'}</button>
-            <button onClick={() => setAutoRotate(!autoRotate)} className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${autoRotate ? 'bg-emerald-50 text-emerald-700 border-emerald-400' : 'bg-white/95 text-slate-700 border-slate-200'}`}>AUTO ROTATE Γå╗</button>
-            <button onClick={resetCamera} className="px-3 py-1.5 text-xs font-extrabold rounded-xl bg-white/95 text-slate-800 border border-slate-300">RESET Γå║</button>
+            <button onClick={() => setAutoRotate(!autoRotate)} className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${autoRotate ? 'bg-emerald-50 text-emerald-700 border-emerald-400' : 'bg-white/95 text-slate-700 border-slate-200'}`}>AUTO ROTATE ↻</button>
+            <button onClick={resetCamera} className="px-3 py-1.5 text-xs font-extrabold rounded-xl bg-white/95 text-slate-800 border border-slate-300">RESET ↺</button>
           </div>
         </div>
       )}
@@ -756,7 +756,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
               <span className="text-[10px] font-extrabold text-[#00E676] uppercase tracking-wider">{selectedInfo.type}</span>
               <h4 className="text-sm font-black text-white uppercase">{selectedInfo.name}</h4>
             </div>
-            <button onClick={() => setSelectedInfo(null)} className="text-slate-400 hover:text-white text-sm font-bold">Γ£ò</button>
+            <button onClick={() => setSelectedInfo(null)} className="text-slate-400 hover:text-white text-sm font-bold">✕</button>
           </div>
           
           <div className="grid grid-cols-2 gap-2 text-[11px] font-mono font-bold">
