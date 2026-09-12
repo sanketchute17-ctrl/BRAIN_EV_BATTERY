@@ -95,21 +95,29 @@ export function App() {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = apiService.getStoredToken();
-      if (token) {
-        const user = await apiService.getCurrentUser();
-        if (user) {
-          setCurrentUser(user);
-          setAuthState('AUTHENTICATED');
-          setIsDemoMode(false);
+      try {
+        const token = apiService.getStoredToken();
+        if (token) {
+          const user = await apiService.getCurrentUser();
+          if (user) {
+            setCurrentUser(user);
+            setAuthState('AUTHENTICATED');
+            setIsDemoMode(false);
+          }
         }
+      } catch (err) {
+        console.warn('Auth init safe fallback:', err);
       }
     };
     initAuth();
 
     const checkBackend = async () => {
-      const res = await apiService.checkBackendStatus();
-      setBackendOnline(res.online);
+      try {
+        const res = await apiService.checkBackendStatus();
+        setBackendOnline(res?.online ?? false);
+      } catch (err) {
+        setBackendOnline(false);
+      }
     };
     checkBackend();
     const interval = setInterval(checkBackend, 15000);

@@ -87,19 +87,31 @@ function saveLocalUserDB(email: string, userData: any) {
 
 export const apiService = {
   getStoredToken(): string | null {
-    return localStorage.getItem('brain_access_token');
+    try {
+      return localStorage.getItem('brain_access_token');
+    } catch {
+      return null;
+    }
   },
 
   setStoredToken(token: string, user?: any): void {
-    localStorage.setItem('brain_access_token', token);
-    if (user) {
-      localStorage.setItem('brain_user_profile', JSON.stringify(user));
+    try {
+      localStorage.setItem('brain_access_token', token);
+      if (user) {
+        localStorage.setItem('brain_user_profile', JSON.stringify(user));
+      }
+    } catch (e) {
+      console.warn('LocalStorage save failed:', e);
     }
   },
 
   clearStoredToken(): void {
-    localStorage.removeItem('brain_access_token');
-    localStorage.removeItem('brain_user_profile');
+    try {
+      localStorage.removeItem('brain_access_token');
+      localStorage.removeItem('brain_user_profile');
+    } catch (e) {
+      console.warn('LocalStorage clear failed:', e);
+    }
   },
 
   getAuthHeaders(): Record<string, string> {
