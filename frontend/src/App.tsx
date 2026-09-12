@@ -205,9 +205,9 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative">
-      {/* MOBILE APP CONTAINER FRAME (Full Viewport on Mobile, Phone Shell on Desktop) */}
-      <div className="w-full sm:max-w-md min-h-screen sm:min-h-[840px] sm:max-h-[920px] sm:rounded-[40px] relative overflow-hidden shadow-2xl border-0 sm:border-[8px] sm:border-slate-800 bg-[#e2e8f0] text-slate-900 flex flex-col justify-between">
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative">
+      {/* FULL RESPONSIVE APP CONTAINER */}
+      <div className="w-full max-w-5xl min-h-screen sm:min-h-[850px] sm:rounded-3xl relative overflow-hidden shadow-2xl border-0 sm:border border-slate-700 bg-slate-50 text-slate-900 flex flex-col justify-between">
         
         {/* 1. CLEAN, UNCLUTTERED HEADER */}
         <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs shrink-0">
