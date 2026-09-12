@@ -16,7 +16,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateRegister,
 }) => {
   const [email, setEmail] = useState('researcher@brain-ev.org');
-  const [password, setPassword] = useState('••••••••••••');
+  const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -30,8 +30,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       await apiService.login({ email, password });
       onLoginSuccess(false);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Authentication failed');
-      onLoginSuccess(false);
+      setErrorMsg(err.message || 'Authentication failed. Please verify credentials.');
     } finally {
       setIsSubmitting(false);
     }

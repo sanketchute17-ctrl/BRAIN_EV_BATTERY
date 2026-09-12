@@ -4,7 +4,7 @@
  * Fallbacks seamlessly to Demo/Simulated Mode if offline.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://brain-backend-wrhg.onrender.com/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
 export interface UserLoginPayload {
@@ -22,12 +22,40 @@ export interface UserRegisterPayload {
 
 export interface AuthResponse {
   access_token: string;
-  user_id: number;
+  token_type?: string;
+  user_id: string | number;
   email: string;
   full_name?: string;
 }
 
 export const apiService = {
+  getStoredToken(): string | null {
+    return localStorage.getItem('brain_access_token');
+  },
+
+  setStoredToken(token: string, user?: any): void {
+    localStorage.setItem('brain_access_token', token);
+    if (user) {
+      localStorage.setItem('brain_user_profile', JSON.stringify(user));
+    }
+  },
+
+  clearStoredToken(): void {
+    localStorage.removeItem('brain_access_token');
+    localStorage.removeItem('brain_user_profile');
+  },
+
+  getAuthHeaders(): Record<string, string> {
+    const token = this.getStoredToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  },
+
   /**
    * Check backend health status
    */
@@ -45,7 +73,26 @@ export const apiService = {
   },
 
   /**
-   * User Login API Call
+   * Fetch authenticated user profile using active JWT token
+   */
+  async getCurrentUser(): Promise<any> {
+    const token = this.getStoredToken();
+    if (!token) return null;
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch {
+      // Offline or invalid token
+    }
+    return null;
+  },
+
+  /**
+   * User Login API Call (Strict DB Authentication - No Fake Bypass)
    */
   async login(payload: UserLoginPayload): Promise<AuthResponse> {
     try {
@@ -54,29 +101,28 @@ export const apiService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: payload.email,
-          password: payload.password || 'password123',
+          password: payload.password || '',
         }),
       });
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({ detail: 'Authentication failed' }));
-        throw new Error(err.detail || 'Login failed');
+        throw new Error(err.detail || 'Invalid email or password');
       }
 
-      return await response.json();
+      const data: AuthResponse = await response.json();
+      this.setStoredToken(data.access_token, data);
+      return data;
     } catch (err: any) {
-      console.warn('Backend API connection offline or error, using local session:', err.message);
-      return {
-        access_token: 'demo_token_2026',
-        user_id: 1,
-        email: payload.email,
-        full_name: 'Researcher / Operator',
-      };
+      if (err.message && err.message.includes('fetch')) {
+        throw new Error('Unable to connect to authentication server. Please verify backend service is active.');
+      }
+      throw err;
     }
   },
 
   /**
-   * User Registration API Call
+   * User Registration API Call (Strict DB Creation)
    */
   async register(payload: UserRegisterPayload): Promise<AuthResponse> {
     try {
@@ -85,7 +131,7 @@ export const apiService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: payload.email,
-          password: payload.password || 'password123',
+          password: payload.password || '',
           fullName: payload.fullName,
           mobile: payload.mobile || '',
         }),
@@ -96,15 +142,14 @@ export const apiService = {
         throw new Error(err.detail || 'Registration failed');
       }
 
-      return await response.json();
+      const data: AuthResponse = await response.json();
+      this.setStoredToken(data.access_token, data);
+      return data;
     } catch (err: any) {
-      console.warn('Backend API connection offline or error, registering locally:', err.message);
-      return {
-        access_token: 'demo_token_registered',
-        user_id: 2,
-        email: payload.email,
-        full_name: payload.fullName,
-      };
+      if (err.message && err.message.includes('fetch')) {
+        throw new Error('Unable to connect to registration server. Please verify backend service is active.');
+      }
+      throw err;
     }
   },
 

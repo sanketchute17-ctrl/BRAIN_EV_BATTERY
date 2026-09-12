@@ -7,11 +7,35 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.core.database import engine, Base
+from app.core.database import engine, Base, SessionLocal
+from app.models.all_models import User
 from app.api import auth, pkl_router, bms_bluetooth
 
-# Create database tables automatically
-Base.metadata.create_all(bind=engine)
+# Create database tables and seed default authorized user
+def seed_database():
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        existing_user = db.query(User).filter(User.email == "researcher@brain-ev.org").first()
+        if not existing_user:
+            default_user = User(
+                email="researcher@brain-ev.org",
+                password_hash=auth.hash_password("password123"),
+                full_name="Dr. Alex Mercer (Lead Researcher)",
+                mobile="+1 (555) 019-2834",
+                role="RESEARCHER"
+            )
+            db.add(default_user)
+            db.commit()
+            print("[DB SEED] Successfully created default authorized user: researcher@brain-ev.org")
+    except Exception as e:
+        print(f"[DB SEED WARNING] Could not seed database: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+seed_database()
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

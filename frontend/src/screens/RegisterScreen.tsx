@@ -13,6 +13,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -39,6 +40,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
   const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
+
+    if (step === 1 && formData.password !== formData.confirmPassword) {
+      setErrorMsg('Passwords do not match. Please verify your password entry.');
+      return;
+    }
+
     if (step < 3) {
       setStep((prev) => (prev + 1) as 2 | 3);
     } else {
@@ -50,11 +58,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           mobile: formData.mobile,
           password: formData.password,
         });
-      } catch (err) {
-        console.warn('Registration fallback:', err);
+        onRegisterComplete();
+      } catch (err: any) {
+        setErrorMsg(err.message || 'Registration failed. Please check your information.');
       } finally {
         setIsSubmitting(false);
-        onRegisterComplete();
       }
     }
   };
@@ -110,6 +118,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
       {/* Form Card */}
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xl my-2">
+        {errorMsg && (
+          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold shadow-sm">
+            {errorMsg}
+          </div>
+        )}
         <form onSubmit={handleNext} className="space-y-4">
           {/* STEP 1 */}
           {step === 1 && (

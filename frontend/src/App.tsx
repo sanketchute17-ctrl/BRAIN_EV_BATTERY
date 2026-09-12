@@ -38,13 +38,15 @@ import {
   BarChart2,
   ShieldCheck,
   Clock,
-  BatteryCharging
+  BatteryCharging,
+  LogOut
 } from 'lucide-react';
 
 export function App() {
   const [authState, setAuthState] = useState<'LOGIN' | 'REGISTER' | 'AUTHENTICATED'>('LOGIN');
-  const [isDemoMode, setIsDemoMode] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const [backendOnline, setBackendOnline] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [activeDrawerItem, setActiveDrawerItem] = useState<DrawerType | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -85,6 +87,19 @@ export function App() {
   const [bleError, setBleError] = useState('');
 
   useEffect(() => {
+    const initAuth = async () => {
+      const token = apiService.getStoredToken();
+      if (token) {
+        const user = await apiService.getCurrentUser();
+        if (user) {
+          setCurrentUser(user);
+          setAuthState('AUTHENTICATED');
+          setIsDemoMode(false);
+        }
+      }
+    };
+    initAuth();
+
     const checkBackend = async () => {
       const res = await apiService.checkBackendStatus();
       setBackendOnline(res.online);
@@ -102,6 +117,13 @@ export function App() {
       unsubscribeBle();
     };
   }, []);
+
+  const handleLogout = () => {
+    apiService.clearStoredToken();
+    setCurrentUser(null);
+    setIsDemoMode(false);
+    setAuthState('LOGIN');
+  };
 
   const runWhatIfSimulation = () => {
     setIsSimulating(true);
@@ -204,6 +226,14 @@ export function App() {
               <option value="WARNING">🔴 WARNING</option>
               <option value="CRITICAL">🔴 CRITICAL</option>
             </select>
+
+            <button
+              onClick={handleLogout}
+              title="Sign Out"
+              className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
           </div>
         </header>
 
