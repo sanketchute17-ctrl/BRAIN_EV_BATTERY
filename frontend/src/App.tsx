@@ -227,7 +227,15 @@ export function App() {
                   : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200 font-extrabold'
               }`}
             >
-              <User className="w-3.5 h-3.5 text-emerald-600" />
+              {currentUser?.avatar_photo || localStorage.getItem('brain_user_avatar') ? (
+                <img
+                  src={currentUser?.avatar_photo || localStorage.getItem('brain_user_avatar')!}
+                  alt="Avatar"
+                  className="w-4 h-4 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <User className="w-3.5 h-3.5 text-emerald-600" />
+              )}
               <span className="text-xs truncate max-w-[110px]">
                 {currentUser?.full_name?.split(' ')[0] || 'Operator'}
               </span>
@@ -1002,6 +1010,7 @@ export function App() {
                 currentUser={currentUser}
                 onLogout={handleLogout}
                 onBackToDashboard={() => setActiveTab('home')}
+                onProfileUpdated={(updated) => setCurrentUser(updated)}
               />
             )}
           </>

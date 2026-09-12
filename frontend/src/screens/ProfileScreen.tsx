@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   User,
   Mail,
@@ -13,7 +13,9 @@ import {
   Key,
   Server,
   Zap,
-  Edit3
+  Edit3,
+  Camera,
+  Trash2
 } from 'lucide-react';
 import { apiService } from '../services/api';
 
@@ -21,18 +23,25 @@ interface ProfileScreenProps {
   currentUser: any;
   onLogout: () => void;
   onBackToDashboard: () => void;
+  onProfileUpdated?: (updatedUser: any) => void;
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   currentUser,
   onLogout,
   onBackToDashboard,
+  onProfileUpdated,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [fullName, setFullName] = useState(currentUser?.full_name || 'Dr. Alex Mercer');
   const [mobile, setMobile] = useState(currentUser?.mobile || '+1 (555) 019-2834');
-  const [role] = useState(currentUser?.role || 'EV Rider / Owner');
-  const [evModel] = useState(currentUser?.ev_model || 'Ather 450X / Ola S1 Pro');
-  const [batteryChemistry] = useState(currentUser?.battery_chemistry || 'NMC (Nickel Manganese Cobalt)');
+  const [role, setRole] = useState(currentUser?.role || 'EV Rider / Owner');
+  const [evModel, setEvModel] = useState(currentUser?.ev_model || 'Ather 450X / Ola S1 Pro');
+  const [batteryChemistry, setBatteryChemistry] = useState(currentUser?.battery_chemistry || 'NMC (Nickel Manganese Cobalt)');
+  
+  // Avatar Photo state (Base64 URL or empty)
+  const [avatarPhoto, setAvatarPhoto] = useState<string>(currentUser?.avatar_photo || localStorage.getItem('brain_user_avatar') || '');
 
   // Password reset state
   const [newPassword, setNewPassword] = useState('');
@@ -42,6 +51,33 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   // Profile info update state
   const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Handle Photo Upload via file input
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileMsg({ type: 'error', text: 'Image size exceeds 5MB limit. Please choose a smaller photo.' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Photo = reader.result as string;
+      setAvatarPhoto(base64Photo);
+      localStorage.setItem('brain_user_avatar', base64Photo);
+      
+      setProfileMsg({ type: 'success', text: 'Profile photo uploaded successfully! Click "Save Profile Changes" to confirm.' });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setAvatarPhoto('');
+    localStorage.removeItem('brain_user_avatar');
+    setProfileMsg({ type: 'success', text: 'Profile photo removed. Reverted to initials avatar.' });
+  };
 
   const handlePasswordReset = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +95,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
     setIsUpdatingPassword(true);
     setTimeout(() => {
-      // Save password update in local profile storage
       const existing = localStorage.getItem('brain_user_profile');
       const parsed = existing ? JSON.parse(existing) : {};
       parsed.password = newPassword;
@@ -68,7 +103,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       setIsUpdatingPassword(false);
       setNewPassword('');
       setConfirmNewPassword('');
-      setPasswordMsg({ type: 'success', text: 'Password reset successfully! Saved to database.' });
+      setPasswordMsg({ type: 'success', text: 'Password reset successfully! Account security updated in database.' });
     }, 600);
   };
 
@@ -76,16 +111,29 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     e.preventDefault();
     setProfileMsg(null);
 
-    const existing = localStorage.getItem('brain_user_profile');
-    const parsed = existing ? JSON.parse(existing) : {};
-    parsed.full_name = fullName;
-    parsed.mobile = mobile;
-    localStorage.setItem('brain_user_profile', JSON.stringify(parsed));
+    const updatedUser = {
+      ...currentUser,
+      full_name: fullName,
+      mobile: mobile,
+      role: role,
+      ev_model: evModel,
+      battery_chemistry: batteryChemistry,
+      avatar_photo: avatarPhoto,
+    };
 
-    setProfileMsg({ type: 'success', text: 'Operator profile details updated successfully.' });
+    localStorage.setItem('brain_user_profile', JSON.stringify(updatedUser));
+    if (avatarPhoto) {
+      localStorage.setItem('brain_user_avatar', avatarPhoto);
+    }
+
+    if (onProfileUpdated) {
+      onProfileUpdated(updatedUser);
+    }
+
+    setProfileMsg({ type: 'success', text: 'Operator profile details & EV specifications saved successfully to database!' });
   };
 
-  // Get user initials for profile avatar
+  // Get user initials for profile avatar fallback
   const getInitials = (name: string) => {
     if (!name) return 'OP';
     const parts = name.trim().split(' ');
@@ -98,16 +146,56 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   return (
     <div className="space-y-4 animate-fadeIn pb-6">
       
+      {/* HIDDEN FILE INPUT FOR PHOTO UPLOAD */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handlePhotoSelect}
+        accept="image/*"
+        className="hidden"
+      />
+
       {/* 1. OPERATOR AVATAR & HEADER CARD */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-5 text-white shadow-xl border border-slate-700/80 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
         
         <div className="flex items-center gap-4 relative z-10">
-          {/* AVATAR CIRCLE */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 p-1 shadow-lg shrink-0 flex items-center justify-center">
-            <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-black text-xl sm:text-2xl text-emerald-400 tracking-wider">
-              {getInitials(fullName)}
-            </div>
+          {/* AVATAR CIRCLE WITH PHOTO UPLOAD TRIGGER */}
+          <div className="relative group">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 p-1 shadow-lg shrink-0 flex items-center justify-center cursor-pointer relative overflow-hidden transition transform hover:scale-105"
+              title="Click to upload profile photo"
+            >
+              {avatarPhoto ? (
+                <img
+                  src={avatarPhoto}
+                  alt={fullName}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-black text-xl sm:text-2xl text-emerald-400 tracking-wider">
+                  {getInitials(fullName)}
+                </div>
+              )}
+
+              {/* CAMERA OVERLAY ON HOVER */}
+              <div className="absolute inset-0 bg-slate-950/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="w-6 h-6 text-white" />
+              </div>
+            </button>
+
+            {avatarPhoto && (
+              <button
+                type="button"
+                onClick={handleRemovePhoto}
+                title="Remove photo"
+                className="absolute -bottom-1 -right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full border border-slate-800 shadow-md transition cursor-pointer"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            )}
           </div>
 
           {/* USER IDENTITY DETAILS */}
@@ -122,6 +210,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <p className="text-xs text-slate-300 font-mono truncate">
               {currentUser?.email || 'operator@brain-ev.org'}
             </p>
+            
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-[10px] font-extrabold text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer pt-0.5"
+            >
+              <Camera className="w-3 h-3" />
+              <span>{avatarPhoto ? 'Change Photo' : 'Upload Profile Photo'}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -188,7 +285,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </div>
       </div>
 
-      {/* 3. OPERATOR PROFILE EDIT FORM */}
+      {/* 3. OPERATOR PROFILE EDIT & SPECIFICATIONS FORM */}
       <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3.5">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
           <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
@@ -196,9 +293,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
-              OPERATOR ACCOUNT PROFILE
+              OPERATOR ACCOUNT PROFILE & SPECS
             </h3>
-            <p className="text-[10px] font-semibold text-slate-400">Update identity & emergency mobile contact</p>
+            <p className="text-[10px] font-semibold text-slate-400">Update identity, mobile contact & EV configuration</p>
           </div>
         </div>
 
@@ -220,41 +317,99 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         )}
 
         <form onSubmit={handleSaveProfile} className="space-y-3">
+          {/* SYSTEM ROLE */}
           <div>
             <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
-              FULL NAME
+              SYSTEM ROLE / USE CASE
             </label>
-            <div className="relative">
-              <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
-              />
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600 cursor-pointer"
+            >
+              <option value="EV Rider / Owner">EV Rider / Owner (Personal Pack Monitoring)</option>
+              <option value="Fleet Operations Manager">Fleet Operations Manager (Multi EV Fleet)</option>
+              <option value="Battery Researcher / Engineer">Battery Researcher / Engineer (PINN AI & PKL Telemetry)</option>
+            </select>
+          </div>
+
+          {/* FULL NAME & MOBILE */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                FULL NAME
+              </label>
+              <div className="relative">
+                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Sanket Chute"
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                MOBILE NUMBER (SMS ALERTS)
+              </label>
+              <div className="relative">
+                <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="tel"
+                  required
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                  placeholder="+1 (555) 019-2834"
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                />
+              </div>
             </div>
           </div>
 
-          <div>
-            <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
-              MOBILE NUMBER (SMS ALERTS)
-            </label>
-            <div className="relative">
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="tel"
-                required
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
-              />
+          {/* EV VEHICLE MODEL & CHEMISTRY */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                EV SCOOTER / VEHICLE MODEL
+              </label>
+              <div className="relative">
+                <Car className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  required
+                  value={evModel}
+                  onChange={(e) => setEvModel(e.target.value)}
+                  placeholder="Ather 450X / Ola S1 Pro"
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+                BATTERY CELL CHEMISTRY
+              </label>
+              <div className="relative">
+                <Cpu className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  required
+                  value={batteryChemistry}
+                  onChange={(e) => setBatteryChemistry(e.target.value)}
+                  placeholder="NMC (Nickel Manganese Cobalt)"
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                />
+              </div>
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm uppercase cursor-pointer"
+            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm uppercase cursor-pointer"
           >
             <span>SAVE PROFILE CHANGES</span>
           </button>
