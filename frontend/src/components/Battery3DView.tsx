@@ -62,8 +62,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const bmsGroupRef = useRef<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Medium Viewing Camera Position
-  const targetCamPos = useRef(new THREE.Vector3(0, 4.8, 10.5));
+  // Camera Position (Closer zoom for login screen mode)
+  const targetCamPos = useRef(new THREE.Vector3(0, 2.8, hideControls ? 7.5 : 10.5));
   const targetLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 0.1, 0));
 
@@ -122,10 +122,10 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   };
 
   const resetCamera = () => {
-    targetCamPos.current.set(0, 4.8, 10.5);
+    targetCamPos.current.set(0, 2.8, hideControls ? 7.5 : 10.5);
     targetLookAt.current.set(0, 0.1, 0);
     if (rootGroupRef.current) {
-      rootGroupRef.current.rotation.set(0.28, 0.08, 0); // Directly facing front BRAIN logo plate
+      rootGroupRef.current.rotation.set(0.25, 0.1, 0); // Directly facing front BRAIN logo plate
     }
     rotationVelocity.current = { x: 0, y: 0 };
     setSelectedInfo(null);
@@ -674,8 +674,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       animId = requestAnimationFrame(animate);
 
       if (rootGroupRef.current) {
-        if (!isDragging.current && autoRotateRef.current) {
-          rootGroupRef.current.rotation.y += 0.002; // Smooth slow continuous 0.2 speed rotation
+        if (!isDragging.current && autoRotateRef.current && !hideControls) {
+          rootGroupRef.current.rotation.y += 0.002; // Smooth slow continuous rotation when controls enabled
         } else if (!isDragging.current) {
           rootGroupRef.current.rotation.y += rotationVelocity.current.x;
           rootGroupRef.current.rotation.x += rotationVelocity.current.y;
