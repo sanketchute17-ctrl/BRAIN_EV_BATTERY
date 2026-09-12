@@ -9,6 +9,7 @@
     "preview": "vite preview --host"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
     "@types/three": "^0.165.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.380.0",
