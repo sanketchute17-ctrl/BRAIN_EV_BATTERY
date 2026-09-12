@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 import os
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "BRAIN - EV Battery Risk & Analytics Intelligence Network"
+    PROJECT_NAME: str = "BRAIN - Battery Risk & Analytics Intelligence Network"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     

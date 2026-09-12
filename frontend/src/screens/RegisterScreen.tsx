@@ -112,7 +112,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           </button>
           <div className="text-center">
             <h2 className="text-sm font-black text-white tracking-wider uppercase">OPERATOR REGISTRATION</h2>
-            <p className="text-[10px] font-semibold text-emerald-400">BRAIN EV Risk & Analytics Network</p>
+            <p className="text-[10px] font-semibold text-emerald-400">BRAIN — Battery Risk &amp; Analytics Intelligence Network</p>
           </div>
           <div className="w-8" />
         </div>
