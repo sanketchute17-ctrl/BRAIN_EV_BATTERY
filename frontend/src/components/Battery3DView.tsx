@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 export type CasingMode = 'SOLID' | 'TRANSPARENT' | 'X-RAY';
@@ -788,5 +788,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     </div>
   );
 };
+
+export const InteractiveBattery3D = Battery3DView;
 
 export default Battery3DView;
