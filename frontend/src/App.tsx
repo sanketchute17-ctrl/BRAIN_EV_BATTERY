@@ -14,6 +14,13 @@ import type { NormalizedBatteryState } from './types/telemetry';
 import { bluetoothService } from './services/bluetoothService';
 import type { BLEDeviceState } from './services/bluetoothService';
 import { apiService } from './services/api';
+import { DoctorDrawer } from './components/drawers/DoctorDrawer';
+import { AssistantDrawer } from './components/drawers/AssistantDrawer';
+import { ChargingDrawer } from './components/drawers/ChargingDrawer';
+import { AlertsDrawer } from './components/drawers/AlertsDrawer';
+import { ResearchDrawer } from './components/drawers/ResearchDrawer';
+import { ReportsDrawer } from './components/drawers/ReportsDrawer';
+import { SettingsDrawer } from './components/drawers/SettingsDrawer';
 import {
   ArrowLeft,
   Zap,
@@ -474,6 +481,36 @@ export function App() {
                   </button>
                 </div>
               </div>
+            ) : activeDrawerItem === 'doctor' ? (
+              <DoctorDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
+            ) : activeDrawerItem === 'assistant' ? (
+              <AssistantDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
+            ) : activeDrawerItem === 'charging' ? (
+              <ChargingDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
+            ) : activeDrawerItem === 'alerts' ? (
+              <AlertsDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
+            ) : activeDrawerItem === 'research' ? (
+              <ResearchDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
+            ) : activeDrawerItem === 'reports' ? (
+              <ReportsDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
+            ) : activeDrawerItem === 'settings' ? (
+              <SettingsDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
+            ) : activeDrawerItem === 'twin' ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                  <button
+                    onClick={() => setActiveDrawerItem(null)}
+                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                  <h3 className="text-base font-black text-slate-900 heading-tech uppercase">3D DIGITAL TWIN VISUALIZER</h3>
+                  <span className="text-xs font-mono font-bold text-emerald-600">LIVE MESH</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 h-[65vh] relative rounded-3xl overflow-hidden shadow-md">
+                  <Battery3DView status={demoStatus} interactive={true} hideControls={false} />
+                </div>
+              </div>
             ) : (
               <div className="h-64 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-200">
                 <span className="text-xs font-mono font-bold text-slate-500 tracking-widest uppercase">
@@ -536,28 +573,28 @@ export function App() {
                       <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
                         <BatteryCharging className="w-3 h-3 text-[#059669]" /> SOC
                       </div>
-                      <div className="text-sm font-black text-[#059669] mt-0.5">84%</div>
+                      <div className="text-sm font-black text-[#059669] mt-0.5">{Math.round(batteryState.soc)}%</div>
                     </div>
 
                     <div className="bg-[#F8FAFC] p-2 rounded-2xl border border-slate-200/60 text-center">
                       <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
                         <Heart className="w-3 h-3 text-[#2563EB]" /> SOH
                       </div>
-                      <div className="text-sm font-black text-[#2563EB] mt-0.5">96.4%</div>
+                      <div className="text-sm font-black text-[#2563EB] mt-0.5">{batteryState.soh}%</div>
                     </div>
 
                     <div className="bg-[#F8FAFC] p-2 rounded-2xl border border-slate-200/60 text-center">
                       <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
                         <Thermometer className="w-3 h-3 text-[#EA580C]" /> Temp
                       </div>
-                      <div className="text-sm font-black text-[#EA580C] mt-0.5">34.2°C</div>
+                      <div className="text-sm font-black text-[#EA580C] mt-0.5">{batteryState.maxTemperature || batteryState.temperature}°C</div>
                     </div>
 
                     <div className="bg-[#F8FAFC] p-2 rounded-2xl border border-slate-200/60 text-center">
                       <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-slate-400 uppercase">
                         <NavigationIcon className="w-3 h-3 text-[#059669]" /> Range
                       </div>
-                      <div className="text-sm font-black text-[#059669] mt-0.5">342 km</div>
+                      <div className="text-sm font-black text-[#059669] mt-0.5">{batteryState.estimatedRange} km</div>
                     </div>
                   </div>
                 </div>
@@ -571,20 +608,26 @@ export function App() {
                       </div>
                       <div>
                         <h4 className="text-xs font-black text-slate-900">Battery Health</h4>
-                        <p className="text-[9px] font-semibold text-slate-400">Overall battery condition is healthy</p>
+                        <p className="text-[9px] font-semibold text-slate-400">
+                          {batteryState.safetyState === 'HEALTHY' ? 'Overall battery condition is healthy' : 'Attention required for cell balance'}
+                        </p>
                       </div>
                     </div>
 
-                    <span className="inline-flex items-center gap-1 bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#047857]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" /> Healthy ▾
+                    <span className={`inline-flex items-center gap-1 border px-2.5 py-0.5 rounded-full text-[9px] font-extrabold ${
+                      batteryState.safetyState === 'HEALTHY'
+                        ? 'bg-[#ECFDF5] border-[#A7F3D0] text-[#047857]'
+                        : 'bg-red-50 border-red-200 text-red-700'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${batteryState.safetyState === 'HEALTHY' ? 'bg-[#059669]' : 'bg-red-500 animate-ping'}`} /> {batteryState.safetyState}
                     </span>
                   </div>
 
                   <div className="space-y-1 pt-1">
                     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5">
-                      <div className="h-full bg-[#059669] rounded-full transition-all duration-500" style={{ width: '96.4%' }} />
+                      <div className="h-full bg-[#059669] rounded-full transition-all duration-500" style={{ width: `${batteryState.soh}%` }} />
                     </div>
-                    <div className="text-right text-xs font-black text-slate-900">96.4%</div>
+                    <div className="text-right text-xs font-black text-slate-900">{batteryState.soh}%</div>
                   </div>
                 </div>
 
@@ -602,25 +645,25 @@ export function App() {
                     <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
                       <Zap className="w-4 h-4 text-[#059669]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Voltage</div>
-                      <div className="text-xs font-black text-[#059669]">350.4 V</div>
+                      <div className="text-xs font-black text-[#059669]">{batteryState.voltage} V</div>
                     </div>
 
                     <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
                       <Activity className="w-4 h-4 text-[#2563EB]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Current</div>
-                      <div className="text-xs font-black text-[#2563EB]">120.5 A</div>
+                      <div className="text-xs font-black text-[#2563EB]">{batteryState.current} A</div>
                     </div>
 
                     <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
                       <Cpu className="w-4 h-4 text-[#9333EA]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Power</div>
-                      <div className="text-xs font-black text-[#9333EA]">42.2 kW</div>
+                      <div className="text-xs font-black text-[#9333EA]">{batteryState.power} kW</div>
                     </div>
 
                     <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
                       <Thermometer className="w-4 h-4 text-[#EA580C]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Temperature</div>
-                      <div className="text-xs font-black text-[#EA580C]">34.2 °C</div>
+                      <div className="text-xs font-black text-[#EA580C]">{batteryState.maxTemperature || batteryState.temperature} °C</div>
                     </div>
                   </div>
                 </div>
