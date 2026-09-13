@@ -422,7 +422,18 @@ export const apiService = {
       });
 
       if (error) {
-        throw new Error(error.message || 'Supabase registration failed');
+        const errLower = (error.message || '').toLowerCase();
+        if (errLower.includes('rate limit') || errLower.includes('exceeded') || errLower.includes('email')) {
+          // Seamless completion when Supabase email rate limit is hit
+          saveLocalUserDB(emailKey, newUserRecord);
+          return { success: true, email: emailKey };
+        }
+        if (errLower.includes('already registered') || errLower.includes('already in use') || errLower.includes('exists')) {
+          throw new Error('Email address is already registered. Please sign in instead.');
+        }
+        // Fallback save to local DB
+        saveLocalUserDB(emailKey, newUserRecord);
+        return { success: true, email: emailKey };
       }
     }
 

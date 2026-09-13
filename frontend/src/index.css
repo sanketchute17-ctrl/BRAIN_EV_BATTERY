@@ -9,10 +9,18 @@
   box-sizing: border-box;
 }
 
-html, body {
+html, body, #root {
   margin: 0;
   padding: 0;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overflow-x: hidden;
+}
+
+.touch-scroll-active {
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
 }
 
 @layer base {
