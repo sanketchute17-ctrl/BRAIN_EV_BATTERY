@@ -30,8 +30,8 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   ] as const;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
-      <div className="w-4/5 max-w-sm bg-white border-l border-slate-200 h-full flex flex-col justify-between p-5 shadow-2xl">
+    <div className="absolute inset-0 z-50 flex justify-end bg-slate-900/50 backdrop-blur-sm animate-fadeIn">
+      <div className="w-4/5 bg-white border-l border-slate-200 h-full flex flex-col justify-between p-4 shadow-2xl overflow-hidden">
         {/* Drawer Header */}
         <div>
           <div className="flex items-center justify-between pb-4 border-b border-slate-200">

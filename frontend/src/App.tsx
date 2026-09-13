@@ -743,7 +743,7 @@ export function App() {
 
                 {/* Selected Cell Modal */}
                 {selectedCell && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fadeIn">
+                  <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-3 animate-fadeIn">
                     <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
                       <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                         <div className="flex items-center gap-2">
