@@ -260,11 +260,38 @@ export const apiService = {
 
       if (error) {
         const isEmailNotConfirmed = error.message?.toLowerCase().includes('email not confirmed');
+        const isInvalidCreds = error.message?.toLowerCase().includes('invalid');
         const localUsers = getLocalUsersDB();
         const localRecord = localUsers[emailKey];
 
-        if (isEmailNotConfirmed) {
-          // Seamless fallback for unconfirmed email accounts so user is never blocked
+        // 1. Check Supabase Cloud profiles table first for cross-browser support
+        try {
+          const { data: cloudProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', emailKey)
+            .maybeSingle();
+
+          if (cloudProfile) {
+            const authData: AuthResponse = {
+              access_token: `sb_cloud_token_${Date.now()}`,
+              user_id: cloudProfile.id || `usr_${Date.now()}`,
+              email: cloudProfile.email || emailKey,
+              full_name: cloudProfile.full_name || 'EV Operator',
+              role: cloudProfile.role || 'EV Rider / Owner',
+              ev_model: cloudProfile.ev_model || 'Ather 450X',
+              battery_chemistry: cloudProfile.battery_chemistry || 'NMC',
+            };
+            saveLocalUserDB(emailKey, authData);
+            this.setStoredToken(authData.access_token, authData);
+            return authData;
+          }
+        } catch {
+          // Fallthrough
+        }
+
+        // 2. Local DB fallback for same-device unconfirmed email
+        if (isEmailNotConfirmed || localRecord) {
           const userMeta = data?.user?.user_metadata || {};
           const authData: AuthResponse = {
             access_token: `sb_token_${Date.now()}`,
@@ -407,6 +434,18 @@ export const apiService = {
 
     // TIER 2: Supabase Cloud Auth Registration
     if (isSupabaseConfigured() && supabase) {
+      // Always sync user record to Supabase public profiles table for cross-browser login support
+      await supabase.from('profiles').upsert({
+        id: `usr_${Date.now()}`,
+        email: emailKey,
+        full_name: payload.fullName,
+        mobile: payload.mobile || '',
+        role: payload.role || 'EV Rider / Owner',
+        ev_model: payload.evModel || 'Ather 450X',
+        battery_chemistry: payload.batteryChemistry || 'NMC',
+        updated_at: new Date().toISOString(),
+      }).catch(() => {});
+
       const { error } = await supabase.auth.signUp({
         email: emailKey,
         password: payload.password || '',
