@@ -110,23 +110,7 @@ export function App() {
   const [batteryState, setBatteryState] = useState<NormalizedBatteryState>(batteryStateService.getSnapshot());
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const token = apiService.getStoredToken();
-        if (token) {
-          const user = await apiService.getCurrentUser();
-          if (user) {
-            setCurrentUser(user);
-            setAuthState('AUTHENTICATED');
-            setIsDemoMode(false);
-          }
-        }
-      } catch (err) {
-        console.warn('Auth init safe fallback:', err);
-      }
-    };
-    initAuth();
-
+    // Refresh / link open ALWAYS defaults to LOGIN screen for clean security
     const checkBackend = async () => {
       try {
         const res = await apiService.checkBackendStatus();
@@ -162,6 +146,10 @@ export function App() {
   };
 
   const runWhatIfSimulation = () => {
+    if (isDemoMode) {
+      alert('View-Only Demo Mode: Simulation controls are locked. Please Register or Sign In to run custom simulations.');
+      return;
+    }
     setIsSimulating(true);
     setTimeout(() => {
       const calcTemp = Math.round(simTemp + (simSpeed * 0.12) + (simAux * 1.5));
@@ -186,9 +174,14 @@ export function App() {
       <LoginScreen
         initialEmail={registeredEmail}
         onLoginSuccess={async (demo) => {
-          setIsDemoMode(!!demo);
-          const user = await apiService.getCurrentUser();
-          setCurrentUser(user);
+          if (demo) {
+            setIsDemoMode(true);
+            setCurrentUser(null); // Anonymous Demo Guest
+          } else {
+            setIsDemoMode(false);
+            const user = await apiService.getCurrentUser();
+            setCurrentUser(user);
+          }
           setAuthState('AUTHENTICATED');
         }}
         onNavigateRegister={() => setAuthState('REGISTER')}
@@ -271,7 +264,7 @@ export function App() {
                 <User className="w-3.5 h-3.5 text-emerald-600" />
               )}
               <span className="text-xs truncate max-w-[110px]">
-                {currentUser?.full_name?.split(' ')[0] || 'Operator'}
+                {isDemoMode ? 'Demo Guest' : (currentUser?.full_name?.split(' ')[0] || 'Operator')}
               </span>
             </button>
           </div>
@@ -279,6 +272,17 @@ export function App() {
 
         {/* 2. MAIN CONTENT BODY */}
         <main onScroll={handleMainScroll} className="relative z-10 p-3 sm:p-4 space-y-4 flex-1 overflow-y-auto min-h-0 pb-20 overscroll-contain">
+          {isDemoMode && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 px-3 flex items-center justify-between text-[11px] font-bold text-amber-800 animate-fadeIn">
+              <span>VIEW-ONLY DEMO MODE: Actions & saved data locked.</span>
+              <button
+                onClick={() => setAuthState('LOGIN')}
+                className="underline text-amber-900 font-black ml-1.5 shrink-0 cursor-pointer hover:text-emerald-700"
+              >
+                Sign In / Register
+              </button>
+            </div>
+          )}
           <ErrorBoundary>
         {activeDrawerItem ? (
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xl space-y-4 animate-fadeIn">
@@ -1046,6 +1050,7 @@ export function App() {
             {activeTab === 'profile' && (
               <ProfileScreen
                 currentUser={currentUser}
+                isDemoMode={isDemoMode}
                 onLogout={handleLogout}
                 onBackToDashboard={() => setActiveTab('home')}
                 onProfileUpdated={(updated) => setCurrentUser(updated)}

@@ -21,6 +21,7 @@ import { apiService } from '../services/api';
 
 interface ProfileScreenProps {
   currentUser: any;
+  isDemoMode?: boolean;
   onLogout: () => void;
   onBackToDashboard: () => void;
   onProfileUpdated?: (updatedUser: any) => void;
@@ -28,20 +29,21 @@ interface ProfileScreenProps {
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   currentUser,
+  isDemoMode = false,
   onLogout,
   onBackToDashboard,
   onProfileUpdated,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [fullName, setFullName] = useState(currentUser?.full_name || 'Dr. Alex Mercer');
-  const [mobile, setMobile] = useState(currentUser?.mobile || '+1 (555) 019-2834');
-  const [role, setRole] = useState(currentUser?.role || 'EV Rider / Owner');
-  const [evModel, setEvModel] = useState(currentUser?.ev_model || 'Ather 450X / Ola S1 Pro');
-  const [batteryChemistry, setBatteryChemistry] = useState(currentUser?.battery_chemistry || 'NMC (Nickel Manganese Cobalt)');
+  const [fullName, setFullName] = useState(isDemoMode ? '' : (currentUser?.full_name || ''));
+  const [mobile, setMobile] = useState(isDemoMode ? '' : (currentUser?.mobile || ''));
+  const [role, setRole] = useState(isDemoMode ? '' : (currentUser?.role || 'EV Rider / Owner'));
+  const [evModel, setEvModel] = useState(isDemoMode ? '' : (currentUser?.ev_model || ''));
+  const [batteryChemistry, setBatteryChemistry] = useState(isDemoMode ? '' : (currentUser?.battery_chemistry || ''));
   
   // Avatar Photo state (Base64 URL or empty)
-  const [avatarPhoto, setAvatarPhoto] = useState<string>(currentUser?.avatar_photo || localStorage.getItem('brain_user_avatar') || '');
+  const [avatarPhoto, setAvatarPhoto] = useState<string>(isDemoMode ? '' : (currentUser?.avatar_photo || ''));
 
   // Password reset state
   const [newPassword, setNewPassword] = useState('');
@@ -110,6 +112,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileMsg(null);
+
+    if (isDemoMode) {
+      setProfileMsg({ type: 'error', text: 'Actions locked in View-Only Demo Mode. Please Register or Sign In to save custom profile data.' });
+      return;
+    }
 
     const updatedUser = {
       ...currentUser,
