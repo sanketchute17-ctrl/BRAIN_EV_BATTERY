@@ -47,20 +47,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative overflow-hidden">
       
       {/* ANDROID MODERN SMARTPHONE CONTAINER FRAME (Width: 360px, Height: 800px, 9:20 Aspect Ratio) */}
-      <div className="w-full sm:w-[360px] h-full sm:h-[800px] sm:max-h-[800px] sm:rounded-[42px] relative overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-0 sm:border-[8px] sm:border-slate-900 bg-slate-900 text-white flex flex-col justify-between p-3.5 z-10 shrink-0">
-        
-        {/* ANDROID TOP STATUS BAR */}
-        <div className="flex items-center justify-between text-[10px] font-bold text-slate-300 relative z-20 pb-1 select-none">
-          <span>14:20</span>
-          <div className="w-3 h-3 bg-slate-950 border border-slate-800 rounded-full shadow-inner" />
-          <div className="flex items-center gap-1.5 text-[9px]">
-            <span>5G</span>
-            <Wifi className="w-3 h-3 text-slate-300" />
-            <div className="w-3.5 h-2 bg-slate-200 rounded-xs relative flex items-center justify-end px-0.5">
-              <div className="w-2 h-1 bg-emerald-500 rounded-xs" />
-            </div>
-          </div>
-        </div>
+      <div className="w-full sm:w-[360px] h-full sm:h-[800px] sm:max-h-[800px] sm:rounded-[42px] relative overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-0 sm:border-[8px] sm:border-slate-900 bg-slate-900 text-white flex flex-col justify-between p-4 sm:p-5 z-10 shrink-0">
         
         {/* SCOOTER BACKGROUND OVERLAY */}
         <div 

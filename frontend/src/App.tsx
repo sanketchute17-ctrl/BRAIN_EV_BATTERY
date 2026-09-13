@@ -209,21 +209,8 @@ export function App() {
       {/* ANDROID MODERN SMARTPHONE CONTAINER FRAME (Width: 360px, Height: 800px, 9:20 Aspect Ratio) */}
       <div className="w-full sm:w-[360px] h-full sm:h-[800px] sm:max-h-[800px] sm:rounded-[42px] relative overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-0 sm:border-[8px] sm:border-slate-900 bg-slate-50 text-slate-900 flex flex-col justify-between z-10 shrink-0">
         
-        {/* ANDROID TOP STATUS BAR & CAMERA PUNCH-HOLE */}
-        <div className="bg-white/95 backdrop-blur-md px-3.5 pt-2 pb-1 flex items-center justify-between text-[10px] font-bold text-slate-700 shrink-0 border-b border-slate-100 z-40 select-none">
-          <span>14:20</span>
-          <div className="w-3 h-3 bg-slate-950 border border-slate-800 rounded-full shadow-inner" />
-          <div className="flex items-center gap-1.5 text-[9px]">
-            <span>5G</span>
-            <Wifi className="w-3 h-3 text-slate-700" />
-            <div className="w-3.5 h-2 bg-slate-800 rounded-xs relative flex items-center justify-end px-0.5">
-              <div className="w-2 h-1 bg-emerald-400 rounded-xs" />
-            </div>
-          </div>
-        </div>
-
         {/* 1. CLEAN, UNCLUTTERED HEADER */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-1.5 flex items-center justify-between shadow-2xs shrink-0">
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs shrink-0">
           <div className="flex items-center gap-2">
             {activeDrawerItem ? (
               <button
