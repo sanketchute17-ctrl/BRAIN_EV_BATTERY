@@ -259,18 +259,31 @@ export const apiService = {
       });
 
       if (error) {
-        throw new Error(error.message || 'Invalid email or password');
+        let msg = error.message || 'Invalid email or password';
+        if (msg.toLowerCase().includes('email not confirmed')) {
+          msg = 'Email verification pending. Please disable "Confirm Email" in Supabase Dashboard -> Authentication -> Providers -> Email to enable instant login.';
+        }
+        throw new Error(msg);
       }
+
+      if (!data?.session) {
+        throw new Error('Authentication session missing. Please verify your Supabase email confirmation settings.');
+      }
+
+      const userMeta = data.user?.user_metadata || {};
+      const localUsers = getLocalUsersDB();
+      const localRecord = localUsers[emailKey] || {};
 
       const authData: AuthResponse = {
         access_token: data.session.access_token,
         user_id: data.user.id,
         email: data.user.email || emailKey,
-        full_name: data.user.user_metadata?.full_name || 'EV Operator',
-        role: data.user.user_metadata?.role || 'EV Rider / Owner',
-        ev_model: data.user.user_metadata?.ev_model || 'Ather 450X',
-        battery_chemistry: data.user.user_metadata?.battery_chemistry || 'NMC',
+        full_name: userMeta.full_name || localRecord.fullName || localRecord.full_name || 'EV Operator',
+        role: userMeta.role || localRecord.role || 'EV Rider / Owner',
+        ev_model: userMeta.ev_model || localRecord.evModel || localRecord.ev_model || 'Ather 450X',
+        battery_chemistry: userMeta.battery_chemistry || localRecord.batteryChemistry || localRecord.battery_chemistry || 'NMC',
       };
+      saveLocalUserDB(emailKey, authData);
       this.setStoredToken(authData.access_token, authData);
       return authData;
     }

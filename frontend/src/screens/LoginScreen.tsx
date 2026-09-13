@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Battery3DView } from '../components/Battery3DView';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { BrainLogo } from '../components/BrainLogo';
-import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus, ShieldCheck, Wifi } from 'lucide-react';
+import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus, ShieldCheck, Wifi, X } from 'lucide-react';
 import { apiService } from '../services/api';
 import scooterBg from '../assets/scooter_bg.jpg';
 
@@ -22,12 +22,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [registeredNotice] = useState(initialEmail ? 'Account created successfully in database! Please sign in with your password.' : '');
+  const [registeredNotice, setRegisteredNotice] = useState(
+    initialEmail ? 'Account created successfully! Please sign in with your password.' : ''
+  );
+
+  // Auto-dismiss registration success banner after 4 seconds
+  useEffect(() => {
+    if (registeredNotice) {
+      const timer = setTimeout(() => {
+        setRegisteredNotice('');
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [registeredNotice]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMsg('');
+    setRegisteredNotice('');
 
     try {
       await apiService.login({ email, password });
@@ -69,12 +82,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </div>
         </div>
 
-        {/* 3. FLOATING TRANSPARENT INPUT FORM AND BUTTONS (MATCHING IMAGE 2 EXACTLY) */}
+        {/* 3. FLOATING TRANSPARENT INPUT FORM AND BUTTONS */}
         <div className="relative z-10 space-y-3.5 my-auto w-full max-w-[340px] mx-auto px-1">
           {registeredNotice && (
-            <div className="p-3 rounded-full bg-emerald-600/90 backdrop-blur-xl text-white text-xs font-black shadow-lg flex items-center justify-center gap-2 animate-fadeIn border border-white/40 text-center">
-              <ShieldCheck className="w-4 h-4 text-emerald-200 shrink-0" />
-              <span>{registeredNotice}</span>
+            <div className="p-3 rounded-2xl bg-emerald-600/90 backdrop-blur-xl text-white text-xs font-black shadow-lg flex items-center justify-between gap-2 animate-fadeIn border border-white/40">
+              <div className="flex items-center gap-2 text-left">
+                <ShieldCheck className="w-4 h-4 text-emerald-200 shrink-0" />
+                <span>{registeredNotice}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRegisteredNotice('')}
+                className="p-1 hover:bg-emerald-700/60 rounded-full transition cursor-pointer shrink-0"
+              >
+                <X className="w-3.5 h-3.5 text-white" />
+              </button>
             </div>
           )}
 
