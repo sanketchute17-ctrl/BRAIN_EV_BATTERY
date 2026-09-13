@@ -9,12 +9,14 @@ interface NavigationProps {
   onSelectTab: (tab: TabType) => void;
   onOpenDrawer: () => void;
   bmsConnected?: boolean;
+  isVisible?: boolean;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
   onSelectTab,
   onOpenDrawer,
+  isVisible = true,
 }) => {
   const tabs = [
     { id: 'home', label: 'Home', icon: Home },
@@ -25,7 +27,11 @@ export const Navigation: React.FC<NavigationProps> = ({
   ] as const;
 
   return (
-    <div className="fixed sm:absolute bottom-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md border-t border-slate-200/80 pt-1 pb-1.5 px-2 select-none shadow-lg w-full">
+    <div
+      className={`fixed sm:absolute bottom-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md border-t border-slate-200/80 pt-1 pb-1.5 px-2 select-none shadow-lg w-full transition-transform duration-300 ${
+        isVisible ? 'translate-y-0' : 'translate-y-full'
+      }`}
+    >
       <div className="w-full flex items-center justify-around">
         {tabs.map((t) => {
           const Icon = t.icon;

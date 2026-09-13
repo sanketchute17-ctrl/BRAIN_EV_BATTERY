@@ -46,46 +46,46 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
               <X className="w-5 h-5 text-red-500" />
             </button>
           </div>
+        </div>
 
-          {/* Menu Items List */}
-          <div className="mt-4 space-y-2 overflow-y-auto max-h-[70vh] pr-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    onSelectDrawerItem(item.id as DrawerType);
-                    onClose();
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-300 transition group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-white border border-slate-200 text-emerald-600 shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                      <div className="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition">
-                        {item.label}
-                      </div>
-                      <div className="text-[10px] font-mono text-slate-400">{item.tag}</div>
-                    </div>
+        {/* Menu Items List */}
+        <div className="mt-3 space-y-1.5 overflow-y-auto max-h-[58vh] pr-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onSelectDrawerItem(item.id as DrawerType);
+                  onClose();
+                }}
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-300 transition group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-white border border-slate-200 text-emerald-600 shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition">
+                    <Icon className="w-3.5 h-3.5" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition" />
-                </button>
-              );
-            })}
-          </div>
+                  <div className="text-left">
+                    <div className="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition">
+                      {item.label}
+                    </div>
+                    <div className="text-[9px] font-mono text-slate-400">{item.tag}</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition" />
+              </button>
+            );
+          })}
         </div>
 
         {/* Logout Footer */}
-        <div className="pt-4 border-t border-slate-200">
+        <div className="pt-2.5 pb-1 border-t border-slate-200 shrink-0">
           <button
             onClick={() => {
               onLogout();
               onClose();
             }}
-            className="w-full py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-extrabold hover:bg-red-100 transition uppercase tracking-wider shadow-sm"
+            className="w-full py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-extrabold hover:bg-red-100 transition uppercase tracking-wider shadow-sm"
           >
             SIGN OUT OPERATOR
           </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LoginScreen } from './screens/LoginScreen';
 import { RegisterScreen } from './screens/RegisterScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
@@ -48,13 +48,29 @@ import {
 } from 'lucide-react';
 
 export function App() {
-  const [authState, setAuthState] = useState<'LOGIN' | 'REGISTER' | 'AUTHENTICATED'>('AUTHENTICATED');
+  const [authState, setAuthState] = useState<'LOGIN' | 'REGISTER' | 'AUTHENTICATED'>('LOGIN');
   const [isDemoMode, setIsDemoMode] = useState(true);
   const [backendOnline, setBackendOnline] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [activeDrawerItem, setActiveDrawerItem] = useState<DrawerType | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Dynamic Hide-on-Scroll / Show-on-Scroll Taskbar state
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollTop = useRef(0);
+
+  const handleMainScroll = (e: React.UIEvent<HTMLElement>) => {
+    const currentScrollTop = e.currentTarget.scrollTop;
+    if (currentScrollTop <= 15) {
+      setIsNavVisible(true);
+    } else if (currentScrollTop > lastScrollTop.current + 8) {
+      setIsNavVisible(false);
+    } else if (currentScrollTop < lastScrollTop.current - 8) {
+      setIsNavVisible(true);
+    }
+    lastScrollTop.current = currentScrollTop;
+  };
 
   // Status Switcher: HEALTHY, WATCH, WARNING, CRITICAL
   const [demoStatus, setDemoStatus] = useState<'HEALTHY' | 'WATCH' | 'WARNING' | 'CRITICAL'>('HEALTHY');
@@ -262,7 +278,7 @@ export function App() {
         </header>
 
         {/* 2. MAIN CONTENT BODY */}
-        <main className="relative z-10 p-3 sm:p-4 space-y-4 flex-1 overflow-y-auto min-h-0 pb-20 overscroll-contain">
+        <main onScroll={handleMainScroll} className="relative z-10 p-3 sm:p-4 space-y-4 flex-1 overflow-y-auto min-h-0 pb-20 overscroll-contain">
           <ErrorBoundary>
         {activeDrawerItem ? (
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xl space-y-4 animate-fadeIn">
@@ -1042,6 +1058,7 @@ export function App() {
 
       {/* 3. BOTTOM NAVIGATION */}
       <Navigation
+        isVisible={isNavVisible}
         activeTab={activeTab}
         onSelectTab={(tab) => {
           setActiveDrawerItem(null);
