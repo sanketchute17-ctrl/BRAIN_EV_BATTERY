@@ -16,6 +16,9 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     mobile = Column(String(50), nullable=True)
     role = Column(String(50), default="OPERATOR") # OPERATOR | RESEARCHER | ADMIN
+    ev_model = Column(String(100), nullable=True)
+    battery_chemistry = Column(String(100), nullable=True)
+    avatar_photo = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     vehicles = relationship("Vehicle", back_populates="owner")

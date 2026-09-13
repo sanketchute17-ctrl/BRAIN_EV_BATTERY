@@ -107,7 +107,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     }, 600);
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileMsg(null);
 
@@ -121,16 +121,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       avatar_photo: avatarPhoto,
     };
 
-    localStorage.setItem('brain_user_profile', JSON.stringify(updatedUser));
-    if (avatarPhoto) {
-      localStorage.setItem('brain_user_avatar', avatarPhoto);
-    }
+    try {
+      await apiService.updateUserProfile(updatedUser);
+      if (avatarPhoto) {
+        localStorage.setItem('brain_user_avatar', avatarPhoto);
+      }
 
-    if (onProfileUpdated) {
-      onProfileUpdated(updatedUser);
-    }
+      if (onProfileUpdated) {
+        onProfileUpdated(updatedUser);
+      }
 
-    setProfileMsg({ type: 'success', text: 'Operator profile details & EV specifications saved successfully to database!' });
+      setProfileMsg({ type: 'success', text: 'Operator profile details & EV specifications saved successfully!' });
+    } catch (err: any) {
+      setProfileMsg({ type: 'error', text: err.message || 'Failed to sync profile changes.' });
+    }
   };
 
   // Get user initials for profile avatar fallback

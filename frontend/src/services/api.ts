@@ -417,6 +417,46 @@ export const apiService = {
   },
 
   /**
+   * Update User Profile Details & Specs across Backend / Cloud DB / Local DB
+   */
+  async updateUserProfile(updatedUser: any): Promise<any> {
+    // 1. Update Supabase User Metadata if configured
+    if (isSupabaseConfigured() && supabase) {
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            full_name: updatedUser.full_name,
+            mobile: updatedUser.mobile,
+            role: updatedUser.role,
+            ev_model: updatedUser.ev_model,
+            battery_chemistry: updatedUser.battery_chemistry,
+          },
+        });
+      } catch {
+        // Fallthrough
+      }
+    }
+
+    // 2. Update FastAPI Backend Server
+    try {
+      await fetchWithFailover('/auth/me', {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(updatedUser),
+      });
+    } catch {
+      // Fallthrough
+    }
+
+    // 3. Update Local Storage Profile
+    localStorage.setItem('brain_user_profile', JSON.stringify(updatedUser));
+    if (updatedUser.email) {
+      saveLocalUserDB(updatedUser.email.toLowerCase(), updatedUser);
+    }
+    return updatedUser;
+  },
+
+  /**
    * Get PKL Simulation Summary from Backend
    */
   async getPklSummary(): Promise<any> {

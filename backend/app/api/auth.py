@@ -91,7 +91,30 @@ def get_user_profile(current_user: User = Depends(get_current_user)):
         "id": current_user.id,
         "email": current_user.email,
         "full_name": current_user.full_name,
+        "mobile": current_user.mobile,
         "role": current_user.role,
+        "ev_model": current_user.ev_model,
+        "battery_chemistry": current_user.battery_chemistry,
+        "avatar_photo": current_user.avatar_photo,
         "created_at": current_user.created_at.isoformat() if current_user.created_at else None
     }
+
+@router.put("/me")
+def update_user_profile(profile_data: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if "full_name" in profile_data:
+        current_user.full_name = profile_data["full_name"]
+    if "mobile" in profile_data:
+        current_user.mobile = profile_data["mobile"]
+    if "role" in profile_data:
+        current_user.role = profile_data["role"]
+    if "ev_model" in profile_data:
+        current_user.ev_model = profile_data["ev_model"]
+    if "battery_chemistry" in profile_data:
+        current_user.battery_chemistry = profile_data["battery_chemistry"]
+    if "avatar_photo" in profile_data:
+        current_user.avatar_photo = profile_data["avatar_photo"]
+    
+    db.commit()
+    db.refresh(current_user)
+    return get_user_profile(current_user)
 
