@@ -445,6 +445,20 @@ export const apiService = {
             battery_chemistry: updatedUser.battery_chemistry,
           },
         });
+
+        const { data: authData } = await supabase.auth.getUser();
+        if (authData?.user) {
+          await supabase.from('profiles').upsert({
+            id: authData.user.id,
+            email: authData.user.email,
+            full_name: updatedUser.full_name,
+            mobile: updatedUser.mobile,
+            role: updatedUser.role,
+            ev_model: updatedUser.ev_model,
+            battery_chemistry: updatedUser.battery_chemistry,
+            updated_at: new Date().toISOString(),
+          }).catch(() => {});
+        }
       } catch {
         // Fallthrough
       }
