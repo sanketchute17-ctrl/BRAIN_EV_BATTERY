@@ -30,9 +30,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [isCaptchaVerifying, setIsCaptchaVerifying] = useState(false);
   const [googleScriptLoaded, setGoogleScriptLoaded] = useState(false);
   const captchaContainerRef = useRef<HTMLDivElement>(null);
+  const customSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '';
 
-  // Load official Google reCAPTCHA API script dynamically
+  // Load official Google reCAPTCHA API script dynamically only when custom key is set
   useEffect(() => {
+    if (!customSiteKey) return;
     const scriptId = 'google-recaptcha-v2-script';
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
@@ -47,15 +49,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     } else if ((window as any).grecaptcha) {
       setGoogleScriptLoaded(true);
     }
-  }, []);
+  }, [customSiteKey]);
 
-  // Render official Google reCAPTCHA iframe when script is ready
+  // Render official Google reCAPTCHA iframe when custom site key is ready
   useEffect(() => {
-    if (googleScriptLoaded && (window as any).grecaptcha && captchaContainerRef.current) {
+    if (customSiteKey && googleScriptLoaded && (window as any).grecaptcha && captchaContainerRef.current) {
       try {
         if (captchaContainerRef.current.childElementCount === 0) {
           (window as any).grecaptcha.render(captchaContainerRef.current, {
-            sitekey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+            sitekey: customSiteKey,
             callback: (token: string) => {
               if (token) setIsCaptchaVerified(true);
             },
@@ -68,7 +70,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         console.warn('Google reCAPTCHA render fallback:', e);
       }
     }
-  }, [googleScriptLoaded]);
+  }, [customSiteKey, googleScriptLoaded]);
 
   // Auto-dismiss registration success banner after 4 seconds
   useEffect(() => {
@@ -209,11 +211,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               </button>
             </div>
 
-            {/* OFFICIAL GOOGLE reCAPTCHA V2 IFRAME CONTAINER & FALLBACK */}
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2 px-3 border border-slate-200/90 shadow-md flex flex-col items-center justify-center select-none my-2 transition-all hover:border-slate-300 min-h-[74px]">
-              <div ref={captchaContainerRef} className="my-1 flex items-center justify-center scale-95 origin-center" />
-              
-              {!googleScriptLoaded && (
+            {/* GOOGLE reCAPTCHA V2 "I'M NOT A ROBOT" CHECKBOX WIDGET */}
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 px-3.5 border border-slate-200/90 shadow-md flex items-center justify-between select-none my-2 transition-all hover:border-slate-300">
+              {customSiteKey && googleScriptLoaded ? (
+                <div ref={captchaContainerRef} className="my-1 flex items-center justify-center scale-95 origin-center w-full" />
+              ) : (
                 <div className="w-full flex items-center justify-between py-0.5">
                   <div 
                     onClick={handleCaptchaClick}
@@ -237,6 +239,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                     </span>
                   </div>
 
+                  {/* GOOGLE RECAPTCHA BRANDING LOGO */}
                   <div className="flex flex-col items-center justify-center text-[8px] text-slate-400 font-bold leading-none pl-2.5 border-l border-slate-200 shrink-0">
                     <div className="w-5 h-5 mb-0.5 relative flex items-center justify-center">
                       <svg className="w-4.5 h-4.5 text-blue-600 fill-current" viewBox="0 0 24 24">
