@@ -262,7 +262,7 @@ export function App() {
         </header>
 
         {/* 2. MAIN CONTENT BODY */}
-        <main className="relative z-10 p-3 sm:p-4 space-y-4 flex-1 overflow-y-auto min-h-0">
+        <main className="relative z-10 p-3 sm:p-4 space-y-4 flex-1 overflow-y-auto min-h-0 pb-20 overscroll-contain">
           <ErrorBoundary>
         {activeDrawerItem ? (
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xl space-y-4 animate-fadeIn">
