@@ -214,9 +214,9 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative overflow-x-hidden">
+    <div className="min-h-screen min-h-[100dvh] bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative overflow-x-hidden touch-scroll-active">
       {/* ANDROID MODERN SMARTPHONE CONTAINER FRAME (Width: 360px, Height: 800px, 9:20 Aspect Ratio) */}
-      <div className="w-full sm:w-[360px] min-h-screen sm:min-h-[800px] sm:h-[800px] sm:max-h-[800px] sm:rounded-[42px] relative overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-0 sm:border-[8px] sm:border-slate-900 bg-slate-50 text-slate-900 flex flex-col justify-between z-10 shrink-0 pb-16 sm:pb-0">
+      <div className="w-full sm:w-[360px] min-h-screen sm:min-h-[800px] sm:h-[800px] sm:max-h-[800px] sm:rounded-[42px] relative overflow-y-auto sm:overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-0 sm:border-[8px] sm:border-slate-900 bg-slate-50 text-slate-900 flex flex-col justify-between z-10 shrink-0 pb-16 sm:pb-0 touch-scroll-active">
         
         {/* 1. CLEAN, UNCLUTTERED HEADER */}
         <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs shrink-0">
@@ -271,7 +271,7 @@ export function App() {
         </header>
 
         {/* 2. MAIN CONTENT BODY */}
-        <main onScroll={handleMainScroll} className="relative z-10 p-3 sm:p-4 space-y-4 flex-1 overflow-y-auto min-h-0 pb-20 overscroll-contain">
+        <main onScroll={handleMainScroll} className="relative z-10 p-3 sm:p-4 space-y-4 flex-1 overflow-y-auto min-h-0 pb-20 touch-scroll-active">
           {isDemoMode && (
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 px-3 flex items-center justify-between text-[11px] font-bold text-amber-800 animate-fadeIn">
               <span>VIEW-ONLY DEMO MODE: Actions & saved data locked.</span>
