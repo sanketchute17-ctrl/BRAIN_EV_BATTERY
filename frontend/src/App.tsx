@@ -205,12 +205,25 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative">
-      {/* FULL RESPONSIVE APP CONTAINER */}
-      <div className="w-full max-w-5xl min-h-screen sm:min-h-[850px] sm:rounded-3xl relative overflow-hidden shadow-2xl border-0 sm:border border-slate-700 bg-slate-50 text-slate-900 flex flex-col justify-between">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-0 sm:p-4 selection:bg-emerald-500/20 relative overflow-hidden">
+      {/* ANDROID MODERN SMARTPHONE CONTAINER FRAME (Width: 360px, Height: 800px, 9:20 Aspect Ratio) */}
+      <div className="w-full sm:w-[360px] h-full sm:h-[800px] sm:max-h-[800px] sm:rounded-[42px] relative overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-0 sm:border-[8px] sm:border-slate-900 bg-slate-50 text-slate-900 flex flex-col justify-between z-10 shrink-0">
         
+        {/* ANDROID TOP STATUS BAR & CAMERA PUNCH-HOLE */}
+        <div className="bg-white/95 backdrop-blur-md px-3.5 pt-2 pb-1 flex items-center justify-between text-[10px] font-bold text-slate-700 shrink-0 border-b border-slate-100 z-40 select-none">
+          <span>14:20</span>
+          <div className="w-3 h-3 bg-slate-950 border border-slate-800 rounded-full shadow-inner" />
+          <div className="flex items-center gap-1.5 text-[9px]">
+            <span>5G</span>
+            <Wifi className="w-3 h-3 text-slate-700" />
+            <div className="w-3.5 h-2 bg-slate-800 rounded-xs relative flex items-center justify-end px-0.5">
+              <div className="w-2 h-1 bg-emerald-400 rounded-xs" />
+            </div>
+          </div>
+        </div>
+
         {/* 1. CLEAN, UNCLUTTERED HEADER */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs shrink-0">
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-1.5 flex items-center justify-between shadow-2xs shrink-0">
           <div className="flex items-center gap-2">
             {activeDrawerItem ? (
               <button
@@ -814,31 +827,27 @@ export function App() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
-                      <div className="text-xs font-bold text-slate-500 uppercase">OVERALL RISK SCORE</div>
-                      <div className="text-5xl font-black text-emerald-600 mt-1">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
+                      <div className="text-[9px] font-extrabold text-slate-500 uppercase">RISK SCORE</div>
+                      <div className="text-2xl font-black text-emerald-600 my-0.5">
                         23%
                       </div>
-                      <div className="text-[10px] font-mono text-slate-500 mt-1">LOW RISK OPERATING REGIME</div>
+                      <div className="text-[8px] font-mono text-slate-500">LOW RISK</div>
                     </div>
 
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
-                      <div className="text-xs font-bold text-slate-500 uppercase">PREDICTION CONFIDENCE</div>
-                      <div className="text-5xl font-black text-emerald-600 mt-1">
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
+                      <div className="text-[9px] font-extrabold text-slate-500 uppercase">CONFIDENCE</div>
+                      <div className="text-2xl font-black text-emerald-600 my-0.5">
                         91%
                       </div>
-                      <div className="text-[10px] font-mono text-slate-500 mt-1">VALIDATED BY PINN MODEL</div>
+                      <div className="text-[8px] font-mono text-slate-500">PINN MODEL</div>
                     </div>
 
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
-                      <div>
-                        <div className="text-xs font-bold text-slate-500 uppercase">ESTIMATED SAFE OPERATING WINDOW</div>
-                        <div className="text-2xl font-extrabold text-red-500 mt-1">18 – 25 MIN</div>
-                      </div>
-                      <p className="text-[11px] font-serif italic text-slate-500 mt-2">
-                        * Model-based estimate, not a guaranteed countdown.
-                      </p>
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
+                      <div className="text-[9px] font-extrabold text-slate-500 uppercase">SAFE WINDOW</div>
+                      <div className="text-sm font-extrabold text-red-500 my-0.5">18–25 MIN</div>
+                      <div className="text-[8px] font-mono text-slate-500">ESTIMATE</div>
                     </div>
                   </div>
                 </div>
@@ -895,7 +904,7 @@ export function App() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-3">
                     <div>
                       <label className="text-xs font-bold text-slate-700 uppercase">VEHICLE SPEED: {simSpeed} KM/H</label>
                       <input
@@ -963,7 +972,7 @@ export function App() {
                       <span className="text-xs font-mono font-bold text-emerald-600">SIMULATED DATA</span>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 gap-2.5">
                       <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                         <div className="text-[10px] font-bold text-slate-500">PREDICTED TEMP</div>
                         <div className="text-2xl font-extrabold text-red-500 mt-1">{simResults.predictedTemp} °C</div>
