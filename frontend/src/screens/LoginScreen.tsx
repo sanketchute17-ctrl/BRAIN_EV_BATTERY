@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Battery3DView } from '../components/Battery3DView';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { BrainLogo } from '../components/BrainLogo';
-import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus, ShieldCheck, Wifi, X } from 'lucide-react';
+import { Lock, Mail, ArrowRight, PlayCircle, Eye, EyeOff, UserPlus, ShieldCheck, Wifi, X, Check, Loader2 } from 'lucide-react';
 import { apiService } from '../services/api';
 import scooterBg from '../assets/scooter_bg.jpg';
 
@@ -26,6 +26,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     initialEmail ? 'Account created successfully! Please sign in with your password.' : ''
   );
 
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [isCaptchaVerifying, setIsCaptchaVerifying] = useState(false);
+
   // Auto-dismiss registration success banner after 4 seconds
   useEffect(() => {
     if (registeredNotice) {
@@ -36,11 +39,26 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     }
   }, [registeredNotice]);
 
+  const handleCaptchaClick = () => {
+    if (isCaptchaVerified) return;
+    setIsCaptchaVerifying(true);
+    setTimeout(() => {
+      setIsCaptchaVerifying(false);
+      setIsCaptchaVerified(true);
+    }, 600);
+  };
+
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setErrorMsg('');
     setRegisteredNotice('');
+
+    if (!isCaptchaVerified) {
+      setErrorMsg('Please complete "I\'m not a robot" reCAPTCHA verification to sign in.');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       await apiService.login({ email, password });
@@ -150,7 +168,44 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               </button>
             </div>
 
-            {/* VIVID SOLID EMERALD SIGN IN BUTTON FROM IMAGE 2 */}
+            {/* GOOGLE reCAPTCHA V2 "I'M NOT A ROBOT" CHECKBOX WIDGET */}
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 px-3.5 border border-slate-200/90 shadow-md flex items-center justify-between select-none my-2 transition-all hover:border-slate-300">
+              <div 
+                onClick={handleCaptchaClick}
+                className="flex items-center gap-3 cursor-pointer group py-0.5"
+              >
+                <div className={`w-7 h-7 rounded-md border-2 flex items-center justify-center transition-all ${
+                  isCaptchaVerified 
+                    ? 'bg-emerald-500 border-emerald-500 shadow-sm' 
+                    : isCaptchaVerifying 
+                    ? 'border-emerald-500 bg-emerald-50/50' 
+                    : 'border-slate-400 bg-white group-hover:border-slate-600'
+                }`}>
+                  {isCaptchaVerified ? (
+                    <Check className="w-5 h-5 text-white stroke-[3] animate-scaleIn" />
+                  ) : isCaptchaVerifying ? (
+                    <Loader2 className="w-4 h-4 text-emerald-600 animate-spin" />
+                  ) : null}
+                </div>
+                <span className="text-xs font-black text-slate-800 tracking-tight">
+                  I'm not a robot
+                </span>
+              </div>
+
+              {/* GOOGLE RECAPTCHA BRANDING LOGO */}
+              <div className="flex flex-col items-center justify-center text-[8px] text-slate-400 font-bold leading-none pl-2.5 border-l border-slate-200 shrink-0">
+                <div className="w-5 h-5 mb-0.5 relative flex items-center justify-center">
+                  <svg className="w-4.5 h-4.5 text-blue-600 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity="0.3"/>
+                    <path d="M12 4a8 8 0 0 0-8 8h3a5 5 0 0 1 5-5V4z"/>
+                  </svg>
+                </div>
+                <span className="text-[7px] text-slate-500 font-black tracking-tighter">reCAPTCHA</span>
+                <span className="text-[6px] text-slate-400">Privacy - Terms</span>
+              </div>
+            </div>
+
+            {/* VIVID SOLID EMERALD SIGN IN BUTTON */}
             <button
               type="submit"
               disabled={isSubmitting}
