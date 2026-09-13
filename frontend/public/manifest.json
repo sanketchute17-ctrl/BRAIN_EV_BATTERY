@@ -1,6 +1,8 @@
 {
-  "short_name": "BRAIN EV",
-  "name": "BRAIN — EV Battery Risk & Analytics Intelligence Network",
+  "id": "org.brainev.app",
+  "short_name": "BRAIN",
+  "name": "BRAIN",
+  "description": "EV Battery Risk & Analytics Intelligence Network with Real-Time Telemetry & PINN Digital Twin",
   "icons": [
     {
       "src": "/icon-512.png",
