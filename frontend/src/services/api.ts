@@ -99,6 +99,11 @@ export const apiService = {
       localStorage.setItem('brain_access_token', token);
       if (user) {
         localStorage.setItem('brain_user_profile', JSON.stringify(user));
+        if (user.email) {
+          const emailKey = user.email.toLowerCase().trim();
+          localStorage.setItem('brain_current_logged_email', emailKey);
+          localStorage.setItem(`brain_profile_${emailKey}`, JSON.stringify(user));
+        }
       }
     } catch (e) {
       console.warn('LocalStorage save failed:', e);
@@ -109,6 +114,7 @@ export const apiService = {
     try {
       localStorage.removeItem('brain_access_token');
       localStorage.removeItem('brain_user_profile');
+      localStorage.removeItem('brain_current_logged_email');
     } catch (e) {
       console.warn('LocalStorage clear failed:', e);
     }
@@ -175,13 +181,16 @@ export const apiService = {
       try {
         const { data } = await supabase.auth.getUser();
         if (data?.user) {
+          const emailKey = data.user.email?.toLowerCase().trim();
+          const localUsers = getLocalUsersDB();
+          const localRec = emailKey ? localUsers[emailKey] : null;
           return {
             id: data.user.id,
             email: data.user.email,
-            full_name: data.user.user_metadata?.full_name || 'EV Operator',
-            role: data.user.user_metadata?.role || 'EV Rider / Owner',
-            ev_model: data.user.user_metadata?.ev_model || 'Ather 450X',
-            battery_chemistry: data.user.user_metadata?.battery_chemistry || 'NMC',
+            full_name: data.user.user_metadata?.full_name || localRec?.fullName || localRec?.full_name || 'EV Operator',
+            role: data.user.user_metadata?.role || localRec?.role || 'EV Rider / Owner',
+            ev_model: data.user.user_metadata?.ev_model || localRec?.evModel || localRec?.ev_model || 'Ather 450X',
+            battery_chemistry: data.user.user_metadata?.battery_chemistry || localRec?.batteryChemistry || 'NMC',
           };
         }
       } catch {
@@ -201,8 +210,25 @@ export const apiService = {
       // Fallthrough
     }
 
-    // 4. Local stored profile fallback
+    // 4. Local stored profile fallback matching active logged email
     try {
+      const activeEmail = localStorage.getItem('brain_current_logged_email');
+      if (activeEmail) {
+        const specificProfile = localStorage.getItem(`brain_profile_${activeEmail}`);
+        if (specificProfile) return JSON.parse(specificProfile);
+        const localUsers = getLocalUsersDB();
+        const userRec = localUsers[activeEmail];
+        if (userRec) {
+          return {
+            id: userRec.id || `usr_${Date.now()}`,
+            email: activeEmail,
+            full_name: userRec.fullName || userRec.full_name || 'EV Operator',
+            role: userRec.role || userRec.role || 'EV Rider / Owner',
+            ev_model: userRec.evModel || userRec.ev_model || 'Ather 450X',
+            battery_chemistry: userRec.batteryChemistry || userRec.battery_chemistry || 'NMC',
+          };
+        }
+      }
       const profile = localStorage.getItem('brain_user_profile');
       if (profile) return JSON.parse(profile);
     } catch {

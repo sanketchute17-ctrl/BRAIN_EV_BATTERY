@@ -744,60 +744,59 @@ export function App() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">SOC / SOH</div>
-                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">84% / 96.4%</div>
+                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">{Math.round(batteryState.soc)}% / {batteryState.soh}%</div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">VOLTAGE / CURRENT</div>
-                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">350.4 V / 120.5 A</div>
+                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">{batteryState.voltage} V / {batteryState.current} A</div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">POWER / TEMP</div>
-                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">42.2 kW / 34.2 °C</div>
+                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">{batteryState.power} kW / {batteryState.maxTemperature || batteryState.temperature} °C</div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">INTERNAL RESISTANCE</div>
-                      <div className="text-lg font-extrabold text-red-500 mt-0.5">1.25 mΩ / cell</div>
+                      <div className="text-lg font-extrabold text-emerald-600 mt-0.5">{batteryState.internalResistance} mΩ / cell</div>
                     </div>
                   </div>
                 </div>
 
-                {/* 96 Cell Visual Matrix Grid */}
+                {/* Simulated Digital Twin Cell Matrix Grid (Rohit More 8-Cell Pack) */}
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md space-y-3">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-black text-slate-900 uppercase heading-tech tracking-wide">
-                      CELL MONITORING MATRIX (TAP CELL FOR DIAGNOSTICS)
+                      ROHIT MORE SIMULATED CELL MATRIX ({batteryState.cells.length} CELLS)
                     </h3>
                     <div className="flex items-center gap-3 text-[11px] font-bold">
                       <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Healthy</span>
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Critical</span>
+                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Warning/Critical</span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-6 sm:grid-cols-12 gap-2 pt-2">
-                    {Array.from({ length: 36 }).map((_, i) => {
-                      const cellId = i + 1;
-                      const isCritical = (demoStatus === 'CRITICAL' || demoStatus === 'WARNING') && (cellId === 14 || cellId === 28);
-
-                      const statusColor = isCritical
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+                    {batteryState.cells.map((c) => {
+                      const isAbnormal = c.status !== 'HEALTHY' || c.temperature > 44;
+                      const statusColor = isAbnormal
                         ? 'bg-red-100 border-red-500 text-red-700 animate-pulse shadow-red'
                         : 'bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100';
 
                       return (
                         <button
-                          key={cellId}
+                          key={c.id}
                           onClick={() =>
                             setSelectedCell({
-                              id: cellId,
-                              voltage: isCritical ? 2.92 : 3.65,
-                              temp: isCritical ? 52.4 : 33.5,
-                              deviation: isCritical ? 140 : 8,
-                              status: isCritical ? 'CRITICAL' : 'HEALTHY',
-                              riskScore: isCritical ? 88 : 12,
+                              id: c.id,
+                              voltage: c.voltage,
+                              temp: c.temperature,
+                              deviation: c.deviation || 0.01,
+                              status: isAbnormal ? 'CRITICAL' : 'HEALTHY',
+                              riskScore: isAbnormal ? 84 : 12,
                             })
                           }
-                          className={`h-10 rounded-lg border flex flex-col items-center justify-center font-mono text-xs font-bold transition-all ${statusColor}`}
+                          className={`h-12 rounded-xl border flex flex-col items-center justify-center font-mono text-xs font-bold transition-all ${statusColor}`}
                         >
-                          C{cellId < 10 ? `0${cellId}` : cellId}
+                          <span>C0{c.id} ({c.voltage}V)</span>
+                          <span className="text-[9px] font-normal opacity-80">{c.temperature}°C</span>
                         </button>
                       );
                     })}
