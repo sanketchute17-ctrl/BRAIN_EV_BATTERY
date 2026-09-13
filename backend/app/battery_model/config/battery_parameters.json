@@ -1,0 +1,63 @@
+{
+  "_comment": "NMC Lithium-Ion Cell & Pack Parameters with Calibration Provenance Metadata — Battery Digital Twin",
+  "battery_id": { "value": "BRAIN001", "unit": "string", "source": "specification", "calibrated": false },
+  "chemistry": { "value": "NMC", "unit": "string", "source": "specification", "calibrated": false },
+  "cell_type": { "value": "Cylindrical 18650", "unit": "string", "source": "specification", "calibrated": false },
+  "pack_configuration": { "value": "8S1P", "unit": "string", "source": "specification", "calibrated": false },
+  "num_cells": { "value": 8, "unit": "count", "source": "specification", "calibrated": false },
+  "num_modules": { "value": 2, "unit": "count", "source": "specification", "calibrated": false },
+  "cells_per_module": { "value": 4, "unit": "count", "source": "specification", "calibrated": false },
+
+  "cell_nominal_voltage_V": { "value": 3.6, "unit": "V", "source": "manufacturer_spec", "calibrated": false },
+  "cell_max_voltage_V": { "value": 4.2, "unit": "V", "source": "manufacturer_spec", "calibrated": false },
+  "cell_min_voltage_V": { "value": 2.5, "unit": "V", "source": "manufacturer_spec", "calibrated": false },
+  "cell_capacity_Ah": { "value": 2.5, "unit": "Ah", "source": "initial_assumption", "calibrated": false },
+  "cell_internal_resistance_ohm": { "value": 0.020, "unit": "ohm", "source": "initial_assumption", "calibrated": false },
+
+  "pack_nominal_voltage_V": { "value": 28.8, "unit": "V", "source": "calculated", "calibrated": false },
+  "pack_max_voltage_V": { "value": 33.6, "unit": "V", "source": "calculated", "calibrated": false },
+  "pack_min_voltage_V": { "value": 20.0, "unit": "V", "source": "calculated", "calibrated": false },
+  "pack_capacity_Ah": { "value": 2.5, "unit": "Ah", "source": "calculated", "calibrated": false },
+
+  "max_charge_current_A": { "value": 5.0, "unit": "A", "source": "manufacturer_spec", "calibrated": false },
+  "max_discharge_current_A": { "value": 50.0, "unit": "A", "source": "manufacturer_spec", "calibrated": false },
+  "nominal_charge_current_A": { "value": 2.5, "unit": "A", "source": "manufacturer_spec", "calibrated": false },
+  "nominal_discharge_current_A": { "value": 15.0, "unit": "A", "source": "manufacturer_spec", "calibrated": false },
+
+  "ocv_soc_model": {
+    "_description": "OCV(SOC) linear approximation: OCV = a + b*SOC (SOC in 0..1)",
+    "a_intercept_V": { "value": 3.20, "unit": "V", "source": "initial_assumption", "calibrated": false },
+    "b_slope_V": { "value": 0.95, "unit": "V", "source": "initial_assumption", "calibrated": false }
+  },
+
+  "thermal": {
+    "cell_mass_kg": { "value": 0.045, "unit": "kg", "source": "manufacturer_spec", "calibrated": false },
+    "cell_specific_heat_J_per_kgK": { "value": 900.0, "unit": "J/(kg*K)", "source": "literature", "calibrated": false },
+    "thermal_conductivity_W_per_mK": { "value": 1.5, "unit": "W/(m*K)", "source": "literature", "calibrated": false },
+    "cell_contact_area_m2": { "value": 0.0012, "unit": "m^2", "source": "geometry", "calibrated": false },
+    "cell_spacing_m": { "value": 0.020, "unit": "m", "source": "geometry", "calibrated": false }
+  },
+
+  "cooling": {
+    "coolant_specific_heat_J_per_kgK": { "value": 4184.0, "unit": "J/(kg*K)", "source": "literature", "calibrated": false },
+    "coolant_density_kg_per_m3": { "value": 1000.0, "unit": "kg/m^3", "source": "literature", "calibrated": false },
+    "coolant_inlet_temperature_C": { "value": 25.0, "unit": "degC", "source": "ambient_condition", "calibrated": false },
+    "cooling_failure_threshold_LPM": { "value": 0.5, "unit": "LPM", "source": "bms_spec", "calibrated": false }
+  },
+
+  "aging": {
+    "max_cycle_count": { "value": 1500, "unit": "cycles", "source": "manufacturer_spec", "calibrated": false },
+    "alpha": { "value": 1.0, "unit": "dimensionless", "source": "initial_assumption", "calibrated": false },
+    "beta": { "value": 0.20, "unit": "dimensionless", "source": "initial_assumption", "calibrated": false }
+  },
+
+  "soc_initial_percent": { "value": 75.0, "unit": "%", "source": "initial_condition", "calibrated": false },
+  "temperature_initial_C": { "value": 28.0, "unit": "degC", "source": "initial_condition", "calibrated": false },
+  "ambient_temperature_C": { "value": 25.0, "unit": "degC", "source": "ambient_condition", "calibrated": false },
+
+  "cell_balancing_threshold_V": { "value": 0.030, "unit": "V", "source": "bms_spec", "calibrated": false },
+  "overvoltage_limit_V": { "value": 4.25, "unit": "V", "source": "bms_spec", "calibrated": false },
+  "undervoltage_limit_V": { "value": 2.45, "unit": "V", "source": "bms_spec", "calibrated": false },
+  "overtemperature_limit_C": { "value": 60.0, "unit": "degC", "source": "bms_spec", "calibrated": false },
+  "overcurrent_limit_A": { "value": 52.0, "unit": "A", "source": "bms_spec", "calibrated": false }
+}

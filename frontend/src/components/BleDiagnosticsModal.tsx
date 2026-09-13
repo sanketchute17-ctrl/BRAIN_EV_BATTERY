@@ -211,6 +211,47 @@ export const BleDiagnosticsModal: React.FC<BleDiagnosticsModalProps> = ({
           </pre>
         </div>
 
+        {/* Digital Twin Fault Injection & Physics Controls */}
+        <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2 text-xs font-mono">
+          <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
+            <span>DIGITAL TWIN FAULT INJECTION & PHYSICS CONTROLS</span>
+            <span className="text-[10px] text-slate-500">Live Python Backend Connected</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => {
+                import('../services/api').then(({ apiService }) => {
+                  apiService.injectDigitalTwinFault('none', 5, false);
+                });
+              }}
+              className="py-2 px-2 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 rounded-xl text-emerald-300 text-[10px] font-bold transition uppercase tracking-wider"
+            >
+              CLEAR FAULTS (NORMAL)
+            </button>
+            <button
+              onClick={() => {
+                import('../services/api').then(({ apiService }) => {
+                  apiService.injectDigitalTwinFault('thermal_runaway', 3, true);
+                });
+              }}
+              className="py-2 px-2 bg-red-950/80 hover:bg-red-900 border border-red-500/50 rounded-xl text-red-300 text-[10px] font-bold transition uppercase tracking-wider"
+            >
+              THERMAL FAULT
+            </button>
+            <button
+              onClick={() => {
+                import('../services/api').then(({ apiService }) => {
+                  apiService.injectDigitalTwinFault('cell_degradation', 5, true);
+                });
+              }}
+              className="py-2 px-2 bg-amber-950/80 hover:bg-amber-900 border border-amber-500/50 rounded-xl text-amber-300 text-[10px] font-bold transition uppercase tracking-wider"
+            >
+              CELL DEGRADATION
+            </button>
+          </div>
+        </div>
+
         {/* 1-Click Virtual GATT Peripheral Simulator Option for Offline Testing */}
         <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/80 border border-slate-700">
           <div>

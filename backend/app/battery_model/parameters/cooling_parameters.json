@@ -1,0 +1,25 @@
+{
+  "_comment": "BTMS Cooling System Parameters with Provenance Metadata — Battery Digital Twin",
+
+  "cooling_type": { "value": "liquid_cold_plate", "unit": "string", "source": "specification", "calibrated": false },
+  "coolant_fluid": { "value": "50% Ethylene Glycol + 50% Water", "unit": "string", "source": "specification", "calibrated": false },
+
+  "coolant_specific_heat_J_per_kgK": { "value": 3386.0, "unit": "J/(kg*K)", "source": "literature", "calibrated": false },
+  "coolant_density_kg_per_m3": { "value": 1060.0, "unit": "kg/m3", "source": "literature", "calibrated": false },
+  "coolant_inlet_temperature_C": { "value": 20.0, "unit": "degC", "source": "operational_spec", "calibrated": false },
+
+  "nominal_flow_rate_LPM": { "value": 8.5, "unit": "LPM", "source": "operational_spec", "calibrated": false },
+  "nominal_flow_rate_m3_per_s": { "value": 0.0001417, "unit": "m3/s", "source": "calculated", "calibrated": false },
+
+  "max_flow_rate_LPM": { "value": 15.0, "unit": "LPM", "source": "pump_spec", "calibrated": false },
+  "min_flow_rate_LPM": { "value": 0.0, "unit": "LPM", "source": "pump_spec", "calibrated": false },
+
+  "cold_plate_thermal_resistance_K_per_W": { "value": 0.05, "unit": "K/W", "source": "manufacturer_spec", "calibrated": false },
+
+  "pump_power_W": { "value": 45.0, "unit": "W", "source": "pump_spec", "calibrated": false },
+  "pump_efficiency": { "value": 0.75, "unit": "dimensionless", "source": "pump_spec", "calibrated": false },
+
+  "cooling_failure_threshold_LPM": { "value": 0.5, "unit": "LPM", "source": "bms_spec", "calibrated": false },
+  "target_cell_temperature_C": { "value": 30.0, "unit": "degC", "source": "operational_spec", "calibrated": false },
+  "max_coolant_delta_T_C": { "value": 10.0, "unit": "degC", "source": "operational_spec", "calibrated": false }
+}

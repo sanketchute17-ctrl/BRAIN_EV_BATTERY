@@ -303,10 +303,77 @@ class BluetoothService {
     batteryStateService.setConnectionState('CONNECTED', { name: deviceName, id: deviceId, rssi: -55 });
 
     let step = 0;
-    this.virtualTimer = setInterval(() => {
+    this.virtualTimer = setInterval(async () => {
       if (!this.isVirtualGattActive) return;
       step++;
       this.sequenceCounter++;
+
+      try {
+        const dtPayload = await apiService.getLiveDigitalTwinTelemetry();
+        if (dtPayload && dtPayload.pack) {
+          const volt = dtPayload.pack.voltage || 350.0;
+          const curr = dtPayload.pack.current || 120.0;
+          const temp = dtPayload.thermal?.max_temperature || 34.0;
+          const soc = dtPayload.cells && dtPayload.cells.length > 0 ? dtPayload.cells[0].soc : 84.0;
+          const soh = dtPayload.aging?.soh || 96.4;
+          const powerKw = dtPayload.pack.power ? +(dtPayload.pack.power / 1000.0).toFixed(1) : +((volt * curr) / 1000.0).toFixed(1);
+          const isThermalSpike = temp > 44.0;
+
+          const livePayload: RawBleTelemetryPayload = {
+            protocolVersion: BLE_CONFIG.PROTOCOL_VERSION,
+            messageType: 'TELEMETRY',
+            sequenceNumber: this.sequenceCounter,
+            timestamp: dtPayload.timestamp || Date.now(),
+            pack: {
+              soc: Math.round(soc),
+              soh,
+              voltage: volt,
+              current: curr,
+              power: powerKw,
+              temperature: temp,
+              maxTemperature: dtPayload.thermal?.max_temperature || +(temp + 1.2).toFixed(1),
+              minTemperature: dtPayload.thermal?.average_temperature || +(temp - 1.1).toFixed(1),
+              internalResistance: dtPayload.aging?.internal_resistance || 1.2,
+              cycleCount: dtPayload.pack.cycle_number || 428,
+              estimatedRange: Math.round(soc * 4.1),
+              risk: dtPayload.fault?.status !== 'NORMAL' ? 75 : isThermalSpike ? 68 : Math.round(2 + Math.abs(Math.sin(step * 0.1) * 8)),
+              safetyState: dtPayload.fault?.status !== 'NORMAL' ? 'WARNING' : isThermalSpike ? 'WARNING' : 'HEALTHY',
+            },
+            environment: {
+              ambientTemperature: 29.0,
+            },
+            charging: {
+              active: false,
+              current: 0,
+              power: 0,
+              temperature: temp,
+              durationSeconds: 0,
+            },
+            cells: Array.isArray(dtPayload.cells) && dtPayload.cells.length > 0
+              ? dtPayload.cells.slice(0, 8).map((c: any, idx: number) => ({
+                  id: c.cell_id || idx + 1,
+                  voltage: c.voltage || 3.72,
+                  temperature: c.temperature || temp,
+                  deviation: c.resistance ? 0.05 : 0.01,
+                  risk: c.temperature > 40 ? 70 : 2,
+                  status: c.temperature > 40 ? 'WARNING' : 'HEALTHY',
+                }))
+              : Array.from({ length: 8 }, (_, idx) => ({
+                  id: idx + 1,
+                  voltage: +(3.72 + (Math.random() - 0.5) * 0.02).toFixed(2),
+                  temperature: +(temp + (Math.random() - 0.5) * 0.6).toFixed(1),
+                  deviation: 0.01,
+                  risk: 2,
+                  status: 'HEALTHY',
+                })),
+          };
+
+          batteryStateService.processLiveBleTelemetry(livePayload, { name: deviceName, id: deviceId, rssi: -55 });
+          return;
+        }
+      } catch {
+        // Fallback to local physics generator below
+      }
 
       const volt = +(350.0 + Math.sin(step * 0.15) * 4.5).toFixed(1);
       const curr = +(120.0 + Math.cos(step * 0.15) * 8.5).toFixed(1);

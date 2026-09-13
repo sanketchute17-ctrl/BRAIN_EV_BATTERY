@@ -1,0 +1,19 @@
+{
+  "_comment": "Cell Thermal & Fourier Conduction Parameters with Provenance Metadata — Battery Digital Twin",
+
+  "cell_thermal_mass_J_per_K": { "value": 45.0, "unit": "J/K", "source": "calculated", "calibrated": false },
+  "cell_mass_kg": { "value": 0.045, "unit": "kg", "source": "manufacturer_spec", "calibrated": false },
+  "cell_specific_heat_J_per_kgK": { "value": 1000.0, "unit": "J/(kg*K)", "source": "literature", "calibrated": false },
+
+  "thermal_conductivity_W_per_mK": { "value": 1.5, "unit": "W/(m*K)", "source": "literature", "calibrated": false },
+  "cell_contact_area_m2": { "value": 0.001, "unit": "m2", "source": "geometry_spec", "calibrated": false },
+  "cell_spacing_m": { "value": 0.003, "unit": "m", "source": "geometry_spec", "calibrated": false },
+  "cell_surface_area_m2": { "value": 0.00390, "unit": "m2", "source": "geometry_spec", "calibrated": false },
+
+  "module_enclosure_conductivity_W_per_mK": { "value": 160.0, "unit": "W/(m*K)", "source": "literature", "calibrated": false },
+  "ambient_temperature_C": { "value": 25.0, "unit": "degC", "source": "ambient_condition", "calibrated": false },
+  "thermal_runaway_onset_C": { "value": 80.0, "unit": "degC", "source": "safety_spec", "calibrated": false },
+  "thermal_runaway_propagation_C": { "value": 130.0, "unit": "degC", "source": "safety_spec", "calibrated": false },
+
+  "fourier_dt_s": { "value": 0.2, "unit": "s", "source": "simulation_spec", "calibrated": false }
+}

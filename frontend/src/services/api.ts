@@ -631,4 +631,51 @@ export const apiService = {
     }
     return { active_devices: [], total_connected: 0 };
   },
+
+  /**
+   * Fetch Live Digital Twin Physics Telemetry Packet from Backend
+   */
+  async getLiveDigitalTwinTelemetry(): Promise<any> {
+    try {
+      const res = await fetchWithFailover('/bms/telemetry');
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+    return null;
+  },
+
+  /**
+   * Inject or Clear Physical Fault Scenario into Digital Twin
+   */
+  async injectDigitalTwinFault(fault: string, cell_id: number = 5, active: boolean = true): Promise<any> {
+    try {
+      const res = await fetchWithFailover('/bms/fault', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fault, cell_id, active }),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+    return null;
+  },
+
+  /**
+   * Update Digital Twin Load Current or Simulation Mode
+   */
+  async updateDigitalTwinState(load_current_A?: number, sim_mode?: string): Promise<any> {
+    try {
+      const res = await fetchWithFailover('/bms/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ load_current_A, sim_mode }),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+    return null;
+  },
 };

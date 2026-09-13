@@ -1,0 +1,35 @@
+{
+  "_comment": "Battery Aging & Degradation Model Parameters with Provenance Metadata — Battery Digital Twin",
+
+  "max_cycle_count": { "value": 1500, "unit": "cycles", "source": "manufacturer_spec", "calibrated": false },
+  "_cycles_note": "End-of-life defined at 1500 full charge/discharge cycles",
+
+  "resistance_model": {
+    "_description": "R_eff(n) = R_0 * (1 + alpha * n / n_max)",
+    "R0_ohm": { "value": 0.020, "unit": "ohm", "source": "initial_assumption", "calibrated": false },
+    "alpha": { "value": 1.0, "unit": "dimensionless", "source": "initial_assumption", "calibrated": false },
+    "_alpha_note": "At n_max cycles, resistance doubles: R = 0.020 * (1 + 1.0) = 0.040 ohm"
+  },
+
+  "capacity_fade_model": {
+    "_description": "Q(n) = Q0 * (1 - beta * n / n_max)",
+    "Q0_Ah": { "value": 2.5, "unit": "Ah", "source": "initial_assumption", "calibrated": false },
+    "beta": { "value": 0.20, "unit": "dimensionless", "source": "initial_assumption", "calibrated": false },
+    "_beta_note": "At n_max cycles, capacity reduces by 20%: Q = 2.5 * (1 - 0.20) = 2.0 Ah"
+  },
+
+  "soh_model": {
+    "_description": "SOH(n) = 100 * Q(n) / Q0",
+    "eol_soh_percent": { "value": 80.0, "unit": "%", "source": "ev_standard", "calibrated": false },
+    "_eol_note": "End-of-life is defined as SOH = 80% (standard EV battery spec)"
+  },
+
+  "resistance_growth_per_100_cycles_percent": { "value": 6.67, "unit": "%", "source": "calculated", "calibrated": false },
+
+  "cell_degradation_fault_R_ohm": { "value": 0.060, "unit": "ohm", "source": "fault_injection_spec", "calibrated": false },
+  "busbar_fault_R_ohm": { "value": 0.025, "unit": "ohm", "source": "fault_injection_spec", "calibrated": false },
+
+  "coulombic_efficiency": { "value": 0.99, "unit": "dimensionless", "source": "literature", "calibrated": false },
+
+  "calendar_aging_enabled": { "value": false, "unit": "boolean", "source": "model_setting", "calibrated": false }
+}
