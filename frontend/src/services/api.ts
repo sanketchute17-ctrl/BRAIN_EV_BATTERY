@@ -278,19 +278,19 @@ export const apiService = {
           access_token: idToken,
           user_id: fbUser.uid,
           email: fbUser.email || emailKey,
-          full_name: fbUser.displayName || userRecord.fullName || 'EV Operator',
-          role: userRecord.role || 'EV Rider / Owner',
-          ev_model: userRecord.evModel || 'Ather 450X / Ola S1',
-          battery_chemistry: userRecord.batteryChemistry || 'NMC (Nickel Manganese Cobalt)',
+          full_name: fbUser.displayName || userRecord.fullName || userRecord.full_name || 'EV Operator',
+          role: userRecord.role || userRecord.role || 'EV Rider / Owner',
+          ev_model: userRecord.evModel || userRecord.ev_model || 'Ather 450X',
+          battery_chemistry: userRecord.batteryChemistry || userRecord.battery_chemistry || 'NMC',
         };
         this.setStoredToken(authData.access_token, authData);
         return authData;
       } catch (fbErr: any) {
-        let msg = 'Firebase login failed.';
+        let msg = 'Firebase authentication failed.';
         if (fbErr.code === 'auth/invalid-credential' || fbErr.code === 'auth/wrong-password') {
-          msg = 'Invalid email or password.';
+          msg = 'Incorrect password. Please verify your credentials.';
         } else if (fbErr.code === 'auth/user-not-found') {
-          msg = 'No account found with this email address.';
+          msg = 'No account found with this email address. Please register a new account.';
         }
         throw new Error(msg);
       }
