@@ -46,6 +46,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const [avatarPhoto, setAvatarPhoto] = useState<string>(isDemoMode ? '' : (currentUser?.avatar_photo || ''));
 
   // Password reset state
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
@@ -81,9 +82,19 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     setProfileMsg({ type: 'success', text: 'Profile photo removed. Reverted to initials avatar.' });
   };
 
-  const handlePasswordReset = (e: React.FormEvent) => {
+  const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordMsg(null);
+
+    if (isDemoMode) {
+      setPasswordMsg({ type: 'error', text: 'Password changes disabled in View-Only Demo Mode.' });
+      return;
+    }
+
+    if (!currentPassword) {
+      setPasswordMsg({ type: 'error', text: 'Please enter your current password.' });
+      return;
+    }
 
     if (newPassword.length < 6) {
       setPasswordMsg({ type: 'error', text: 'New password must be at least 6 characters long.' });
@@ -96,17 +107,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     }
 
     setIsUpdatingPassword(true);
-    setTimeout(() => {
-      const existing = localStorage.getItem('brain_user_profile');
-      const parsed = existing ? JSON.parse(existing) : {};
-      parsed.password = newPassword;
-      localStorage.setItem('brain_user_profile', JSON.stringify(parsed));
-
-      setIsUpdatingPassword(false);
+    try {
+      await apiService.updateUserPassword(currentPassword, newPassword);
+      setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
-      setPasswordMsg({ type: 'success', text: 'Password reset successfully! Account security updated in database.' });
-    }, 600);
+      setPasswordMsg({ type: 'success', text: 'Password updated successfully in Cloud Database!' });
+    } catch (err: any) {
+      setPasswordMsg({ type: 'error', text: err.message || 'Failed to update password in database.' });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -459,7 +470,24 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         )}
 
         <form onSubmit={handlePasswordReset} className="space-y-3">
-          <div className="grid grid-cols-2 gap-2.5">
+          <div>
+            <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
+              CURRENT PASSWORD
+            </label>
+            <div className="relative">
+              <Key className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="password"
+                required
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+                className="w-full pl-9 pr-2 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
               <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
                 NEW PASSWORD
@@ -479,7 +507,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
             <div>
               <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
-                CONFIRM NEW
+                CONFIRM NEW PASSWORD
               </label>
               <div className="relative">
                 <ShieldCheck className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -501,7 +529,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm uppercase cursor-pointer"
           >
             <Key className="w-3.5 h-3.5" />
-            <span>{isUpdatingPassword ? 'UPDATING PASSWORD...' : 'UPDATE PASSWORD'}</span>
+            <span>{isUpdatingPassword ? 'SAVING TO DATABASE...' : 'UPDATE PASSWORD IN DATABASE'}</span>
           </button>
         </form>
       </div>

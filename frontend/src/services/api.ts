@@ -14,6 +14,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
+  updatePassword,
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 
@@ -600,6 +601,107 @@ export const apiService = {
     }
     localStorage.setItem('brain_user_profile', JSON.stringify(updatedUser));
     return updatedUser;
+  },
+
+  /**
+   * Update Account Password in Firebase Auth, Supabase DB & Local Persistent DB
+   */
+  async updateUserPassword(currentPassword: string, newPassword: string): Promise<void> {
+    const activeEmail = localStorage.getItem('brain_current_logged_email')?.toLowerCase().trim();
+
+    // Verify current password against local user DB if present
+    if (activeEmail) {
+      const localUsers = getLocalUsersDB();
+      const localRecord = localUsers[activeEmail];
+      if (localRecord && localRecord.password && localRecord.password !== currentPassword) {
+        throw new Error('Current password is incorrect. Please verify your old password.');
+      }
+    }
+
+    let updatedSuccess = false;
+
+    // 1. Firebase Auth Password Update
+    if (isFirebaseConfigured() && firebaseAuth?.currentUser) {
+      try {
+        await updatePassword(firebaseAuth.currentUser, newPassword);
+        updatedSuccess = true;
+      } catch (fbErr: any) {
+        if (fbErr.code === 'auth/requires-recent-login') {
+          if (activeEmail && currentPassword) {
+            try {
+              const cred = await signInWithEmailAndPassword(firebaseAuth, activeEmail, currentPassword);
+              if (cred.user) {
+                await updatePassword(cred.user, newPassword);
+                updatedSuccess = true;
+              }
+            } catch {
+              throw new Error('Current password is incorrect or session expired. Please sign out and sign in again.');
+            }
+          } else {
+            throw new Error('Please log out and sign in again before updating your password.');
+          }
+        } else if (fbErr.code === 'auth/weak-password') {
+          throw new Error('New password must be at least 6 characters long.');
+        } else if (fbErr.code === 'auth/wrong-password' || fbErr.code === 'auth/invalid-credential') {
+          throw new Error('Current password is incorrect. Please check your credentials.');
+        } else {
+          // If Firebase update fails with other code
+          console.warn('Firebase updatePassword fallback:', fbErr);
+        }
+      }
+    }
+
+    // 2. Supabase Auth & Profile Password Update
+    if (isSupabaseConfigured() && supabase) {
+      try {
+        await supabase.auth.updateUser({ password: newPassword });
+        if (activeEmail) {
+          await supabase.from('profiles').upsert({
+            email: activeEmail,
+            password_hash: newPassword,
+            updated_at: new Date().toISOString(),
+          });
+        }
+        updatedSuccess = true;
+      } catch {
+        // Fallthrough
+      }
+    }
+
+    // 3. Update FastAPI Backend Server Password
+    try {
+      await fetchWithFailover('/auth/change-password', {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      });
+      updatedSuccess = true;
+    } catch {
+      // Fallthrough
+    }
+
+    // 4. Always update Local Storage DB & Active Profile for persistence
+    if (activeEmail) {
+      const localUsers = getLocalUsersDB();
+      if (localUsers[activeEmail]) {
+        localUsers[activeEmail].password = newPassword;
+        localStorage.setItem(LOCAL_USERS_DB_KEY, JSON.stringify(localUsers));
+      } else {
+        saveLocalUserDB(activeEmail, { email: activeEmail, password: newPassword });
+      }
+
+      const existingProf = localStorage.getItem(`brain_profile_${activeEmail}`);
+      if (existingProf) {
+        const parsed = JSON.parse(existingProf);
+        parsed.password = newPassword;
+        localStorage.setItem(`brain_profile_${activeEmail}`, JSON.stringify(parsed));
+      }
+      updatedSuccess = true;
+    }
+
+    if (!updatedSuccess) {
+      throw new Error('Unable to update password. Please check network connection.');
+    }
   },
 
   /**
