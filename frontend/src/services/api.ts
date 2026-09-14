@@ -272,16 +272,32 @@ export const apiService = {
         const idToken = await fbUser.getIdToken();
 
         const localUsers = getLocalUsersDB();
-        const userRecord = localUsers[emailKey] || {};
+        let userRecord: Record<string, any> = localUsers[emailKey] || {};
+
+        // Sync cross-device user profile attributes (role, ev_model, chemistry)
+        if (isSupabaseConfigured() && supabase) {
+          try {
+            const { data: cloudProf } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('email', emailKey)
+              .maybeSingle();
+            if (cloudProf) {
+              userRecord = { ...cloudProf, ...userRecord };
+            }
+          } catch {
+            // Ignore DB sync fallback
+          }
+        }
 
         const authData: AuthResponse = {
           access_token: idToken,
           user_id: fbUser.uid,
           email: fbUser.email || emailKey,
-          full_name: fbUser.displayName || userRecord.fullName || userRecord.full_name || 'EV Operator',
-          role: userRecord.role || userRecord.role || 'EV Rider / Owner',
-          ev_model: userRecord.evModel || userRecord.ev_model || 'Ather 450X',
-          battery_chemistry: userRecord.batteryChemistry || userRecord.battery_chemistry || 'NMC',
+          full_name: fbUser.displayName || userRecord.full_name || userRecord.fullName || 'EV Operator',
+          role: userRecord.role || 'EV Rider / Owner',
+          ev_model: userRecord.ev_model || userRecord.evModel || 'Ather 450X',
+          battery_chemistry: userRecord.battery_chemistry || userRecord.batteryChemistry || 'NMC',
         };
         this.setStoredToken(authData.access_token, authData);
         return authData;
