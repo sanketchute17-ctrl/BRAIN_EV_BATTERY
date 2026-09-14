@@ -294,6 +294,29 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               <span>Register</span>
             </button>
           </div>
+
+          <div className="pt-1 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                if ('caches' in window) {
+                  caches.keys().then((keys) => {
+                    keys.forEach((key) => caches.delete(key));
+                  });
+                }
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then((regs) => {
+                    regs.forEach((r) => r.unregister());
+                  });
+                }
+                window.location.reload();
+              }}
+              className="w-full py-2 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 rounded-full text-[10px] font-mono font-bold transition-all backdrop-blur-md flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Loader2 className="w-3 h-3 text-emerald-400 animate-spin" />
+              <span>CLEAR CACHE &amp; LOAD LATEST V5 UPDATE</span>
+            </button>
+          </div>
         </div>
 
         {/* Footer padding */}

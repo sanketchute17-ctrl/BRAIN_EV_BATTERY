@@ -14,6 +14,29 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>BRAIN EV Battery Intelligence System</title>
+    <script>
+      (function() {
+        var APP_BUILD_VER = 'v5_digital_twin_fix_2026';
+        var lastVer = localStorage.getItem('brain_app_build_version');
+        if (lastVer !== APP_BUILD_VER) {
+          localStorage.setItem('brain_app_build_version', APP_BUILD_VER);
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              for (var i = 0; i < names.length; i++) {
+                caches.delete(names[i]);
+              }
+            });
+          }
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              for (var j = 0; j < registrations.length; j++) {
+                registrations[j].unregister();
+              }
+            });
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
