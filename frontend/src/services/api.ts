@@ -497,17 +497,9 @@ export const apiService = {
 
       if (error) {
         const errLower = (error.message || '').toLowerCase();
-        if (errLower.includes('rate limit') || errLower.includes('exceeded') || errLower.includes('email')) {
-          // Seamless completion when Supabase email rate limit is hit
-          saveLocalUserDB(emailKey, newUserRecord);
-          return { success: true, email: emailKey };
-        }
         if (errLower.includes('already registered') || errLower.includes('already in use') || errLower.includes('exists')) {
           throw new Error('Email address is already registered. Please sign in instead.');
         }
-        // Fallback save to local DB
-        saveLocalUserDB(emailKey, newUserRecord);
-        return { success: true, email: emailKey };
       }
     }
 
@@ -521,10 +513,13 @@ export const apiService = {
           password: payload.password || '',
           fullName: payload.fullName,
           mobile: payload.mobile || '',
+          role: payload.role || 'EV Rider / Owner',
+          evModel: payload.evModel || 'Ather 450X',
+          batteryChemistry: payload.batteryChemistry || 'NMC',
         }),
       });
     } catch {
-      // Offline fallback already stored in local DB
+      // Offline fallback
     }
 
     // Note: Do NOT setStoredToken() here so user must sign in via Login Screen
