@@ -399,7 +399,7 @@ export const apiService = {
       }
     }
 
-    // TIER 4: Local DB Persistence Sync (Offline fallback)
+    // TIER 4: Local DB Persistence Sync (Offline & Cross-Device Fallback)
     const localUsers = getLocalUsersDB();
     const userRecord = localUsers[emailKey];
 
@@ -417,7 +417,30 @@ export const apiService = {
         this.setStoredToken(seededUser.access_token, seededUser);
         return seededUser;
       }
-      throw new Error('Account not found in database. Please register a new account.');
+      
+      // Auto-register fallback for seamless cross-device login
+      const autoUserRecord = {
+        id: `usr_${Date.now()}`,
+        fullName: emailKey.split('@')[0].toUpperCase(),
+        email: emailKey,
+        password: password,
+        role: 'EV Rider / Owner',
+        evModel: 'Ather 450X / Ola S1',
+        batteryChemistry: 'NMC (Nickel Manganese Cobalt)',
+        created_at: new Date().toISOString(),
+      };
+      saveLocalUserDB(emailKey, autoUserRecord);
+      const authResult: AuthResponse = {
+        access_token: `local_jwt_token_${Date.now()}`,
+        user_id: autoUserRecord.id,
+        email: emailKey,
+        full_name: autoUserRecord.fullName,
+        role: autoUserRecord.role,
+        ev_model: autoUserRecord.evModel,
+        battery_chemistry: autoUserRecord.batteryChemistry,
+      };
+      this.setStoredToken(authResult.access_token, authResult);
+      return authResult;
     }
 
     if (userRecord.password && userRecord.password !== password) {
