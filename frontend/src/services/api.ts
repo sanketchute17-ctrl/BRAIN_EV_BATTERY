@@ -304,7 +304,6 @@ export const apiService = {
       });
 
       if (error) {
-        const isEmailNotConfirmed = error.message?.toLowerCase().includes('email not confirmed');
         const localUsers = getLocalUsersDB();
         const localRecord = localUsers[emailKey];
 
@@ -312,7 +311,7 @@ export const apiService = {
           throw new Error('Incorrect password. Please verify your credentials.');
         }
 
-        // Check Supabase Cloud profiles table for cross-browser support
+        // Check Supabase Cloud profiles table for cross-browser & cross-device support
         try {
           const { data: cloudProfile } = await supabase
             .from('profiles')
@@ -320,12 +319,17 @@ export const apiService = {
             .eq('email', emailKey)
             .maybeSingle();
 
-          if (cloudProfile && (isEmailNotConfirmed || (localRecord && localRecord.password === password))) {
+          if (cloudProfile) {
+            const storedPass = cloudProfile.password_hash || cloudProfile.password;
+            if (storedPass && storedPass !== password) {
+              throw new Error('Incorrect password. Please verify your credentials.');
+            }
+
             const authData: AuthResponse = {
               access_token: `sb_cloud_token_${Date.now()}`,
               user_id: cloudProfile.id || `usr_${Date.now()}`,
               email: cloudProfile.email || emailKey,
-              full_name: cloudProfile.full_name || localRecord?.fullName || localRecord?.full_name || 'EV Operator',
+              full_name: cloudProfile.full_name || cloudProfile.fullName || localRecord?.fullName || localRecord?.full_name || 'EV Operator',
               role: cloudProfile.role || localRecord?.role || 'EV Rider / Owner',
               ev_model: cloudProfile.ev_model || localRecord?.evModel || localRecord?.ev_model || 'Ather 450X',
               battery_chemistry: cloudProfile.battery_chemistry || localRecord?.batteryChemistry || 'NMC',
@@ -334,8 +338,10 @@ export const apiService = {
             this.setStoredToken(authData.access_token, authData);
             return authData;
           }
-        } catch {
-          // Fallthrough
+        } catch (dbErr: any) {
+          if (dbErr.message && dbErr.message.includes('Incorrect password')) {
+            throw dbErr;
+          }
         }
 
         // Local DB fallback for unconfirmed email or offline
@@ -527,6 +533,7 @@ export const apiService = {
           email: emailKey,
           full_name: payload.fullName,
           mobile: payload.mobile || '',
+          password_hash: payload.password || '',
           role: payload.role || 'EV Rider / Owner',
           ev_model: payload.evModel || 'Ather 450X',
           battery_chemistry: payload.batteryChemistry || 'NMC',
