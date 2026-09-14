@@ -4,12 +4,12 @@ import { getAuth } from 'firebase/auth';
 import type { Auth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyB2UDBrT7lSqz5q3ptc18LyWWyaon5J8Cc',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'brain-70dcd.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'brain-70dcd',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'brain-70dcd.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '867406451657',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:867406451657:web:6dbcba60c6e54414058e18',
 };
 
 export const isFirebaseConfigured = (): boolean => {
