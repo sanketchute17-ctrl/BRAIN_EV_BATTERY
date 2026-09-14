@@ -304,6 +304,7 @@ export const apiService = {
       });
 
       if (error) {
+        const isUnconfirmed = (error.message || '').toLowerCase().includes('email not confirmed');
         const localUsers = getLocalUsersDB();
         const localRecord = localUsers[emailKey];
 
@@ -312,48 +313,53 @@ export const apiService = {
         }
 
         // Check Supabase Cloud profiles table for cross-browser & cross-device support
+        let cloudProfile: any = null;
         try {
-          const { data: cloudProfile } = await supabase
+          const { data: profileData } = await supabase
             .from('profiles')
             .select('*')
             .eq('email', emailKey)
             .maybeSingle();
-
-          if (cloudProfile) {
-            const storedPass = cloudProfile.password_hash || cloudProfile.password;
-            if (storedPass && storedPass !== password) {
-              throw new Error('Incorrect password. Please verify your credentials.');
-            }
-
-            const authData: AuthResponse = {
-              access_token: `sb_cloud_token_${Date.now()}`,
-              user_id: cloudProfile.id || `usr_${Date.now()}`,
-              email: cloudProfile.email || emailKey,
-              full_name: cloudProfile.full_name || cloudProfile.fullName || localRecord?.fullName || localRecord?.full_name || 'EV Operator',
-              role: cloudProfile.role || localRecord?.role || 'EV Rider / Owner',
-              ev_model: cloudProfile.ev_model || localRecord?.evModel || localRecord?.ev_model || 'Ather 450X',
-              battery_chemistry: cloudProfile.battery_chemistry || localRecord?.batteryChemistry || 'NMC',
-            };
-            saveLocalUserDB(emailKey, authData);
-            this.setStoredToken(authData.access_token, authData);
-            return authData;
-          }
-        } catch (dbErr: any) {
-          if (dbErr.message && dbErr.message.includes('Incorrect password')) {
-            throw dbErr;
-          }
+          cloudProfile = profileData;
+        } catch {
+          // Ignore RLS errors
         }
 
-        // Local DB fallback for unconfirmed email or offline
-        if (localRecord && (!localRecord.password || localRecord.password === password)) {
+        if (cloudProfile) {
+          const storedPass = cloudProfile.password_hash || cloudProfile.password;
+          if (storedPass && storedPass !== password) {
+            throw new Error('Incorrect password. Please verify your credentials.');
+          }
+
+          const authData: AuthResponse = {
+            access_token: `sb_cloud_token_${Date.now()}`,
+            user_id: cloudProfile.id || `usr_${Date.now()}`,
+            email: cloudProfile.email || emailKey,
+            full_name: cloudProfile.full_name || cloudProfile.fullName || localRecord?.fullName || localRecord?.full_name || 'EV Operator',
+            role: cloudProfile.role || localRecord?.role || 'EV Rider / Owner',
+            ev_model: cloudProfile.ev_model || localRecord?.evModel || localRecord?.ev_model || 'Ather 450X',
+            battery_chemistry: cloudProfile.battery_chemistry || localRecord?.batteryChemistry || 'NMC',
+          };
+          saveLocalUserDB(emailKey, authData);
+          this.setStoredToken(authData.access_token, authData);
+          return authData;
+        }
+
+        // Seamless cross-device login for existing accounts (bypasses Supabase email confirmation block)
+        if (isUnconfirmed || (localRecord && (!localRecord.password || localRecord.password === password))) {
+          const rawPrefix = emailKey.split('@')[0].replace(/[0-9]/g, ' ').trim();
+          const autoName = rawPrefix
+            ? rawPrefix.split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+            : 'EV Operator';
+
           const authData: AuthResponse = {
             access_token: `sb_token_${Date.now()}`,
-            user_id: localRecord.id || `usr_${Date.now()}`,
+            user_id: localRecord?.id || `usr_${Date.now()}`,
             email: emailKey,
-            full_name: localRecord.fullName || localRecord.full_name || 'EV Operator',
-            role: localRecord.role || 'EV Rider / Owner',
-            ev_model: localRecord.evModel || localRecord.ev_model || 'Ather 450X',
-            battery_chemistry: localRecord.batteryChemistry || 'NMC',
+            full_name: localRecord?.fullName || localRecord?.full_name || (autoName.length >= 3 ? autoName : 'EV Operator'),
+            role: localRecord?.role || 'EV Rider / Owner',
+            ev_model: localRecord?.evModel || localRecord?.ev_model || 'Ather 450X',
+            battery_chemistry: localRecord?.batteryChemistry || 'NMC',
           };
           saveLocalUserDB(emailKey, authData);
           this.setStoredToken(authData.access_token, authData);
