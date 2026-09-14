@@ -403,24 +403,28 @@ export const apiService = {
       }
     }
 
-    // TIER 5: Universal Cross-Device Login Fallback (Guarantees registration continuity on any phone/browser)
-    const rawPrefix = emailKey.split('@')[0].replace(/[0-9]/g, ' ').trim();
-    const autoName = rawPrefix
-      ? rawPrefix.split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-      : 'EV Operator';
+    // Check local storage record for offline / same-device persistence
+    if (localRecord) {
+      if (localRecord.password && localRecord.password !== password) {
+        throw new Error('Incorrect password. Please verify your credentials.');
+      }
 
-    const authResult: AuthResponse = {
-      access_token: `local_jwt_token_${Date.now()}`,
-      user_id: localRecord?.id || `usr_${Date.now()}`,
-      email: emailKey,
-      full_name: localRecord?.fullName || localRecord?.full_name || (autoName.length >= 3 ? autoName : 'EV Operator'),
-      role: localRecord?.role || 'EV Rider / Owner',
-      ev_model: localRecord?.evModel || localRecord?.ev_model || 'Ather 450X / Ola S1',
-      battery_chemistry: localRecord?.batteryChemistry || 'NMC (Nickel Manganese Cobalt)',
-    };
-    saveLocalUserDB(emailKey, authResult);
-    this.setStoredToken(authResult.access_token, authResult);
-    return authResult;
+      const authData: AuthResponse = {
+        access_token: `local_jwt_token_${Date.now()}`,
+        user_id: localRecord.id || `usr_${Date.now()}`,
+        email: emailKey,
+        full_name: localRecord.fullName || localRecord.full_name || 'EV Operator',
+        role: localRecord.role || 'EV Rider / Owner',
+        ev_model: localRecord.evModel || localRecord.ev_model || 'Ather 450X',
+        battery_chemistry: localRecord.batteryChemistry || 'NMC',
+      };
+      saveLocalUserDB(emailKey, authData);
+      this.setStoredToken(authData.access_token, authData);
+      return authData;
+    }
+
+    // Unregistered Account Protection: Reject login if account does not exist in any database
+    throw new Error('No account found with this email address. Please register a new account.');
   },
 
   /**
