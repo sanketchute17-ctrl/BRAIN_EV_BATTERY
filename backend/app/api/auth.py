@@ -57,7 +57,10 @@ def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
         email=user_data.email,
         password_hash=hash_password(user_data.password),
         full_name=user_data.fullName,
-        mobile=user_data.mobile
+        mobile=user_data.mobile,
+        role=user_data.role or "EV Rider / Owner",
+        ev_model=user_data.evModel or "Ather 450X",
+        battery_chemistry=user_data.batteryChemistry or "NMC"
     )
     db.add(new_user)
     db.commit()
@@ -68,7 +71,10 @@ def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
         access_token=token,
         user_id=new_user.id,
         email=new_user.email,
-        full_name=new_user.full_name
+        full_name=new_user.full_name,
+        role=new_user.role or "EV Rider / Owner",
+        ev_model=new_user.ev_model or "Ather 450X",
+        battery_chemistry=new_user.battery_chemistry or "NMC"
     )
 
 @router.post("/login", response_model=Token)
@@ -82,7 +88,10 @@ def login_user(login_data: UserLogin, db: Session = Depends(get_db)):
         access_token=token,
         user_id=user.id,
         email=user.email,
-        full_name=user.full_name
+        full_name=user.full_name,
+        role=user.role or "EV Rider / Owner",
+        ev_model=user.ev_model or "Ather 450X",
+        battery_chemistry=user.battery_chemistry or "NMC"
     )
 
 @router.get("/me")

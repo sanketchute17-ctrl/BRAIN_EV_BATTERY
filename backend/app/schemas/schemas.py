@@ -6,8 +6,11 @@ from datetime import datetime
 class UserRegister(BaseModel):
     fullName: str
     email: EmailStr
-    mobile: str
+    mobile: Optional[str] = None
     password: str
+    role: Optional[str] = "EV Rider / Owner"
+    evModel: Optional[str] = "Ather 450X"
+    batteryChemistry: Optional[str] = "NMC"
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -19,6 +22,9 @@ class Token(BaseModel):
     user_id: str
     email: str
     full_name: str
+    role: Optional[str] = "EV Rider / Owner"
+    ev_model: Optional[str] = "Ather 450X"
+    battery_chemistry: Optional[str] = "NMC"
 
 # Vehicle & Battery Schemas
 class VehicleCreate(BaseModel):
