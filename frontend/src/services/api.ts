@@ -115,6 +115,9 @@ export const apiService = {
       localStorage.removeItem('brain_access_token');
       localStorage.removeItem('brain_user_profile');
       localStorage.removeItem('brain_current_logged_email');
+      if (isSupabaseConfigured() && supabase) {
+        supabase.auth.signOut().catch(() => {});
+      }
     } catch (e) {
       console.warn('LocalStorage clear failed:', e);
     }
@@ -155,25 +158,30 @@ export const apiService = {
   },
 
   /**
-   * Fetch authenticated user profile
+   * Fetch authenticated user profile (strictly isolated per user email)
    */
   async getCurrentUser(): Promise<any> {
     const token = this.getStoredToken();
     if (!token) return null;
 
+    const activeEmail = localStorage.getItem('brain_current_logged_email')?.toLowerCase().trim();
+
     // 1. Firebase Auth check
     if (isFirebaseConfigured() && firebaseAuth?.currentUser) {
       const user: FirebaseUser = firebaseAuth.currentUser;
-      const storedProfile = localStorage.getItem('brain_user_profile');
-      const parsed = storedProfile ? JSON.parse(storedProfile) : {};
-      return {
-        id: user.uid,
-        email: user.email,
-        full_name: user.displayName || parsed.full_name || 'EV Operator',
-        role: parsed.role || 'EV Rider / Owner',
-        ev_model: parsed.ev_model || 'Ather 450X',
-        battery_chemistry: parsed.battery_chemistry || 'NMC',
-      };
+      const fbEmail = user.email?.toLowerCase().trim();
+      if (!activeEmail || fbEmail === activeEmail) {
+        const storedProfile = activeEmail ? localStorage.getItem(`brain_profile_${activeEmail}`) : localStorage.getItem('brain_user_profile');
+        const parsed = storedProfile ? JSON.parse(storedProfile) : {};
+        return {
+          id: user.uid,
+          email: user.email,
+          full_name: user.displayName || parsed.full_name || 'EV Operator',
+          role: parsed.role || 'EV Rider / Owner',
+          ev_model: parsed.ev_model || 'Ather 450X',
+          battery_chemistry: parsed.battery_chemistry || 'NMC',
+        };
+      }
     }
 
     // 2. Supabase Auth check
@@ -181,17 +189,20 @@ export const apiService = {
       try {
         const { data } = await supabase.auth.getUser();
         if (data?.user) {
-          const emailKey = data.user.email?.toLowerCase().trim();
-          const localUsers = getLocalUsersDB();
-          const localRec = emailKey ? localUsers[emailKey] : null;
-          return {
-            id: data.user.id,
-            email: data.user.email,
-            full_name: data.user.user_metadata?.full_name || localRec?.fullName || localRec?.full_name || 'EV Operator',
-            role: data.user.user_metadata?.role || localRec?.role || 'EV Rider / Owner',
-            ev_model: data.user.user_metadata?.ev_model || localRec?.evModel || localRec?.ev_model || 'Ather 450X',
-            battery_chemistry: data.user.user_metadata?.battery_chemistry || localRec?.batteryChemistry || 'NMC',
-          };
+          const sbEmail = data.user.email?.toLowerCase().trim();
+          // STRICT CHECK: Only use Supabase user if it matches active logged email!
+          if (sbEmail && (!activeEmail || sbEmail === activeEmail)) {
+            const localUsers = getLocalUsersDB();
+            const localRec = localUsers[sbEmail];
+            return {
+              id: data.user.id,
+              email: data.user.email,
+              full_name: data.user.user_metadata?.full_name || localRec?.fullName || localRec?.full_name || 'EV Operator',
+              role: data.user.user_metadata?.role || localRec?.role || 'EV Rider / Owner',
+              ev_model: data.user.user_metadata?.ev_model || localRec?.evModel || localRec?.ev_model || 'Ather 450X',
+              battery_chemistry: data.user.user_metadata?.battery_chemistry || localRec?.batteryChemistry || 'NMC',
+            };
+          }
         }
       } catch {
         // Fallthrough
@@ -204,15 +215,17 @@ export const apiService = {
         headers: this.getAuthHeaders(),
       });
       if (response.ok) {
-        return await response.json();
+        const backendUser = await response.json();
+        if (!activeEmail || backendUser.email?.toLowerCase().trim() === activeEmail) {
+          return backendUser;
+        }
       }
     } catch {
       // Fallthrough
     }
 
-    // 4. Local stored profile fallback matching active logged email
+    // 4. Local stored profile fallback matching active logged email strictly
     try {
-      const activeEmail = localStorage.getItem('brain_current_logged_email');
       if (activeEmail) {
         const specificProfile = localStorage.getItem(`brain_profile_${activeEmail}`);
         if (specificProfile) return JSON.parse(specificProfile);
@@ -223,7 +236,7 @@ export const apiService = {
             id: userRec.id || `usr_${Date.now()}`,
             email: activeEmail,
             full_name: userRec.fullName || userRec.full_name || 'EV Operator',
-            role: userRec.role || userRec.role || 'EV Rider / Owner',
+            role: userRec.role || 'EV Rider / Owner',
             ev_model: userRec.evModel || userRec.ev_model || 'Ather 450X',
             battery_chemistry: userRec.batteryChemistry || userRec.battery_chemistry || 'NMC',
           };
@@ -244,6 +257,12 @@ export const apiService = {
   async login(payload: UserLoginPayload): Promise<AuthResponse> {
     const emailKey = payload.email.toLowerCase().trim();
     const password = payload.password || '';
+
+    // Clear stale session if switching accounts to prevent name swapping
+    const activeEmail = localStorage.getItem('brain_current_logged_email')?.toLowerCase().trim();
+    if (activeEmail && activeEmail !== emailKey) {
+      this.clearStoredToken();
+    }
 
     // TIER 1: Firebase Cloud Auth
     if (isFirebaseConfigured() && firebaseAuth) {
@@ -357,15 +376,19 @@ export const apiService = {
       };
 
       // Always sync to Supabase public profiles table
-      await supabase.from('profiles').upsert({
-        id: data.user.id,
-        email: emailKey,
-        full_name: authData.full_name,
-        role: authData.role,
-        ev_model: authData.ev_model,
-        battery_chemistry: authData.battery_chemistry,
-        updated_at: new Date().toISOString(),
-      }).catch(() => {});
+      try {
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          email: emailKey,
+          full_name: authData.full_name,
+          role: authData.role,
+          ev_model: authData.ev_model,
+          battery_chemistry: authData.battery_chemistry,
+          updated_at: new Date().toISOString(),
+        });
+      } catch {
+        // Ignore DB sync errors
+      }
 
       saveLocalUserDB(emailKey, authData);
       this.setStoredToken(authData.access_token, authData);
@@ -498,16 +521,20 @@ export const apiService = {
     // TIER 2: Supabase Cloud Auth Registration
     if (isSupabaseConfigured() && supabase) {
       // Always sync user record to Supabase public profiles table for cross-browser login support
-      await supabase.from('profiles').upsert({
-        id: `usr_${Date.now()}`,
-        email: emailKey,
-        full_name: payload.fullName,
-        mobile: payload.mobile || '',
-        role: payload.role || 'EV Rider / Owner',
-        ev_model: payload.evModel || 'Ather 450X',
-        battery_chemistry: payload.batteryChemistry || 'NMC',
-        updated_at: new Date().toISOString(),
-      }).catch(() => {});
+      try {
+        await supabase.from('profiles').upsert({
+          id: `usr_${Date.now()}`,
+          email: emailKey,
+          full_name: payload.fullName,
+          mobile: payload.mobile || '',
+          role: payload.role || 'EV Rider / Owner',
+          ev_model: payload.evModel || 'Ather 450X',
+          battery_chemistry: payload.batteryChemistry || 'NMC',
+          updated_at: new Date().toISOString(),
+        });
+      } catch {
+        // Ignore DB sync errors
+      }
 
       const { error } = await supabase.auth.signUp({
         email: emailKey,
@@ -578,16 +605,20 @@ export const apiService = {
 
         const { data: authData } = await supabase.auth.getUser();
         if (authData?.user) {
-          await supabase.from('profiles').upsert({
-            id: authData.user.id,
-            email: authData.user.email,
-            full_name: updatedUser.full_name,
-            mobile: updatedUser.mobile,
-            role: updatedUser.role,
-            ev_model: updatedUser.ev_model,
-            battery_chemistry: updatedUser.battery_chemistry,
-            updated_at: new Date().toISOString(),
-          }).catch(() => {});
+          try {
+            await supabase.from('profiles').upsert({
+              id: authData.user.id,
+              email: authData.user.email,
+              full_name: updatedUser.full_name,
+              mobile: updatedUser.mobile,
+              role: updatedUser.role,
+              ev_model: updatedUser.ev_model,
+              battery_chemistry: updatedUser.battery_chemistry,
+              updated_at: new Date().toISOString(),
+            });
+          } catch {
+            // Ignore DB sync errors
+          }
         }
       } catch {
         // Fallthrough
@@ -606,10 +637,12 @@ export const apiService = {
     }
 
     // 3. Update Local Storage Profile
-    localStorage.setItem('brain_user_profile', JSON.stringify(updatedUser));
-    if (updatedUser.email) {
-      saveLocalUserDB(updatedUser.email.toLowerCase(), updatedUser);
+    const emailKey = (updatedUser.email || '').toLowerCase().trim();
+    if (emailKey) {
+      localStorage.setItem(`brain_profile_${emailKey}`, JSON.stringify(updatedUser));
+      saveLocalUserDB(emailKey, updatedUser);
     }
+    localStorage.setItem('brain_user_profile', JSON.stringify(updatedUser));
     return updatedUser;
   },
 
