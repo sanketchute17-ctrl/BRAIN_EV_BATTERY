@@ -377,11 +377,81 @@ class BluetoothService {
       this.sequenceCounter++;
 
       try {
+        // 1. Primary: Direct sync with Rohit More 3D Virtual Battery simulation payload
+        const rohitStr = localStorage.getItem('brain_rohit_more_telemetry');
+        if (rohitStr) {
+          const rohitPacket = JSON.parse(rohitStr);
+          if (rohitPacket && (rohitPacket.pack_data || rohitPacket.pack)) {
+            const packData = rohitPacket.pack_data || rohitPacket.pack;
+            const volt = packData.voltage ?? 25.6;
+            const curr = packData.current ?? 0.0;
+            const temp = packData.maximum_temperature ?? packData.temperature ?? 22.5;
+            const powerKw = packData.power !== undefined ? +(packData.power).toFixed(1) : +((volt * curr) / 1000.0).toFixed(1);
+            const soh = rohitPacket.aging_data?.soh_percentage ?? 96.4;
+            const isFault = rohitPacket.fault_status?.fault_detected ?? false;
+            const faultType = rohitPacket.fault_status?.fault_type ?? 'NONE';
+            const isThermalSpike = temp > 40.0 || isFault;
+
+            const livePayload: RawBleTelemetryPayload = {
+              protocolVersion: BLE_CONFIG.PROTOCOL_VERSION,
+              messageType: 'TELEMETRY',
+              sequenceNumber: rohitPacket.sequence_number || this.sequenceCounter,
+              timestamp: Date.now(),
+              pack: {
+                soc: Math.round(84),
+                soh,
+                voltage: volt,
+                current: curr,
+                power: powerKw,
+                temperature: temp,
+                maxTemperature: temp,
+                minTemperature: +(temp - 0.5).toFixed(1),
+                internalResistance: 1.2,
+                cycleCount: rohitPacket.aging_data?.cycle_count || 428,
+                estimatedRange: Math.round(84 * 4.1),
+                risk: isFault ? (faultType === 'THERMAL_RUNAWAY' ? 95 : 75) : isThermalSpike ? 68 : 12,
+                safetyState: isFault ? 'CRITICAL' : isThermalSpike ? 'WARNING' : 'HEALTHY',
+              },
+              environment: {
+                ambientTemperature: 25.0,
+              },
+              charging: {
+                active: rohitPacket.operating_mode === 'CHARGING',
+                current: curr,
+                power: powerKw,
+                temperature: temp,
+                durationSeconds: 0,
+              },
+              cells: Array.isArray(rohitPacket.cell_data) && rohitPacket.cell_data.length > 0
+                ? rohitPacket.cell_data.map((c: any, idx: number) => ({
+                    id: c.cell_id || idx + 1,
+                    voltage: c.voltage,
+                    temperature: c.temperature,
+                    deviation: isFault ? 0.28 : 0.01,
+                    risk: isFault ? 85 : c.temperature > 40 ? 68 : 12,
+                    status: isFault ? 'CRITICAL' : c.temperature > 40 ? 'WARNING' : 'HEALTHY',
+                  }))
+                : Array.from({ length: 8 }, (_, idx) => ({
+                    id: idx + 1,
+                    voltage: 3.20,
+                    temperature: temp,
+                    deviation: 0.01,
+                    risk: 12,
+                    status: 'HEALTHY',
+                  })),
+            };
+
+            batteryStateService.processLiveBleTelemetry(livePayload, { name: deviceName, id: deviceId, rssi: -42 });
+            return;
+          }
+        }
+
+        // 2. Secondary: Query Python FastAPI backend for Digital Twin telemetry
         const dtPayload = await apiService.getLiveDigitalTwinTelemetry();
         if (dtPayload && dtPayload.pack) {
-          const volt = dtPayload.pack.voltage || 350.0;
-          const curr = dtPayload.pack.current || 120.0;
-          const temp = dtPayload.thermal?.max_temperature || 34.0;
+          const volt = dtPayload.pack.voltage || 25.6;
+          const curr = dtPayload.pack.current || 0.0;
+          const temp = dtPayload.thermal?.max_temperature || 22.5;
           const soc = dtPayload.cells && dtPayload.cells.length > 0 ? dtPayload.cells[0].soc : 84.0;
           const soh = dtPayload.aging?.soh || 96.4;
           const powerKw = dtPayload.pack.power ? +(dtPayload.pack.power / 1000.0).toFixed(1) : +((volt * curr) / 1000.0).toFixed(1);
@@ -408,7 +478,7 @@ class BluetoothService {
               safetyState: dtPayload.fault?.status !== 'NORMAL' ? 'WARNING' : isThermalSpike ? 'WARNING' : 'HEALTHY',
             },
             environment: {
-              ambientTemperature: 29.0,
+              ambientTemperature: 25.0,
             },
             charging: {
               active: false,
@@ -420,7 +490,7 @@ class BluetoothService {
             cells: Array.isArray(dtPayload.cells) && dtPayload.cells.length > 0
               ? dtPayload.cells.slice(0, 8).map((c: any, idx: number) => ({
                   id: c.cell_id || idx + 1,
-                  voltage: c.voltage || 3.72,
+                  voltage: c.voltage || 3.20,
                   temperature: c.temperature || temp,
                   deviation: c.resistance ? 0.05 : 0.01,
                   risk: c.temperature > 40 ? 70 : 2,
@@ -428,19 +498,19 @@ class BluetoothService {
                 }))
               : Array.from({ length: 8 }, (_, idx) => ({
                   id: idx + 1,
-                  voltage: +(3.72 + (Math.random() - 0.5) * 0.02).toFixed(2),
-                  temperature: +(temp + (Math.random() - 0.5) * 0.6).toFixed(1),
+                  voltage: 3.20,
+                  temperature: temp,
                   deviation: 0.01,
                   risk: 2,
                   status: 'HEALTHY',
                 })),
           };
 
-          batteryStateService.processLiveBleTelemetry(livePayload, { name: deviceName, id: deviceId, rssi: -55 });
+          batteryStateService.processLiveBleTelemetry(livePayload, { name: deviceName, id: deviceId, rssi: -42 });
           return;
         }
       } catch {
-        // Fallback to local physics generator below
+        // Fallback to simulation
       }
 
       const volt = +(350.0 + Math.sin(step * 0.15) * 4.5).toFixed(1);
