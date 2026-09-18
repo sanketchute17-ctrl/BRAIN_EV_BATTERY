@@ -77,6 +77,19 @@ class BluetoothService {
     this.notify();
   }
 
+  public getActiveBleBroadcasts(): Array<{ id: string; name: string; type: string; status: string; rssi: number; port?: number }> {
+    try {
+      const stored = localStorage.getItem('brain_active_ble_broadcasts');
+      if (stored) {
+        const item = JSON.parse(stored);
+        if (item && item.id) {
+          return [item];
+        }
+      }
+    } catch (e) {}
+    return [];
+  }
+
   public getRecentDevices(): Array<{ id: string; name: string; type: string; lastConnected: string; rssi: number }> {
     try {
       const stored = localStorage.getItem('brain_recent_ble_devices');
