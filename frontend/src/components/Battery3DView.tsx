@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { Bluetooth, Radio, Wifi, CheckCircle2 } from 'lucide-react';
+import { bluetoothService } from '../services/bluetoothService';
 
 export type CasingMode = 'SOLID' | 'TRANSPARENT' | 'X-RAY';
 export type FlowMode = 'CHARGING' | 'DISCHARGING' | 'IDLE';
@@ -42,6 +44,17 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const [isExploded, setIsExploded] = useState(expanded);
   const [autoRotate, setAutoRotate] = useState(true);
   const [selectedInfo, setSelectedInfo] = useState<ComponentInfo | null>(null);
+  const [isBleBroadcasting, setIsBleBroadcasting] = useState(false);
+
+  const toggleBleBroadcasting = () => {
+    if (!isBleBroadcasting) {
+      bluetoothService.startSimulatedBleConnection();
+      setIsBleBroadcasting(true);
+    } else {
+      bluetoothService.stopVirtualGattPeripheral();
+      setIsBleBroadcasting(false);
+    }
+  };
 
   const autoRotateRef = useRef(autoRotate);
   autoRotateRef.current = autoRotate;
@@ -742,6 +755,18 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
             ))}
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleBleBroadcasting}
+              className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition cursor-pointer flex items-center gap-1.5 ${
+                isBleBroadcasting
+                  ? 'bg-emerald-500 text-white border-emerald-400 shadow-emerald animate-pulse'
+                  : 'bg-slate-900 text-emerald-400 border-emerald-500/40 hover:bg-slate-800'
+              }`}
+              title="Broadcast Virtual Battery telemetry over Bluetooth BLE GATT Server"
+            >
+              <Bluetooth className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{isBleBroadcasting ? 'BLE BROADCASTING: BRAIN-ROHITMORE-96S' : 'START BLE BROADCAST'}</span>
+            </button>
             <button onClick={() => setIsExploded(!isExploded)} className={`px-3.5 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${isExploded ? 'bg-red-500 text-white' : 'bg-white/95 text-emerald-700 border-emerald-400'}`}>{isExploded ? 'ASSEMBLE' : 'EXPLODED VIEW'}</button>
             <button onClick={() => setAutoRotate(!autoRotate)} className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${autoRotate ? 'bg-emerald-50 text-emerald-700 border-emerald-400' : 'bg-white/95 text-slate-700 border-slate-200'}`}>AUTO ROTATE ↻</button>
             <button onClick={resetCamera} className="px-3 py-1.5 text-xs font-extrabold rounded-xl bg-white/95 text-slate-800 border border-slate-300">RESET ↺</button>
