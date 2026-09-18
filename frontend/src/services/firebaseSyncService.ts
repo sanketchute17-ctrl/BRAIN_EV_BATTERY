@@ -37,6 +37,11 @@ class FirebaseSyncService {
    * Sync Live Telemetry & PINN Analysis from BRAIN APK to Firebase DB
    */
   public async syncTelemetryToFirebase(state: NormalizedBatteryState): Promise<boolean> {
+    // Only stream data to Firebase Database when Bluetooth BMS is CONNECTED
+    if (state.connectionState !== 'CONNECTED') {
+      return false;
+    }
+
     const batteryId = (state.deviceId || 'BATTERY_PACK_01').replace(/[^a-zA-Z0-9_-]/g, '_');
     const pinnAnalysis = PinnEngine.evaluatePhysicsModel(state);
 

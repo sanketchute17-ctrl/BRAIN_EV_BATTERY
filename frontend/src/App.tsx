@@ -9,6 +9,7 @@ import { Battery3DView } from './components/Battery3DView';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BrainLogo } from './components/BrainLogo';
 import { BleDiagnosticsModal } from './components/BleDiagnosticsModal';
+import { BluetoothPairingModal } from './components/BluetoothPairingModal';
 import { batteryStateService } from './services/batteryStateService';
 import type { NormalizedBatteryState } from './types/telemetry';
 import { bluetoothService } from './services/bluetoothService';
@@ -116,6 +117,7 @@ export function App() {
   const [bleConnecting, setBleConnecting] = useState(false);
   const [bleError, setBleError] = useState('');
   const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
+  const [isPairingModalOpen, setIsPairingModalOpen] = useState(false);
   const [batteryState, setBatteryState] = useState<NormalizedBatteryState>(batteryStateService.getSnapshot());
 
   useEffect(() => {
@@ -251,8 +253,20 @@ export function App() {
             />
           </div>
 
-          {/* Right Header: User Profile Avatar & Access Button */}
-          <div className="flex items-center gap-2">
+          {/* Right Header: User Profile Avatar & Bluetooth Pair Access Button */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setIsPairingModalOpen(true)}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-extrabold transition cursor-pointer ${
+                batteryState.connectionState === 'CONNECTED'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                  : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+              }`}
+            >
+              <Bluetooth className={`w-3 h-3 ${batteryState.connectionState === 'CONNECTED' ? 'text-emerald-600' : 'text-red-500 animate-pulse'}`} />
+              <span>{batteryState.connectionState === 'CONNECTED' ? 'BLE Paired' : 'Pair BLE'}</span>
+            </button>
+
             <button
               onClick={() => {
                 setActiveDrawerItem(null);
@@ -529,6 +543,30 @@ export function App() {
             {/* TAB 1: HOME DASHBOARD */}
             {activeTab === 'home' && (
               <div className="space-y-3.5">
+                
+                {/* DISCONNECTED BLUETOOTH PAIRING PROMPT CARD */}
+                {batteryState.connectionState !== 'CONNECTED' && (
+                  <div className="bg-slate-900 text-white rounded-3xl p-4 border border-emerald-500/50 shadow-lg flex flex-col items-center justify-center text-center space-y-2.5 animate-fadeIn">
+                    <div className="p-3 rounded-2xl bg-slate-800 text-emerald-400 border border-slate-700">
+                      <Bluetooth className="w-6 h-6 animate-pulse text-emerald-400" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-black uppercase tracking-wider">
+                        BLUETOOTH BMS DISCONNECTED
+                      </div>
+                      <div className="text-[10px] font-semibold text-slate-300 mt-0.5">
+                        Pair your BLE battery hardware to view live metrics &amp; stream to Firebase DB.
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsPairingModalOpen(true)}
+                      className="py-2.5 px-5 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-xs font-extrabold rounded-full transition shadow-md flex items-center gap-2 uppercase tracking-wider cursor-pointer active:scale-95"
+                    >
+                      <Bluetooth className="w-4 h-4" />
+                      <span>PAIR BLUETOOTH BMS NOW</span>
+                    </button>
+                  </div>
+                )}
                 
                 {/* 3D DIGITAL TWIN HERO CARD */}
                 <div className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2.5">
@@ -1134,6 +1172,12 @@ export function App() {
           batteryState={batteryState}
           isOpen={isDiagnosticsOpen}
           onClose={() => setIsDiagnosticsOpen(false)}
+        />
+
+        {/* 6. BLUETOOTH BMS PAIRING MODAL */}
+        <BluetoothPairingModal
+          isOpen={isPairingModalOpen}
+          onClose={() => setIsPairingModalOpen(false)}
         />
       </div>
     </div>
