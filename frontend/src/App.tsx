@@ -446,23 +446,14 @@ export function App() {
                   {/* Bluetooth Controls */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                     <button
-                      onClick={async () => {
-                        setBleConnecting(true);
+                      onClick={() => {
                         setBleError('');
-                        try {
-                          await bluetoothService.requestAndConnectDevice();
-                          setBleState(bluetoothService.getState());
-                        } catch (err: any) {
-                          setBleError(err.message || 'BLE scan failed');
-                        } finally {
-                          setBleConnecting(false);
-                        }
+                        setIsPairingModalOpen(true);
                       }}
-                      disabled={bleConnecting}
                       className="py-3 px-4 bg-emerald-500 text-white font-extrabold text-xs rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-emerald uppercase"
                     >
                       <Bluetooth className="w-4 h-4" />
-                      <span>{bleConnecting ? 'SCANNING...' : 'SCAN & PAIR BLE BMS'}</span>
+                      <span>SCAN & PAIR BLE BMS</span>
                     </button>
 
                     <button

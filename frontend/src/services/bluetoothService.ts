@@ -72,6 +72,11 @@ class BluetoothService {
     };
   }
 
+  public async requestAndConnectDevice(): Promise<void> {
+    await this.scanAndConnectDevice();
+    this.notify();
+  }
+
   public getRecentDevices(): Array<{ id: string; name: string; type: string; lastConnected: string; rssi: number }> {
     try {
       const stored = localStorage.getItem('brain_recent_ble_devices');
