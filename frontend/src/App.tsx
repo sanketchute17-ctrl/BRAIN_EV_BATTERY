@@ -21,6 +21,8 @@ import { AlertsDrawer } from './components/drawers/AlertsDrawer';
 import { ResearchDrawer } from './components/drawers/ResearchDrawer';
 import { ReportsDrawer } from './components/drawers/ReportsDrawer';
 import { SettingsDrawer } from './components/drawers/SettingsDrawer';
+import { CompanyAdminDrawer } from './components/drawers/CompanyAdminDrawer';
+import { firebaseSyncService } from './services/firebaseSyncService';
 import {
   ArrowLeft,
   Zap,
@@ -136,6 +138,7 @@ export function App() {
 
     const unsubscribeBattery = batteryStateService.subscribe((state) => {
       setBatteryState(state);
+      firebaseSyncService.syncTelemetryToFirebase(state);
     });
 
     return () => {
@@ -481,6 +484,8 @@ export function App() {
                   </button>
                 </div>
               </div>
+            ) : activeDrawerItem === 'company' ? (
+              <CompanyAdminDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
             ) : activeDrawerItem === 'doctor' ? (
               <DoctorDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
             ) : activeDrawerItem === 'assistant' ? (
