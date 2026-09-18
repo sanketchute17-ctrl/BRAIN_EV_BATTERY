@@ -9,12 +9,14 @@ import scooterBg from '../assets/scooter_bg.jpg';
 interface LoginScreenProps {
   onLoginSuccess: (isDemo?: boolean) => void;
   onNavigateRegister: () => void;
+  onShowSplash?: () => void;
   initialEmail?: string;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
   onLoginSuccess,
   onNavigateRegister,
+  onShowSplash,
   initialEmail,
 }) => {
   const [email, setEmail] = useState(initialEmail || '');
@@ -132,6 +134,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         {/* 1. BRANDING LOGO WITH 'THINK AHEAD' QUOTE */}
         <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-1 pt-2 my-1 w-full mx-auto">
           <BrainLogo size="xl" layout="vertical" showFullForm={true} showQuote={true} />
+          {onShowSplash && (
+            <button
+              type="button"
+              onClick={onShowSplash}
+              className="mt-1 text-[10px] font-extrabold text-emerald-400 hover:text-white bg-slate-900/80 hover:bg-emerald-950 px-3 py-1 rounded-full border border-emerald-500/50 backdrop-blur-md transition shadow-sm cursor-pointer active:scale-95"
+            >
+              ✨ View Full-Screen White Logo Splash
+            </button>
+          )}
         </div>
 
         {/* 2. REAL 3D INTERACTIVE BATTERY VISUAL (NATURAL ZOOMED-OUT PROPORTIONS) */}
