@@ -58,10 +58,46 @@ import {
 } from 'lucide-react';
 
 export function App() {
-  const [authState, setAuthState] = useState<'LOGIN' | 'REGISTER' | 'AUTHENTICATED'>('LOGIN');
-  const [isDemoMode, setIsDemoMode] = useState(true);
+  const [authState, setAuthState] = useState<'LOGIN' | 'REGISTER' | 'AUTHENTICATED'>(() => {
+    try {
+      const savedSession = localStorage.getItem('brain_auth_session');
+      if (savedSession) {
+        const parsed = JSON.parse(savedSession);
+        if (parsed && parsed.authenticated) {
+          return 'AUTHENTICATED';
+        }
+      }
+    } catch (e) {}
+    return 'LOGIN';
+  });
+
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    try {
+      const savedSession = localStorage.getItem('brain_auth_session');
+      if (savedSession) {
+        const parsed = JSON.parse(savedSession);
+        if (parsed && parsed.user) {
+          return parsed.user;
+        }
+      }
+    } catch (e) {}
+    return null;
+  });
+
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    try {
+      const savedSession = localStorage.getItem('brain_auth_session');
+      if (savedSession) {
+        const parsed = JSON.parse(savedSession);
+        if (typeof parsed.isDemo === 'boolean') {
+          return parsed.isDemo;
+        }
+      }
+    } catch (e) {}
+    return true;
+  });
+
   const [backendOnline, setBackendOnline] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [activeDrawerItem, setActiveDrawerItem] = useState<DrawerType | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -151,10 +187,14 @@ export function App() {
   }, []);
 
   const handleLogout = () => {
+    try {
+      localStorage.removeItem('brain_auth_session');
+    } catch (e) {}
     apiService.clearStoredToken();
     setCurrentUser(null);
-    setIsDemoMode(false);
+    setIsDemoMode(true);
     setAuthState('LOGIN');
+    setIsDrawerOpen(false);
   };
 
   const runWhatIfSimulation = () => {
@@ -188,11 +228,30 @@ export function App() {
         onLoginSuccess={async (demo) => {
           if (demo) {
             setIsDemoMode(true);
-            setCurrentUser(null); // Anonymous Demo Guest
+            setCurrentUser(null);
+            try {
+              localStorage.setItem('brain_auth_session', JSON.stringify({
+                authenticated: true,
+                isDemo: true,
+                user: null,
+              }));
+            } catch (e) {}
           } else {
             setIsDemoMode(false);
-            const user = await apiService.getCurrentUser();
+            let user = null;
+            try {
+              user = await apiService.getCurrentUser();
+            } catch (e) {
+              user = { email: registeredEmail || 'operator@brainev.com', role: 'ENGINEER' };
+            }
             setCurrentUser(user);
+            try {
+              localStorage.setItem('brain_auth_session', JSON.stringify({
+                authenticated: true,
+                isDemo: false,
+                user,
+              }));
+            } catch (e) {}
           }
           setAuthState('AUTHENTICATED');
         }}
@@ -1155,7 +1214,7 @@ export function App() {
           onSelectDrawerItem={(item) => {
             setActiveDrawerItem(item);
           }}
-          onLogout={() => setAuthState('LOGIN')}
+          onLogout={handleLogout}
         />
 
         {/* 5. DEVELOPER BLE DIAGNOSTICS MODAL */}
