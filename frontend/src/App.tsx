@@ -312,18 +312,19 @@ export function App() {
             />
           </div>
 
-          {/* Right Header: User Profile Avatar & Bluetooth Pair Access Button */}
+          {/* Right Header: Notifications & Alerts Bell & User Profile */}
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => setIsPairingModalOpen(true)}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-extrabold transition cursor-pointer ${
-                batteryState.connectionState === 'CONNECTED'
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-              }`}
+              onClick={() => setActiveDrawerItem('alerts')}
+              className="relative p-1.5 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-700 border border-slate-200 transition cursor-pointer active:scale-95"
+              title="Notifications & Safety Alerts"
             >
-              <Bluetooth className={`w-3 h-3 ${batteryState.connectionState === 'CONNECTED' ? 'text-emerald-600' : 'text-red-500 animate-pulse'}`} />
-              <span>{batteryState.connectionState === 'CONNECTED' ? 'BLE Paired' : 'Pair BLE'}</span>
+              <Bell className="w-4 h-4 text-slate-700 hover:text-emerald-600 transition" />
+              {(batteryState.safetyState !== 'HEALTHY' || (batteryState.alerts && batteryState.alerts.length > 0)) && (
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white animate-pulse">
+                  {batteryState.alerts?.length || 1}
+                </span>
+              )}
             </button>
 
             <button

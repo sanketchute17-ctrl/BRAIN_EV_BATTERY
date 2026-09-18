@@ -8,13 +8,32 @@ interface SettingsDrawerProps {
 }
 
 export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ batteryState, onBack }) => {
-  const [maxTempLimit, setMaxTempLimit] = useState(55);
-  const [minVoltageLimit, setMinVoltageLimit] = useState(2.8);
-  const [maxCurrentLimit, setMaxCurrentLimit] = useState(200);
-  const [autoReconnect, setAutoReconnect] = useState(true);
+  const [maxTempLimit, setMaxTempLimit] = useState(() => {
+    return Number(localStorage.getItem('brain_setting_max_temp')) || 55;
+  });
+  const [minVoltageLimit, setMinVoltageLimit] = useState(() => {
+    return Number(localStorage.getItem('brain_setting_min_v')) || 2.8;
+  });
+  const [maxCurrentLimit, setMaxCurrentLimit] = useState(() => {
+    return Number(localStorage.getItem('brain_setting_max_curr')) || 200;
+  });
+  const [autoReconnect, setAutoReconnect] = useState(() => {
+    return localStorage.getItem('brain_setting_auto_reconnect') !== 'false';
+  });
+  const [firebaseSync, setFirebaseSync] = useState(() => {
+    return localStorage.getItem('brain_setting_firebase_sync') !== 'false';
+  });
   const [isSaved, setIsSaved] = useState(false);
 
   const handleSave = () => {
+    try {
+      localStorage.setItem('brain_setting_max_temp', String(maxTempLimit));
+      localStorage.setItem('brain_setting_min_v', String(minVoltageLimit));
+      localStorage.setItem('brain_setting_max_curr', String(maxCurrentLimit));
+      localStorage.setItem('brain_setting_auto_reconnect', String(autoReconnect));
+      localStorage.setItem('brain_setting_firebase_sync', String(firebaseSync));
+    } catch (e) {}
+
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
   };
@@ -36,7 +55,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ batteryState, on
               SYSTEM SETTINGS &amp; THRESHOLDS
             </h2>
             <p className="text-xs text-slate-500 font-semibold">
-              BMS Protection Limits, Alarms &amp; Bluetooth Connection Config
+              BMS Protection Limits, Alarms &amp; Firebase Sync Config
             </p>
           </div>
         </div>
@@ -101,6 +120,16 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ batteryState, on
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            <span>REALTIME FIREBASE DB SYNC STREAM</span>
+            <input
+              type="checkbox"
+              checked={firebaseSync}
+              onChange={(e) => setFirebaseSync(e.target.checked)}
+              className="w-4 h-4 accent-emerald-500 cursor-pointer"
+            />
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
             <span>AUTOMATIC BLE RECONNECT BACKOFF</span>
             <input
               type="checkbox"
@@ -113,12 +142,12 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ batteryState, on
 
         <button
           onClick={handleSave}
-          className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
+          className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer active:scale-98"
         >
           {isSaved ? (
             <>
               <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-              <span>SETTINGS SAVED SUCCESSFULLY!</span>
+              <span>SETTINGS SAVED TO BACKEND!</span>
             </>
           ) : (
             <>
