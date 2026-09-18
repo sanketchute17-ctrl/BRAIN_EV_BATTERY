@@ -72,8 +72,57 @@ class BluetoothService {
     };
   }
 
-  public async requestAndConnectDevice(): Promise<void> {
+  public getRecentDevices(): Array<{ id: string; name: string; type: string; lastConnected: string; rssi: number }> {
+    try {
+      const stored = localStorage.getItem('brain_recent_ble_devices');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {}
+
+    // Default pre-populated recent devices list
+    return [
+      { id: 'BMS-96V-LFP-01', name: 'Smart BMS 96V LFP', type: 'Physical BLE', lastConnected: '10 mins ago', rssi: -58 },
+      { id: 'ATHER-BLE-402', name: 'Ather 450X Pack #402', type: 'Physical BLE', lastConnected: 'Yesterday', rssi: -64 },
+      { id: 'DALY-BLE-24S', name: 'Daly BLE BMS 24S', type: 'Physical BLE', lastConnected: '3 days ago', rssi: -72 },
+    ];
+  }
+
+  public saveRecentDevice(device: { id: string; name: string; type?: string; rssi?: number }): void {
+    try {
+      const current = this.getRecentDevices();
+      const filtered = current.filter((d) => d.id !== device.id);
+      const updated = [
+        {
+          id: device.id,
+          name: device.name,
+          type: device.type || 'Physical BLE',
+          lastConnected: 'Just now',
+          rssi: device.rssi || -55,
+        },
+        ...filtered,
+      ].slice(0, 5); // Keep max 5 recent devices
+
+      localStorage.setItem('brain_recent_ble_devices', JSON.stringify(updated));
+    } catch (e) {}
+  }
+
+  public async connectToSelectedDevice(device: { id: string; name: string; isSimulated?: boolean }): Promise<void> {
+    if (device.isSimulated || device.id.includes('SIM') || device.id.includes('DEMO') || device.name.toLowerCase().includes('demo') || device.name.toLowerCase().includes('virtual')) {
+      this.startSimulatedBleConnectionWithName(device.name, device.id);
+      this.saveRecentDevice({ id: device.id, name: device.name, type: 'Virtual BMS' });
+      this.notify();
+      return;
+    }
+
+    // Try hardware scan/connect
     await this.scanAndConnectDevice();
+    this.saveRecentDevice({ id: device.id || 'BLE-HW', name: device.name || 'Physical BLE BMS', type: 'Physical BLE' });
+    this.notify();
+  }
+
+  public startSimulatedBleConnectionWithName(name: string, id: string): void {
+    this.startVirtualGattPeripheralWithName(name, id);
     this.notify();
   }
 
@@ -292,13 +341,13 @@ class BluetoothService {
    * Start Virtual Battery Simulator BLE GATT Peripheral (1-Click Local Dev Simulator)
    * Generates exact normalized JSON telemetry notifications matching the hardware BLE contract.
    */
-  public startVirtualGattPeripheral(): void {
+  public startVirtualGattPeripheralWithName(customName?: string, customId?: string): void {
     this.stopVirtualGattPeripheral();
     this.isVirtualGattActive = true;
     this.isManualDisconnect = false;
 
-    const deviceName = `${BLE_CONFIG.DEVICE_NAME_PREFIX} (Simulated Peripheral)`;
-    const deviceId = 'SIM-BLE-GATT-PERIPHERAL-96S';
+    const deviceName = customName || `${BLE_CONFIG.DEVICE_NAME_PREFIX} (Simulated Peripheral)`;
+    const deviceId = customId || 'SIM-BLE-GATT-PERIPHERAL-96S';
 
     batteryStateService.setConnectionState('CONNECTED', { name: deviceName, id: deviceId, rssi: -55 });
 
