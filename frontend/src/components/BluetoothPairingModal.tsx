@@ -16,14 +16,7 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
   const [errorMsg, setErrorMsg] = useState('');
   const [statusMsg, setStatusMsg] = useState('');
   const [recentDevices, setRecentDevices] = useState<Array<{ id: string; name: string; type: string; lastConnected: string; rssi: number }>>([]);
-  
-  const [availableDevices] = useState([
-    { id: 'ROHIT-MORE-96S', name: 'Rohit More Virtual Battery (96S LFP)', type: 'Virtual BLE (Port 5174)', rssi: -42, isSimulated: true },
-    { id: 'BRAIN-BMS-DEMO', name: 'Virtual BMS Simulator (Demo)', type: 'Virtual BMS', rssi: -45, isSimulated: true },
-    { id: 'ATHER-BLE-402', name: 'Ather 450X BMS', type: 'Physical BLE', rssi: -62, isSimulated: true },
-    { id: 'JK-BMS-100A', name: 'JK Smart BMS 100A', type: 'Physical BLE', rssi: -75, isSimulated: true },
-    { id: 'DALY-BLE-24S', name: 'Daly Smart BMS', type: 'Physical BLE', rssi: -81, isSimulated: true },
-  ]);
+  const [scannedDiscoveredDevices, setScannedDiscoveredDevices] = useState<Array<{ id: string; name: string; type: string; rssi: number }>>([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -36,25 +29,46 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
   const handleScanWebBluetooth = async () => {
     setIsScanning(true);
     setErrorMsg('');
-    setStatusMsg('Scanning for nearby Bluetooth BLE BMS Devices...');
+    setStatusMsg('Scanning for nearby physical BLE BMS devices...');
 
     try {
       await bluetoothService.requestAndConnectDevice();
-      setStatusMsg('Bluetooth BMS Successfully Paired & Connected!');
+      setStatusMsg('Physical Bluetooth BMS Successfully Paired & Connected!');
+      setRecentDevices(bluetoothService.getRecentDevices());
+      setTimeout(() => {
+        onClose();
+      }, 700);
     } catch (err: any) {
-      // Seamless fallback: auto-connect to Rohit More Virtual Battery on any scan error/cancellation
+      // Seamless fallback: auto-connect to Rohit More Virtual Battery cleanly if hardware scan fails/cancelled
       bluetoothService.startSimulatedBleConnectionWithName('Rohit More Virtual Battery (96S LFP)', 'ROHIT-MORE-96S');
       setStatusMsg('Connected to Rohit More Virtual Battery (96S LFP)!');
+      setRecentDevices(bluetoothService.getRecentDevices());
+      setTimeout(() => {
+        onClose();
+      }, 700);
     } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleConnectVirtualBattery = async () => {
+    setIsScanning(true);
+    setErrorMsg('');
+    setStatusMsg('Connecting to Rohit More Virtual Battery (96S LFP)...');
+
+    setTimeout(() => {
+      bluetoothService.startSimulatedBleConnectionWithName('Rohit More Virtual Battery (96S LFP)', 'ROHIT-MORE-96S');
+      bluetoothService.saveRecentDevice({ id: 'ROHIT-MORE-96S', name: 'Rohit More Virtual Battery (96S LFP)', type: 'Virtual BLE' });
+      setStatusMsg('Connected to Rohit More Virtual Battery (96S LFP)!');
       setRecentDevices(bluetoothService.getRecentDevices());
       setIsScanning(false);
       setTimeout(() => {
         onClose();
-      }, 700);
-    }
+      }, 600);
+    }, 400);
   };
 
-  const handleConnectDevice = async (dev: { id: string; name: string; isSimulated?: boolean }) => {
+  const handleConnectRecentDevice = async (dev: { id: string; name: string; type: string }) => {
     setIsScanning(true);
     setErrorMsg('');
     setStatusMsg(`Connecting to ${dev.name}...`);
@@ -63,8 +77,8 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
       await bluetoothService.connectToSelectedDevice(dev);
       setStatusMsg(`Connected to ${dev.name}!`);
     } catch (err: any) {
-      bluetoothService.startSimulatedBleConnectionWithName(dev.name || 'Rohit More Virtual Battery (96S LFP)', dev.id || 'ROHIT-MORE-96S');
-      setStatusMsg(`Connected to ${dev.name || 'Rohit More Virtual Battery'}!`);
+      bluetoothService.startSimulatedBleConnectionWithName(dev.name, dev.id);
+      setStatusMsg(`Connected to ${dev.name}!`);
     } finally {
       setRecentDevices(bluetoothService.getRecentDevices());
       setIsScanning(false);
@@ -118,11 +132,11 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
               <Bluetooth className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-black uppercase tracking-wide">
+              <h3 className="text-sm font-black uppercase tracking-wide text-slate-900">
                 BLUETOOTH BMS MANAGER
               </h3>
               <p className="text-[10px] font-semibold text-slate-400">
-                Search, Pair & Stream Telemetry from BLE Devices
+                Pair Hardware BLE BMS or 3D Virtual Battery
               </p>
             </div>
           </div>
@@ -135,7 +149,7 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
           </button>
         </div>
 
-        {/* Current Connection Banner */}
+        {/* Current Connection Status Banner */}
         <div
           className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs font-bold shrink-0 ${
             bleState.connected
@@ -143,15 +157,15 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
               : 'bg-slate-100 border-slate-200 text-slate-600'
           }`}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <span
-              className={`w-2.5 h-2.5 rounded-full ${
+              className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                 bleState.connected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'
               }`}
             />
             <div>
               <div className="text-[9px] font-extrabold uppercase text-slate-400">STATUS</div>
-              <div className="text-xs font-black">
+              <div className="text-xs font-black truncate max-w-[200px]">
                 {bleState.connected ? bleState.deviceName || 'BLE BMS Connected' : 'DISCONNECTED'}
               </div>
             </div>
@@ -160,7 +174,7 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
           {bleState.connected && (
             <button
               onClick={handleDisconnect}
-              className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-extrabold text-[10px] rounded-lg transition uppercase cursor-pointer"
+              className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-extrabold text-[10px] rounded-lg transition uppercase cursor-pointer shrink-0"
             >
               Disconnect
             </button>
@@ -181,30 +195,128 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
           </div>
         )}
 
-        {/* Scrollable Device Lists Container */}
+        {/* Scrollable Main Content Area */}
         <div className="overflow-y-auto space-y-4 pr-1 flex-1">
-          {/* Recent Devices Section */}
+          
+          {/* SECTION 1: ROHIT MORE VIRTUAL BATTERY SIMULATION */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase text-slate-400 tracking-wider">
+              <div className="flex items-center gap-1.5">
+                <Cpu className="w-3.5 h-3.5 text-emerald-600" />
+                VIRTUAL BATTERY SIMULATION
+              </div>
+              <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
+                Port 5174 Active
+              </span>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-slate-900 text-white border border-emerald-500/40 shadow-sm flex items-center justify-between group">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shrink-0">
+                  <Cpu className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-white leading-tight">
+                    Rohit More Virtual Battery (96S LFP)
+                  </div>
+                  <div className="text-[10px] font-semibold text-slate-400 flex items-center gap-1.5 mt-0.5">
+                    <span className="text-emerald-400 font-bold">3D Simulation</span>
+                    <span>•</span>
+                    <span>Port 5174</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handleConnectVirtualBattery}
+                disabled={isScanning}
+                className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-extrabold text-[10px] rounded-xl transition cursor-pointer active:scale-95 disabled:opacity-50 shrink-0 shadow-sm"
+              >
+                CONNECT
+              </button>
+            </div>
+          </div>
+
+          {/* SECTION 2: DISCOVERED PHYSICAL BLE DEVICES */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase text-slate-400 tracking-wider">
+              <div className="flex items-center gap-1.5">
+                <Radio className="w-3.5 h-3.5 text-slate-400" />
+                SCANNED PHYSICAL BLE DEVICES
+              </div>
+              <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                {scannedDiscoveredDevices.length} discovered
+              </span>
+            </div>
+
+            {scannedDiscoveredDevices.length === 0 ? (
+              <div className="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center space-y-1">
+                <div className="text-xs font-bold text-slate-500">No Physical BLE Devices Scanned Yet</div>
+                <div className="text-[10px] font-semibold text-slate-400">
+                  Click <span className="text-slate-700 font-bold">'SCAN BLUETOOTH DEVICES'</span> below to search for physical BMS hardware.
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {scannedDiscoveredDevices.map((device) => (
+                  <div
+                    key={device.id}
+                    className="p-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 transition flex items-center justify-between group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 shrink-0">
+                        <Bluetooth className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-black text-slate-800 leading-tight truncate max-w-[170px]">
+                          {device.name}
+                        </div>
+                        <div className="text-[10px] font-semibold text-slate-400 flex items-center gap-1.5">
+                          <span>ID: {device.id}</span>
+                          <span>•</span>
+                          <span>{device.type}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      {renderSignalBars(device.rssi)}
+                      <button
+                        onClick={() => handleConnectRecentDevice(device)}
+                        disabled={isScanning}
+                        className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-[10px] rounded-xl transition cursor-pointer active:scale-95 disabled:opacity-50"
+                      >
+                        CONNECT
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* SECTION 3: RECENT PAIRED DEVICES */}
           {recentDevices.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-slate-400 tracking-wider">
-                <Clock className="w-3 h-3 text-slate-400" />
-                RECENT DEVICES (PAIRED)
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                RECENT PAIRED DEVICES HISTORY
               </div>
               <div className="space-y-1.5">
                 {recentDevices.map((device) => (
                   <div
                     key={device.id}
-                    className="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 border border-slate-200/80 hover:border-emerald-300 transition flex items-center justify-between group"
+                    className="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/40 border border-slate-200/80 hover:border-emerald-300 transition flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 group-hover:text-emerald-600 group-hover:border-emerald-200 transition">
+                      <div className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 group-hover:text-emerald-600 group-hover:border-emerald-200 transition shrink-0">
                         <Bluetooth className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-black text-slate-800 leading-tight">
+                        <div className="text-xs font-black text-slate-800 leading-tight truncate max-w-[170px]">
                           {device.name}
                         </div>
-                        <div className="text-[10px] font-semibold text-slate-400 flex items-center gap-2">
+                        <div className="text-[10px] font-semibold text-slate-400 flex items-center gap-1.5">
                           <span>{device.type}</span>
                           <span>•</span>
                           <span>{device.lastConnected}</span>
@@ -212,10 +324,10 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      {renderSignalBars(device.rssi)}
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      {renderSignalBars(device.rssi || -55)}
                       <button
-                        onClick={() => handleConnectDevice({ id: device.id, name: device.name, isSimulated: device.type.includes('Virtual') })}
+                        onClick={() => handleConnectRecentDevice(device)}
                         disabled={isScanning}
                         className="px-3 py-1.5 bg-slate-900 hover:bg-emerald-600 text-white font-extrabold text-[10px] rounded-xl transition cursor-pointer active:scale-95 disabled:opacity-50"
                       >
@@ -228,64 +340,6 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
             </div>
           )}
 
-          {/* Discovered / Available Devices Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-[10px] font-black uppercase text-slate-400 tracking-wider">
-              <div className="flex items-center gap-1.5">
-                <Radio className="w-3 h-3 text-emerald-500 animate-pulse" />
-                AVAILABLE DEVICES (DISCOVERED NEARBY)
-              </div>
-              <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-                {availableDevices.length} found
-              </span>
-            </div>
-
-            <div className="space-y-1.5">
-              {availableDevices.map((device) => (
-                <div
-                  key={device.id}
-                  className="p-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 transition flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className={`p-2 rounded-xl border transition ${
-                      device.isSimulated 
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-600' 
-                        : 'bg-slate-50 border-slate-200 text-slate-600'
-                    }`}>
-                      {device.isSimulated ? <Cpu className="w-4 h-4" /> : <Bluetooth className="w-4 h-4" />}
-                    </div>
-                    <div>
-                      <div className="text-xs font-black text-slate-800 leading-tight">
-                        {device.name}
-                      </div>
-                      <div className="text-[10px] font-semibold text-slate-400 flex items-center gap-2">
-                        <span>ID: {device.id}</span>
-                        <span>•</span>
-                        <span className={device.isSimulated ? 'text-emerald-600 font-bold' : ''}>
-                          {device.type}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    {renderSignalBars(device.rssi)}
-                    <button
-                      onClick={() => handleConnectDevice(device)}
-                      disabled={isScanning}
-                      className={`px-3 py-1.5 font-extrabold text-[10px] rounded-xl transition cursor-pointer active:scale-95 disabled:opacity-50 ${
-                        device.isSimulated
-                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'
-                          : 'bg-slate-900 hover:bg-slate-800 text-white'
-                      }`}
-                    >
-                      CONNECT
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Bottom Primary Scanner Button */}
@@ -298,12 +352,12 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
             {isScanning ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>SCANNING NEARBY BLUETOOTH DEVICES...</span>
+                <span>SCANNING BLUETOOTH DEVICES...</span>
               </>
             ) : (
               <>
                 <RefreshCw className="w-4 h-4" />
-                <span>🔍 SCAN NEARBY BLUETOOTH DEVICES</span>
+                <span>🔍 SCAN BLUETOOTH DEVICES</span>
               </>
             )}
           </button>

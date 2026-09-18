@@ -85,12 +85,7 @@ class BluetoothService {
       }
     } catch (e) {}
 
-    // Default pre-populated recent devices list with Rohit More Virtual Battery at top
-    return [
-      { id: 'ROHIT-MORE-96S', name: 'Rohit More Virtual Battery (96S LFP)', type: 'Virtual BLE', lastConnected: 'Just now', rssi: -42 },
-      { id: 'BMS-96V-LFP-01', name: 'Smart BMS 96V LFP', type: 'Physical BLE', lastConnected: '10 mins ago', rssi: -58 },
-      { id: 'ATHER-BLE-402', name: 'Ather 450X Pack #402', type: 'Physical BLE', lastConnected: 'Yesterday', rssi: -64 },
-    ];
+    return [];
   }
 
   public saveRecentDevice(device: { id: string; name: string; type?: string; rssi?: number }): void {
