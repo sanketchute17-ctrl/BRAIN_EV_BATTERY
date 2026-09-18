@@ -8,7 +8,6 @@ import { MenuDrawer } from './components/MenuDrawer';
 import { Battery3DView } from './components/Battery3DView';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BrainLogo } from './components/BrainLogo';
-import { SplashScreen } from './components/SplashScreen';
 import { BleDiagnosticsModal } from './components/BleDiagnosticsModal';
 import { batteryStateService } from './services/batteryStateService';
 import type { NormalizedBatteryState } from './types/telemetry';
@@ -175,18 +174,12 @@ export function App() {
     }, 600);
   };
 
-  const [showSplash, setShowSplash] = useState(true);
   const [registeredEmail, setRegisteredEmail] = useState('');
-
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
-  }
 
   if (authState === 'LOGIN') {
     return (
       <LoginScreen
         initialEmail={registeredEmail}
-        onShowSplash={() => setShowSplash(true)}
         onLoginSuccess={async (demo) => {
           if (demo) {
             setIsDemoMode(true);
@@ -243,14 +236,7 @@ export function App() {
                 <ArrowLeft className="w-4 h-4" />
               </button>
             ) : (
-              <button 
-                type="button" 
-                onClick={() => setShowSplash(true)}
-                title="Click to view full screen white background logo splash"
-                className="hover:opacity-90 transition cursor-pointer active:scale-95"
-              >
-                <BrainLogo size="sm" layout="horizontal" showFullForm={false} showQuote={false} />
-              </button>
+              <BrainLogo size="sm" layout="horizontal" showFullForm={false} showQuote={false} />
             )}
 
             {/* Connection Status Dot */}

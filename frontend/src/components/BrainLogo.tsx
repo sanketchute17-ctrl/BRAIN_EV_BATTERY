@@ -134,52 +134,36 @@ export const BrainLogo: React.FC<BrainLogoProps> = ({
     splash: 'text-4xl sm:text-6xl tracking-normal',
   }[size];
 
-  const dotSize = {
-    sm: '-top-1 w-1 h-1',
-    md: '-top-1.5 w-1.2 h-1.2',
-    lg: '-top-2 w-2 h-2',
-    xl: '-top-2.5 w-2.5 h-2.5',
-    '2xl': '-top-3 w-3 h-3',
-    splash: '-top-3.5 sm:-top-4 w-2.5 sm:w-3.5 h-2.5 sm:h-3.5',
-  }[size];
-
   const isVertical = layout === 'vertical';
   const effectiveTheme = theme === 'auto' ? (isVertical ? 'dark' : 'light') : theme;
   const isDark = effectiveTheme === 'dark';
 
   // Base text color classes based on theme
   const textBase = isDark ? 'text-white' : 'text-slate-900';
-  const textSubtle = isDark ? 'text-slate-300' : 'text-slate-500';
 
-  // PROGRESSIVE FONT WEIGHT LOGO TEXT ("BRAIN") - RailOne Inspired:
-  // Same font size, progressive thickness from Thin 'B' -> Light 'R' -> Semibold 'A' -> Bold 'I' (with Green Accent Dot) -> Ultra Heavy Black 'N'
+  // PROGRESSIVE FONT WEIGHT LOGO TEXT ("BRAIN") - B (thin, dark-white) -> R (regular) -> A (semibold) -> I (bold, no dot) -> N (ultra black green)
   const brainTitle = (
     <div
       className={`select-none flex items-center justify-center font-sans ${titleSizes} leading-none tracking-tight`}
     >
-      {/* B: Thin stroke (Weight 200) */}
-      <span className={`${textSubtle} opacity-75`} style={{ fontWeight: 200 }}>
+      {/* B: Thin stroke (Weight 200) - Crisp Dark White */}
+      <span className={isDark ? 'text-[#F1F5F9]' : 'text-slate-700'} style={{ fontWeight: 200 }}>
         B
       </span>
 
       {/* R: Light / Regular stroke (Weight 400) */}
-      <span className={`${textBase} opacity-90`} style={{ fontWeight: 400 }}>
+      <span className={isDark ? 'text-slate-100' : 'text-slate-800'} style={{ fontWeight: 400 }}>
         R
       </span>
 
       {/* A: Medium / Semibold stroke (Weight 600) */}
-      <span className={`${textBase}`} style={{ fontWeight: 600 }}>
+      <span className={textBase} style={{ fontWeight: 600 }}>
         A
       </span>
 
-      {/* I: Bold / Extrabold stroke (Weight 800) with iconic RailOne inspired Electric Green dot on top */}
-      <span className="relative inline-flex items-center justify-center px-[1px]">
-        <span
-          className={`absolute rounded-full bg-[#00E676] animate-pulse shadow-[0_0_8px_#00E676] ${dotSize}`}
-        />
-        <span className={`${textBase}`} style={{ fontWeight: 800 }}>
-          I
-        </span>
+      {/* I: Bold / Extrabold stroke (Weight 800) - Capital I without dot */}
+      <span className={textBase} style={{ fontWeight: 800 }}>
+        I
       </span>
 
       {/* N: Black / Ultra-heavy stroke (Weight 900) in vivid Electric Green */}
