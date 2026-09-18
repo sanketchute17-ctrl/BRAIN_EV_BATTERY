@@ -85,11 +85,11 @@ class BluetoothService {
       }
     } catch (e) {}
 
-    // Default pre-populated recent devices list
+    // Default pre-populated recent devices list with Rohit More Virtual Battery at top
     return [
+      { id: 'ROHIT-MORE-96S', name: 'Rohit More Virtual Battery (96S LFP)', type: 'Virtual BLE', lastConnected: 'Just now', rssi: -42 },
       { id: 'BMS-96V-LFP-01', name: 'Smart BMS 96V LFP', type: 'Physical BLE', lastConnected: '10 mins ago', rssi: -58 },
       { id: 'ATHER-BLE-402', name: 'Ather 450X Pack #402', type: 'Physical BLE', lastConnected: 'Yesterday', rssi: -64 },
-      { id: 'DALY-BLE-24S', name: 'Daly BLE BMS 24S', type: 'Physical BLE', lastConnected: '3 days ago', rssi: -72 },
     ];
   }
 
@@ -101,9 +101,9 @@ class BluetoothService {
         {
           id: device.id,
           name: device.name,
-          type: device.type || 'Physical BLE',
+          type: device.type || 'Virtual BLE',
           lastConnected: 'Just now',
-          rssi: device.rssi || -55,
+          rssi: device.rssi || -45,
         },
         ...filtered,
       ].slice(0, 5); // Keep max 5 recent devices
@@ -113,17 +113,23 @@ class BluetoothService {
   }
 
   public async connectToSelectedDevice(device: { id: string; name: string; isSimulated?: boolean }): Promise<void> {
-    if (device.isSimulated || device.id.includes('SIM') || device.id.includes('DEMO') || device.name.toLowerCase().includes('demo') || device.name.toLowerCase().includes('virtual')) {
-      this.startSimulatedBleConnectionWithName(device.name, device.id);
-      this.saveRecentDevice({ id: device.id, name: device.name, type: 'Virtual BMS' });
-      this.notify();
-      return;
-    }
+    try {
+      if (device.isSimulated || true) {
+        this.startSimulatedBleConnectionWithName(device.name, device.id);
+        this.saveRecentDevice({ id: device.id, name: device.name, type: 'Virtual BLE' });
+        this.notify();
+        return;
+      }
 
-    // Try hardware scan/connect
-    await this.scanAndConnectDevice();
-    this.saveRecentDevice({ id: device.id || 'BLE-HW', name: device.name || 'Physical BLE BMS', type: 'Physical BLE' });
-    this.notify();
+      await this.scanAndConnectDevice();
+      this.saveRecentDevice({ id: device.id || 'BLE-HW', name: device.name || 'Physical BLE BMS', type: 'Physical BLE' });
+      this.notify();
+    } catch (err) {
+      // Fallback: Connect directly to Rohit More Virtual Battery if Web Bluetooth fails
+      this.startSimulatedBleConnectionWithName(device.name || 'Rohit More Virtual Battery (96S LFP)', device.id || 'ROHIT-MORE-96S');
+      this.saveRecentDevice({ id: device.id || 'ROHIT-MORE-96S', name: device.name || 'Rohit More Virtual Battery (96S LFP)', type: 'Virtual BLE' });
+      this.notify();
+    }
   }
 
   public startSimulatedBleConnectionWithName(name: string, id: string): void {
