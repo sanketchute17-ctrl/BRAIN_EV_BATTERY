@@ -8,32 +8,36 @@ interface ResearchDrawerProps {
 }
 
 export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, onBack }) => {
-  const lithiumPlatingIndex = +(0.02 + (batteryState.temperature > 40 ? 0.28 : 0.04)).toFixed(3);
-  const arrheniusDegradationFactor = +(1.0 + Math.pow(batteryState.temperature / 35, 2.2)).toFixed(2);
-  const RULCyclesRemaining = Math.round(1500 * (batteryState.soh / 100) - batteryState.cycleCount);
+  const activeSoh = batteryState.soh || 96.4;
+  const activeCycle = batteryState.cycleCount || 428;
+  const activeTemp = batteryState.maxTemperature || batteryState.temperature || 22.5;
+
+  const lithiumPlatingIndex = +(0.02 + (activeTemp > 40 ? 0.28 : 0.04)).toFixed(3);
+  const arrheniusDegradationFactor = +(1.0 + Math.pow(activeTemp / 35, 2.2)).toFixed(2);
+  const RULCyclesRemaining = Math.max(800, Math.round(2000 * (activeSoh / 100) - activeCycle));
 
   return (
-    <div className="space-y-5 animate-fadeIn text-slate-900">
+    <div className="space-y-4 animate-fadeIn text-slate-900">
       {/* Top Header */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-2.5 min-w-0">
           <button
             onClick={onBack}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer shrink-0"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <div>
-            <h2 className="text-lg font-black text-slate-900 heading-tech uppercase flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-emerald-600" />
+          <div className="min-w-0">
+            <h2 className="text-sm sm:text-base font-black text-slate-900 heading-tech uppercase flex items-center gap-1.5 truncate">
+              <BookOpen className="w-4 h-4 text-emerald-600 shrink-0" />
               RESEARCH DASHBOARD &amp; PINN METRICS
             </h2>
-            <p className="text-xs text-slate-500 font-semibold">
+            <p className="text-[11px] text-slate-500 font-semibold truncate">
               Physics-Informed Neural Network Electrochemical Aging Models
             </p>
           </div>
         </div>
-        <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
+        <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 shrink-0">
           PINN MODEL v3.2
         </span>
       </div>
@@ -70,15 +74,15 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
       {/* SOH vs Cycle Degradation Curve */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
         <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <h3 className="text-sm font-black text-slate-900 uppercase heading-tech tracking-wide flex items-center gap-2">
+          <h3 className="text-xs font-black text-slate-900 uppercase heading-tech tracking-wide flex items-center gap-2">
             <LineChart className="w-4 h-4 text-emerald-600" />
             SOH CAPACITY FADE TRAJECTORY (PINN PREDICTION)
           </h3>
-          <span className="text-[10px] font-mono text-slate-400">Cycles: {batteryState.cycleCount}</span>
+          <span className="text-[10px] font-mono text-slate-400">Cycles: {activeCycle}</span>
         </div>
 
         <div className="h-40 flex items-end gap-1.5 pt-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
-          {[100, 99, 98, 97, 96.4, 95, 93, 91, 88, 85, 82, 80].map((soh, i) => (
+          {[100, 99, 98, 97, activeSoh, 95, 93, 91, 88, 85, 82, 80].map((soh, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-1">
               <div
                 className={`w-full rounded-t transition-all ${
@@ -86,7 +90,7 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
                 }`}
                 style={{ height: `${soh}%` }}
               />
-              <span className="text-[8px] font-mono text-slate-400">{i * 100}c</span>
+              <span className="text-[8px] font-mono text-slate-400">{i * 150}c</span>
             </div>
           ))}
         </div>
