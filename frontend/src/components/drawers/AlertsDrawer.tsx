@@ -117,7 +117,7 @@ export const AlertsDrawer: React.FC<AlertsDrawerProps> = ({ batteryState, onBack
         <div className="flex items-center justify-between border-b border-slate-100 pb-2">
           <h3 className="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
             <AlertCircle className="w-4 h-4 text-amber-500" />
-            CHHOTI-MOTI BATTERY PROBLEMS &amp; WARNINGS ({minorProblems.length})
+            BATTERY WARNINGS &amp; ANOMALIES ({minorProblems.length})
           </h3>
           <span className="text-[10px] font-mono text-slate-400">PINN Diagnostic Engine</span>
         </div>
@@ -146,7 +146,7 @@ export const AlertsDrawer: React.FC<AlertsDrawerProps> = ({ batteryState, onBack
         ) : (
           <div className="p-3 bg-emerald-50/70 border border-emerald-200 text-emerald-800 rounded-xl flex items-center gap-2 text-xs font-bold">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Koi chhoti-moti problem nahi hai. Sabhi cells aur parameters 100% optimal range mein hain.</span>
+            <span>No active battery warnings or cell anomalies detected. All parameters are operating within 100% optimal safety thresholds.</span>
           </div>
         )}
       </div>

@@ -805,7 +805,13 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       )}
 
       {/* ── 3D CANVAS VIEWPORT ── */}
-      <div className="relative w-full h-[320px] sm:h-[420px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-lg flex items-center justify-center">
+      <div
+        className={`relative w-full flex items-center justify-center ${
+          hideControls
+            ? 'h-full bg-transparent border-0 shadow-none overflow-hidden'
+            : 'h-[320px] sm:h-[420px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-lg'
+        }`}
+      >
         <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
         {selectedInfo && (
