@@ -509,15 +509,48 @@ class BluetoothService {
           batteryStateService.processLiveBleTelemetry(livePayload, { name: deviceName, id: deviceId, rssi: -42 });
           return;
         }
+        // Ensure default Rohit More telemetry exists in localStorage if not set
+        if (typeof localStorage !== 'undefined' && !localStorage.getItem('brain_rohit_more_telemetry')) {
+          try {
+            const defaultRohitPayload = {
+              sequence_number: 1,
+              timestamp: new Date().toISOString(),
+              operating_mode: 'STANDBY',
+              pack_data: {
+                voltage: 25.60,
+                current: 0.00,
+                maximum_temperature: 22.5,
+                temperature: 22.5,
+                power: 0.0,
+                soc: 84
+              },
+              aging_data: {
+                soh_percentage: 96.4,
+                cycle_count: 428
+              },
+              fault_status: {
+                fault_detected: false,
+                fault_type: 'NONE'
+              },
+              cell_data: Array.from({ length: 8 }, (_, idx) => ({
+                cell_id: idx + 1,
+                voltage: 3.20,
+                temperature: 22.5
+              }))
+            };
+            localStorage.setItem('brain_rohit_more_telemetry', JSON.stringify(defaultRohitPayload));
+          } catch (e) {}
+        }
       } catch {
         // Fallback to simulation
       }
 
-      const volt = +(350.0 + Math.sin(step * 0.15) * 4.5).toFixed(1);
-      const curr = +(120.0 + Math.cos(step * 0.15) * 8.5).toFixed(1);
-      const temp = +(34.0 + Math.sin(step * 0.08) * 3.2).toFixed(1);
-      const soc = Math.max(10, Math.min(100, Math.round(84 - step * 0.04)));
-      const powerKw = +((volt * curr) / 1000.0).toFixed(1);
+      // Default fallback matching Rohit More 96S LFP Virtual Battery (25.6V, 0A, 22.5°C)
+      const volt = +(25.60 + Math.sin(step * 0.05) * 0.05).toFixed(2);
+      const curr = +(0.00 + Math.abs(Math.sin(step * 0.05) * 0.02)).toFixed(2);
+      const temp = +(22.50 + Math.sin(step * 0.02) * 0.1).toFixed(1);
+      const soc = 84;
+      const powerKw = 0.0;
       const isThermalSpike = temp > 44.0;
 
       const mockPayload: RawBleTelemetryPayload = {
@@ -528,20 +561,20 @@ class BluetoothService {
         pack: {
           soc,
           soh: 96.4,
-          voltage: volt,
-          current: curr,
+          voltage: typeof volt === 'string' ? parseFloat(volt) : volt,
+          current: typeof curr === 'string' ? parseFloat(curr) : curr,
           power: powerKw,
-          temperature: temp,
-          maxTemperature: +(temp + 1.2).toFixed(1),
-          minTemperature: +(temp - 1.1).toFixed(1),
+          temperature: typeof temp === 'string' ? parseFloat(temp) : temp,
+          maxTemperature: typeof temp === 'string' ? +(parseFloat(temp) + 0.2).toFixed(1) : +(temp + 0.2).toFixed(1),
+          minTemperature: typeof temp === 'string' ? +(parseFloat(temp) - 0.2).toFixed(1) : +(temp - 0.2).toFixed(1),
           internalResistance: 1.2,
           cycleCount: 428,
           estimatedRange: Math.round(soc * 4.1),
-          risk: isThermalSpike ? 68 : Math.round(2 + Math.abs(Math.sin(step * 0.1) * 8)),
-          safetyState: isThermalSpike ? 'WARNING' : 'HEALTHY',
+          risk: 12,
+          safetyState: 'HEALTHY',
         },
         environment: {
-          ambientTemperature: 29.0,
+          ambientTemperature: 22.5,
         },
         charging: {
           active: false,
