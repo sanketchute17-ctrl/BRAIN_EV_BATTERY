@@ -744,20 +744,28 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   }, [casingMode]);
 
   return (
-    <div className="relative w-full h-full min-h-[220px] sm:min-h-[300px] flex items-center justify-center select-none bg-transparent border-0 shadow-none overflow-visible">
-      <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
-      
+    <div className="w-full flex flex-col gap-2 select-none">
+      {/* ── TOP 3D CONTROL TOOLBAR ── */}
       {!hideControls && (
-        <div className="absolute top-3 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 bg-white/95 border border-slate-200 p-1.5 rounded-xl backdrop-blur-md shadow-md">
+        <div className="w-full flex flex-wrap items-center justify-between gap-2 bg-white/95 p-2 rounded-2xl border border-slate-200 shadow-sm z-20">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
             {(['SOLID', 'TRANSPARENT', 'X-RAY'] as CasingMode[]).map((mode) => (
-              <button key={mode} onClick={() => setCasingMode(mode)} className={`px-3 py-1.5 text-xs font-extrabold rounded-lg transition ${casingMode === mode ? 'bg-emerald-500 text-white' : 'text-slate-700 bg-slate-100 hover:bg-slate-200'}`}>{mode}</button>
+              <button
+                key={mode}
+                onClick={() => setCasingMode(mode)}
+                className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition cursor-pointer ${
+                  casingMode === mode ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                {mode}
+              </button>
             ))}
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-1.5 flex-wrap">
             <button
               onClick={toggleBleBroadcasting}
-              className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition cursor-pointer flex items-center gap-1.5 ${
+              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-xl border transition cursor-pointer flex items-center gap-1 ${
                 isBleBroadcasting
                   ? 'bg-emerald-500 text-white border-emerald-400 shadow-emerald animate-pulse'
                   : 'bg-slate-900 text-emerald-400 border-emerald-500/40 hover:bg-slate-800'
@@ -765,51 +773,78 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
               title="Broadcast Virtual Battery telemetry over Bluetooth BLE GATT Server"
             >
               <Bluetooth className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{isBleBroadcasting ? 'BLE BROADCASTING: BRAIN-ROHITMORE-96S' : 'START BLE BROADCAST'}</span>
+              <span>{isBleBroadcasting ? 'BLE BROADCASTING' : 'START BLE BROADCAST'}</span>
             </button>
-            <button onClick={() => setIsExploded(!isExploded)} className={`px-3.5 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${isExploded ? 'bg-red-500 text-white' : 'bg-white/95 text-emerald-700 border-emerald-400'}`}>{isExploded ? 'ASSEMBLE' : 'EXPLODED VIEW'}</button>
-            <button onClick={() => setAutoRotate(!autoRotate)} className={`px-3 py-1.5 text-xs font-extrabold rounded-xl border backdrop-blur-md transition ${autoRotate ? 'bg-emerald-50 text-emerald-700 border-emerald-400' : 'bg-white/95 text-slate-700 border-slate-200'}`}>AUTO ROTATE ↻</button>
-            <button onClick={resetCamera} className="px-3 py-1.5 text-xs font-extrabold rounded-xl bg-white/95 text-slate-800 border border-slate-300">RESET ↺</button>
+
+            <button
+              onClick={() => setIsExploded(!isExploded)}
+              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-xl border transition cursor-pointer ${
+                isExploded ? 'bg-red-500 text-white border-red-400' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+              }`}
+            >
+              {isExploded ? 'ASSEMBLE' : 'EXPLODED VIEW'}
+            </button>
+
+            <button
+              onClick={() => setAutoRotate(!autoRotate)}
+              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-xl border transition cursor-pointer ${
+                autoRotate ? 'bg-emerald-50 text-emerald-700 border-emerald-400' : 'bg-slate-100 text-slate-700 border-slate-200'
+              }`}
+            >
+              AUTO ROTATE ↻
+            </button>
+
+            <button
+              onClick={resetCamera}
+              className="px-2.5 py-1 text-[11px] font-extrabold rounded-xl bg-slate-100 text-slate-800 border border-slate-200 hover:bg-slate-200 cursor-pointer"
+            >
+              RESET ↺
+            </button>
           </div>
         </div>
       )}
 
-      {selectedInfo && (
-        <div className="absolute bottom-12 left-3 right-3 sm:left-auto sm:right-3 sm:max-w-xs z-20 bg-slate-900/95 text-white border-2 border-[#00E676] p-3.5 rounded-2xl shadow-2xl backdrop-blur-md animate-fadeIn space-y-2">
-          <div className="flex items-center justify-between border-b border-slate-700 pb-1.5">
-            <div>
-              <span className="text-[10px] font-extrabold text-[#00E676] uppercase tracking-wider">{selectedInfo.type}</span>
-              <h4 className="text-sm font-black text-white uppercase">{selectedInfo.name}</h4>
-            </div>
-            <button onClick={() => setSelectedInfo(null)} className="text-slate-400 hover:text-white text-sm font-bold">✕</button>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2 text-[11px] font-mono font-bold">
-            <div className="bg-slate-800 p-2 rounded-xl border border-slate-700">
-              <div className="text-[9px] text-slate-400 uppercase">VOLTAGE</div>
-              <div className="text-xs text-[#00E676] font-extrabold mt-0.5">{selectedInfo.voltage}</div>
-            </div>
-            <div className="bg-slate-800 p-2 rounded-xl border border-slate-700">
-              <div className="text-[9px] text-slate-400 uppercase">TEMPERATURE</div>
-              <div className="text-xs text-amber-400 font-extrabold mt-0.5">{selectedInfo.temp}</div>
-            </div>
-          </div>
+      {/* ── 3D CANVAS VIEWPORT ── */}
+      <div className="relative w-full h-[320px] sm:h-[420px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-lg flex items-center justify-center">
+        <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-          <p className="text-[11px] font-medium text-slate-300 leading-snug">{selectedInfo.description}</p>
-        </div>
-      )}
+        {selectedInfo && (
+          <div className="absolute bottom-12 left-3 right-3 sm:left-auto sm:right-3 sm:max-w-xs z-20 bg-slate-900/95 text-white border-2 border-[#00E676] p-3.5 rounded-2xl shadow-2xl backdrop-blur-md animate-fadeIn space-y-2">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-1.5">
+              <div>
+                <span className="text-[10px] font-extrabold text-[#00E676] uppercase tracking-wider">{selectedInfo.type}</span>
+                <h4 className="text-sm font-black text-white uppercase">{selectedInfo.name}</h4>
+              </div>
+              <button onClick={() => setSelectedInfo(null)} className="text-slate-400 hover:text-white text-sm font-bold">✕</button>
+            </div>
 
-      {/* GESTURE HINT BANNER */}
-      {!hideControls && (
-        <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none text-xs font-mono font-bold">
-          <span className="bg-slate-900/90 text-white px-3 py-1.5 rounded-xl border border-slate-700 backdrop-blur-md shadow-md">
-            Drag to rotate • Pinch to zoom • Tap cell for telemetry
-          </span>
-          <span className="bg-emerald-50 text-emerald-700 border border-emerald-500 px-2.5 py-1 rounded-xl font-extrabold shadow-sm">
-            {isSimulated ? 'LIVE PINN MODEL' : 'PHYSICAL BLE BMS'}
-          </span>
-        </div>
-      )}
+            <div className="grid grid-cols-2 gap-2 text-[11px] font-mono font-bold">
+              <div className="bg-slate-800 p-2 rounded-xl border border-slate-700">
+                <div className="text-[9px] text-slate-400 uppercase">VOLTAGE</div>
+                <div className="text-xs text-[#00E676] font-extrabold mt-0.5">{selectedInfo.voltage}</div>
+              </div>
+              <div className="bg-slate-800 p-2 rounded-xl border border-slate-700">
+                <div className="text-[9px] text-slate-400 uppercase">TEMPERATURE</div>
+                <div className="text-xs text-amber-400 font-extrabold mt-0.5">{selectedInfo.temp}</div>
+              </div>
+            </div>
+
+            <p className="text-[11px] font-medium text-slate-300 leading-snug">{selectedInfo.description}</p>
+          </div>
+        )}
+
+        {/* GESTURE HINT BANNER */}
+        {!hideControls && (
+          <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center justify-between pointer-events-none text-[10px] sm:text-xs font-mono font-bold gap-2">
+            <span className="bg-slate-900/90 text-white px-2.5 py-1 rounded-xl border border-slate-700 backdrop-blur-md shadow-md truncate">
+              Drag to rotate • Pinch to zoom • Tap cell for telemetry
+            </span>
+            <span className="bg-emerald-500 text-white border border-emerald-400 px-2 py-1 rounded-xl font-extrabold shadow-sm shrink-0">
+              {isSimulated ? 'LIVE PINN MODEL' : 'PHYSICAL BLE BMS'}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

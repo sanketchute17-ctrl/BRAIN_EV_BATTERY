@@ -18,27 +18,27 @@ export const ChargingDrawer: React.FC<ChargingDrawerProps> = ({ batteryState, on
   const minutesToFull = chargingCurrent > 2 ? Math.round((remainingSocPct * 50 * 0.6) / chargingCurrent) : 0;
 
   return (
-    <div className="space-y-5 animate-fadeIn text-slate-900">
+    <div className="space-y-4 animate-fadeIn text-slate-900">
       {/* Top Header */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-2.5 min-w-0">
           <button
             onClick={onBack}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer shrink-0"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <div>
-            <h2 className="text-lg font-black text-slate-900 heading-tech uppercase flex items-center gap-2">
-              <Zap className="w-5 h-5 text-emerald-600" />
+          <div className="min-w-0">
+            <h2 className="text-sm sm:text-base font-black text-slate-900 heading-tech uppercase flex items-center gap-1.5 truncate">
+              <Zap className="w-4 h-4 text-emerald-600 shrink-0" />
               CHARGING INTELLIGENCE &amp; ANALYTICS
             </h2>
-            <p className="text-xs text-slate-500 font-semibold">
+            <p className="text-[11px] text-slate-500 font-semibold truncate">
               Real-Time C-Rate, Thermal Stress &amp; Charge Window Optimizer
             </p>
           </div>
         </div>
-        <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
+        <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border shrink-0 ${
           isCharging ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-600 border-slate-300'
         }`}>
           {isCharging ? '⚡ CHARGING ACTIVE' : 'DISCHARGING / STANDBY'}

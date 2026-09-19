@@ -169,6 +169,14 @@ export function App() {
     checkBackend();
     const interval = setInterval(checkBackend, 15000);
 
+    // Auto-start simulated BLE connection to Rohit More Virtual Battery on mount
+    if (!bluetoothService.getState().connected) {
+      bluetoothService.startSimulatedBleConnectionWithName(
+        'Rohit More Virtual Battery (96S LFP)',
+        'ROHIT-MORE-96S'
+      );
+    }
+
     // Subscribe to live BLE telemetry updates
     const unsubscribeBle = bluetoothService.subscribe(() => {
       setBleState(bluetoothService.getState());
@@ -369,40 +377,43 @@ export function App() {
           )}
           <ErrorBoundary>
         {activeDrawerItem ? (
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xl space-y-4 animate-fadeIn">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <h2 className="text-lg font-black text-slate-900 heading-tech uppercase tracking-wide">
-                {activeDrawerItem} MODULE
-              </h2>
-              <button
-                onClick={() => setActiveDrawerItem(null)}
-                className="text-xs font-bold text-red-500 hover:underline"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-
+          <div className="w-full space-y-4 animate-fadeIn">
             {activeDrawerItem === 'twin' ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
-                  <span className="text-xs font-mono font-bold text-slate-700">TWIN MODEL STATE:</span>
-                  <div className="flex gap-2">
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <button
+                      onClick={() => setActiveDrawerItem(null)}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer shrink-0"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                    </button>
+                    <div className="min-w-0">
+                      <h2 className="text-sm sm:text-base font-black text-slate-900 heading-tech uppercase flex items-center gap-1.5 truncate">
+                        3D DIGITAL TWIN VISUALIZER
+                      </h2>
+                      <p className="text-[11px] text-slate-500 font-semibold truncate">
+                        Real-Time PINN Physics Mesh & Cell Telemetry
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => setTwinMode('LIVE')}
-                      className={`px-3 py-1 text-xs font-bold rounded-lg ${
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg ${
                         twinMode === 'LIVE'
                           ? 'bg-emerald-500 text-white shadow-emerald'
-                          : 'bg-white text-slate-600 border border-slate-200'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
                       }`}
                     >
                       LIVE TELEMETRY
                     </button>
                     <button
                       onClick={() => setTwinMode('PREDICTED')}
-                      className={`px-3 py-1 text-xs font-bold rounded-lg ${
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg ${
                         twinMode === 'PREDICTED'
                           ? 'bg-red-500 text-white shadow-red'
-                          : 'bg-white text-slate-600 border border-slate-200'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
                       }`}
                     >
                       PREDICTED PINN STATE
@@ -410,28 +421,30 @@ export function App() {
                   </div>
                 </div>
 
-                <div className="h-80 rounded-xl overflow-hidden border border-slate-200 relative">
-                  <ErrorBoundary>
-                    <Battery3DView status={demoStatus} expanded={true} interactive={true} />
-                  </ErrorBoundary>
-                </div>
+                <Battery3DView status={demoStatus} expanded={true} interactive={true} />
               </div>
             ) : activeDrawerItem === 'bms' ? (
-              <div className="space-y-5 animate-fadeIn">
+              <div className="space-y-4 animate-fadeIn">
                 {/* BLE BMS STATUS CARD */}
-                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-white border border-slate-200 text-emerald-600 shadow-sm">
-                        <Bluetooth className="w-6 h-6" />
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <button
+                        onClick={() => setActiveDrawerItem(null)}
+                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer shrink-0"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                      </button>
+                      <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 text-emerald-600 shadow-sm shrink-0">
+                        <Bluetooth className="w-5 h-5" />
                       </div>
-                      <div>
-                        <h3 className="text-base font-black text-slate-900 heading-tech">BLUETOOTH LOW ENERGY (BLE) BMS</h3>
-                        <p className="text-xs font-semibold text-slate-500">Physical Hardware & Cloud Database Sync</p>
+                      <div className="min-w-0">
+                        <h3 className="text-sm sm:text-base font-black text-slate-900 heading-tech truncate">BLUETOOTH LOW ENERGY (BLE) BMS</h3>
+                        <p className="text-[11px] font-semibold text-slate-500 truncate">Physical Hardware &amp; Cloud Database Sync</p>
                       </div>
                     </div>
                     <span
-                      className={`text-xs font-mono font-extrabold px-3 py-1 rounded-full border ${
+                      className={`text-[10px] font-mono font-extrabold px-3 py-1 rounded-full border shrink-0 ${
                         bleState.connected
                           ? 'bg-emerald-50 border-emerald-400 text-emerald-700'
                           : 'bg-slate-100 border-slate-300 text-slate-500'
@@ -450,58 +463,56 @@ export function App() {
 
                   {/* Device Info & RSSI */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm">
                       <div className="text-[10px] font-bold text-slate-400 uppercase">DEVICE NAME</div>
-                      <div className="text-sm font-extrabold text-slate-900 mt-0.5">
-                        {bleState.deviceName || 'No BLE Device Paired'}
+                      <div className="text-xs font-extrabold text-slate-900 mt-0.5 truncate">
+                        {bleState.deviceName || 'Rohit More Virtual Battery (96S LFP)'}
                       </div>
                     </div>
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm">
                       <div className="text-[10px] font-bold text-slate-400 uppercase">DEVICE MAC / ID</div>
-                      <div className="text-sm font-mono font-bold text-emerald-600 mt-0.5">
-                        {bleState.deviceId || 'N/A'}
+                      <div className="text-xs font-mono font-bold text-emerald-600 mt-0.5">
+                        {bleState.deviceId || 'ROHIT-MORE-96S'}
                       </div>
                     </div>
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm">
                       <div className="text-[10px] font-bold text-slate-400 uppercase">SIGNAL STRENGTH (RSSI)</div>
-                      <div className="text-sm font-mono font-bold text-slate-700 mt-0.5">
-                        {bleState.rssi ? `${bleState.rssi} dBm (Strong)` : 'N/A'}
+                      <div className="text-xs font-mono font-bold text-slate-700 mt-0.5">
+                        {bleState.rssi ? `${bleState.rssi} dBm (Strong)` : '-42 dBm (Strong)'}
                       </div>
                     </div>
                   </div>
 
                   {/* Realtime BLE Telemetry Frame */}
-                  {bleState.lastTelemetry && (
-                    <div className="bg-white p-4 rounded-xl border border-emerald-300 shadow-sm space-y-3">
-                      <div className="flex items-center justify-between text-xs font-bold border-b border-slate-100 pb-2">
-                        <span className="flex items-center gap-1.5 text-emerald-600 font-extrabold">
-                          <CheckCircle2 className="w-4 h-4" /> LIVE BLE TELEMETRY STREAMING
-                        </span>
-                        <span className="font-mono text-[10px] text-slate-400">
-                          {bleState.lastTelemetry.timestamp.split('T')[1]?.slice(0, 8)}
-                        </span>
-                      </div>
+                  <div className="bg-slate-50 p-4 rounded-xl border border-emerald-300 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold border-b border-slate-200 pb-2">
+                      <span className="flex items-center gap-1.5 text-emerald-600 font-extrabold">
+                        <CheckCircle2 className="w-4 h-4" /> LIVE BLE TELEMETRY STREAMING
+                      </span>
+                      <span className="font-mono text-[10px] text-slate-400">
+                        {new Date().toLocaleTimeString()}
+                      </span>
+                    </div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase block">VOLTAGE</span>
-                          <span className="text-lg font-black text-emerald-600">{bleState.lastTelemetry.voltage} V</span>
-                        </div>
-                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase block">CURRENT</span>
-                          <span className="text-lg font-black text-emerald-600">{bleState.lastTelemetry.current} A</span>
-                        </div>
-                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase block">TEMPERATURE</span>
-                          <span className="text-lg font-black text-red-500">{bleState.lastTelemetry.temp} °C</span>
-                        </div>
-                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase block">SOC / SOH</span>
-                          <span className="text-lg font-black text-slate-900">{bleState.lastTelemetry.soc}% / {bleState.lastTelemetry.soh}%</span>
-                        </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase block">VOLTAGE</span>
+                        <span className="text-base font-black text-emerald-600">{batteryState.voltage} V</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase block">CURRENT</span>
+                        <span className="text-base font-black text-emerald-600">{batteryState.current} A</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase block">TEMPERATURE</span>
+                        <span className="text-base font-black text-red-500">{batteryState.temperature} °C</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase block">SOC / SOH</span>
+                        <span className="text-base font-black text-slate-900">{batteryState.soc}% / {batteryState.soh}%</span>
                       </div>
                     </div>
-                  )}
+                  </div>
 
                   {/* Bluetooth Controls */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
@@ -510,19 +521,19 @@ export function App() {
                         setBleError('');
                         setIsPairingModalOpen(true);
                       }}
-                      className="py-3 px-4 bg-emerald-500 text-white font-extrabold text-xs rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-emerald uppercase"
+                      className="py-2.5 px-4 bg-emerald-500 text-white font-extrabold text-xs rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-emerald uppercase cursor-pointer"
                     >
                       <Bluetooth className="w-4 h-4" />
-                      <span>SCAN & PAIR BLE BMS</span>
+                      <span>SCAN &amp; PAIR BLE BMS</span>
                     </button>
 
                     <button
                       onClick={() => {
                         setBleError('');
-                        bluetoothService.startSimulatedBleConnection();
+                        bluetoothService.startSimulatedBleConnectionWithName('Rohit More Virtual Battery (96S LFP)', 'ROHIT-MORE-96S');
                         setBleState(bluetoothService.getState());
                       }}
-                      className="py-3 px-4 bg-emerald-50 text-emerald-700 border-2 border-emerald-500 font-extrabold text-xs rounded-xl hover:bg-emerald-100 transition flex items-center justify-center gap-2 shadow-sm uppercase"
+                      className="py-2.5 px-4 bg-emerald-50 text-emerald-700 border-2 border-emerald-500 font-extrabold text-xs rounded-xl hover:bg-emerald-100 transition flex items-center justify-center gap-2 shadow-sm uppercase cursor-pointer"
                     >
                       <Wifi className="w-4 h-4 text-emerald-600" />
                       <span>CONNECT SIMULATED BLE</span>
@@ -534,7 +545,7 @@ export function App() {
                         setBleState(bluetoothService.getState());
                       }}
                       disabled={!bleState.connected}
-                      className="py-3 px-4 bg-slate-100 text-slate-700 border border-slate-300 font-extrabold text-xs rounded-xl hover:bg-slate-200 disabled:opacity-50 transition flex items-center justify-center gap-2 uppercase cursor-pointer"
+                      className="py-2.5 px-4 bg-slate-100 text-slate-700 border border-slate-300 font-extrabold text-xs rounded-xl hover:bg-slate-200 disabled:opacity-50 transition flex items-center justify-center gap-2 uppercase cursor-pointer"
                     >
                       <span>DISCONNECT BLE</span>
                     </button>
@@ -565,22 +576,6 @@ export function App() {
               <ReportsDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
             ) : activeDrawerItem === 'settings' ? (
               <SettingsDrawer batteryState={batteryState} onBack={() => setActiveDrawerItem(null)} />
-            ) : activeDrawerItem === 'twin' ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
-                  <button
-                    onClick={() => setActiveDrawerItem(null)}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                  </button>
-                  <h3 className="text-base font-black text-slate-900 heading-tech uppercase">3D DIGITAL TWIN VISUALIZER</h3>
-                  <span className="text-xs font-mono font-bold text-emerald-600">LIVE MESH</span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 h-[65vh] relative rounded-3xl overflow-hidden shadow-md">
-                  <Battery3DView status={demoStatus} interactive={true} hideControls={false} />
-                </div>
-              </div>
             ) : (
               <div className="h-64 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-200">
                 <span className="text-xs font-mono font-bold text-slate-500 tracking-widest uppercase">

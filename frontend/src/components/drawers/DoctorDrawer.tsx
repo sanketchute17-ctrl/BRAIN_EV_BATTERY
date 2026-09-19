@@ -23,26 +23,26 @@ export const DoctorDrawer: React.FC<DoctorDrawerProps> = ({ batteryState, onBack
   const healthScore = Math.max(0, Math.min(100, Math.round(batteryState.soh - overallRiskScore * 0.15)));
 
   return (
-    <div className="space-y-5 animate-fadeIn text-slate-900">
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-3">
+    <div className="space-y-4 animate-fadeIn text-slate-900">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-2.5 min-w-0">
           <button
             onClick={onBack}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer shrink-0"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <div>
-            <h2 className="text-lg font-black text-slate-900 heading-tech uppercase flex items-center gap-2">
-              <Stethoscope className="w-5 h-5 text-emerald-600" />
+          <div className="min-w-0">
+            <h2 className="text-sm sm:text-base font-black text-slate-900 heading-tech uppercase flex items-center gap-1.5 truncate">
+              <Stethoscope className="w-4 h-4 text-emerald-600 shrink-0" />
               AI BATTERY DOCTOR
             </h2>
-            <p className="text-xs text-slate-500 font-semibold">
+            <p className="text-[11px] text-slate-500 font-semibold truncate">
               Live Cell Diagnostics &amp; Future Risk Prediction
             </p>
           </div>
         </div>
-        <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
+        <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border shrink-0 ${
           isHighRisk
             ? 'bg-red-50 text-red-700 border-red-300'
             : 'bg-emerald-50 text-emerald-700 border-emerald-300'
