@@ -44,6 +44,7 @@ import {
   AlertCircle,
   Bell,
   ChevronDown,
+  ChevronRight,
   Maximize2,
   Heart,
   Navigation as NavigationIcon,
