@@ -75,8 +75,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const bmsGroupRef = useRef<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Camera Position (Elevated isometric view showing all 16 cells directly)
-  const targetCamPos = useRef(new THREE.Vector3(0, 3.2, 8.2));
+  // Camera Position (Zoomed for Login Screen or Elevated Isometric for 3D View)
+  const targetCamPos = useRef(new THREE.Vector3(0, hideControls ? 0.5 : 3.2, hideControls ? 10.5 : 8.2));
   const targetLookAt = useRef(new THREE.Vector3(0, 0.0, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 0.0, 0));
 
@@ -135,10 +135,18 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   };
 
   const resetCamera = () => {
-    targetCamPos.current.set(0, 3.2, 8.2);
+    if (hideControls) {
+      targetCamPos.current.set(0, 0.5, 10.5);
+    } else {
+      targetCamPos.current.set(0, 3.2, 8.2);
+    }
     targetLookAt.current.set(0, 0.0, 0);
     if (rootGroupRef.current) {
-      rootGroupRef.current.rotation.set(0.48, -0.42, 0); // Elevated isometric view showing all 16 cells
+      if (hideControls) {
+        rootGroupRef.current.rotation.set(0.18, 0.08, 0); // Front facing view for login card
+      } else {
+        rootGroupRef.current.rotation.set(0.48, -0.42, 0); // Elevated isometric view showing all 16 cells
+      }
     }
     rotationVelocity.current = { x: 0, y: 0 };
     setSelectedInfo(null);
@@ -196,8 +204,12 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     }
 
     const rootGroup = new THREE.Group();
-    // Starting angle: Elevated isometric view showing all 16 cells directly
-    rootGroup.rotation.set(0.48, -0.42, 0);
+    // Starting angle: Front facing for login card or elevated isometric for 3D View
+    if (hideControls) {
+      rootGroup.rotation.set(0.18, 0.08, 0);
+    } else {
+      rootGroup.rotation.set(0.48, -0.42, 0);
+    }
     rootGroupRef.current = rootGroup;
     scene.add(rootGroup);
 
@@ -425,9 +437,13 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       bmsGroup.add(cap);
     });
 
-    // 4. SIDE CHASSIS CONTROLLER BRANDING PLATE WITH BRAIN LOGO (Relocated to lower frame tray so cells are 100% visible)
+    // 4. SIDE CONTROLLER BRANDING PLATE WITH BRAIN LOGO
+    // For Login Screen (hideControls=true), position in front so full BRAIN logo is visible as before
+    // For Full 3D View (hideControls=false), position on chassis lip so cells are unobstructed
     const logoTexture = createBrainLogoTexture();
-    const logoPlateGeo = new THREE.BoxGeometry(2.2, 0.38, 0.06);
+    const logoPlateGeo = hideControls
+      ? new THREE.BoxGeometry(2.6, 1.4, 0.08)
+      : new THREE.BoxGeometry(2.2, 0.38, 0.06);
     const logoPlateMat = new THREE.MeshStandardMaterial({
       map: logoTexture,
       metalness: 0.4,
@@ -437,7 +453,11 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       emissiveIntensity: 0.35,
     });
     const logoPlate = new THREE.Mesh(logoPlateGeo, logoPlateMat);
-    logoPlate.position.set(0.0, -1.22, 2.11);
+    if (hideControls) {
+      logoPlate.position.set(0.5, 0.0, 2.21);
+    } else {
+      logoPlate.position.set(0.0, -1.22, 2.11);
+    }
     logoPlate.userData = {
       name: 'BRAIN Master Intelligence Module Plate',
       type: 'BMS Controller Panel',
