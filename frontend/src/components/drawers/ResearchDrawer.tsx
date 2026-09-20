@@ -16,85 +16,252 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
   const arrheniusDegradationFactor = +(1.0 + Math.pow(activeTemp / 35, 2.2)).toFixed(2);
   const RULCyclesRemaining = Math.max(800, Math.round(2000 * (activeSoh / 100) - activeCycle));
 
+  // Generate 12 SOH trajectory curve data points over 0 to 1650 cycles
+  const dataPoints = [
+    { cycle: 0, soh: 100.0 },
+    { cycle: 150, soh: 99.2 },
+    { cycle: 300, soh: 98.1 },
+    { cycle: 450, soh: activeSoh },
+    { cycle: 600, soh: 94.8 },
+    { cycle: 750, soh: 93.1 },
+    { cycle: 900, soh: 91.0 },
+    { cycle: 1050, soh: 88.5 },
+    { cycle: 1200, soh: 85.2 },
+    { cycle: 1350, soh: 82.0 },
+    { cycle: 1500, soh: 78.5 },
+    { cycle: 1650, soh: 74.0 },
+  ];
+
+  // SVG Chart dimensions & math
+  const svgWidth = 500;
+  const svgHeight = 180;
+  const padLeft = 40;
+  const padRight = 20;
+  const padTop = 20;
+  const padBottom = 35;
+  const chartW = svgWidth - padLeft - padRight;
+  const chartH = svgHeight - padTop - padBottom;
+
+  const minSohVal = 70;
+  const maxSohVal = 100;
+
+  const getX = (index: number) => padLeft + (index / (dataPoints.length - 1)) * chartW;
+  const getY = (sohVal: number) => padTop + chartH - ((sohVal - minSohVal) / (maxSohVal - minSohVal)) * chartH;
+
+  const pointsSvgStr = dataPoints.map((d, i) => `${getX(i)},${getY(d.soh)}`).join(' ');
+  const areaSvgStr = `${padLeft},${padTop + chartH} ${pointsSvgStr} ${padLeft + chartW},${padTop + chartH}`;
+
+  // Current active cycle indicator index
+  const activePointIndex = Math.min(
+    dataPoints.length - 1,
+    Math.max(0, Math.round((activeCycle / 1650) * (dataPoints.length - 1)))
+  );
+  const activeX = getX(activePointIndex);
+  const activeY = getY(activeSoh);
+
   return (
     <div className="space-y-4 animate-fadeIn text-slate-900">
       {/* Top Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={onBack}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer shrink-0"
+            className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div className="min-w-0">
-            <h2 className="text-sm sm:text-base font-black text-slate-900 heading-tech uppercase flex items-center gap-1.5 truncate">
-              <BookOpen className="w-4 h-4 text-emerald-600 shrink-0" />
+            <h2 className="text-xs sm:text-sm font-black text-slate-900 heading-tech uppercase flex items-center gap-1 truncate">
+              <BookOpen className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               RESEARCH DASHBOARD &amp; PINN METRICS
             </h2>
-            <p className="text-[11px] text-slate-500 font-semibold truncate">
-              Physics-Informed Neural Network Electrochemical Aging Models
+            <p className="text-[10px] text-slate-500 font-semibold truncate">
+              Physics-Informed Neural Network Aging Models
             </p>
           </div>
         </div>
-        <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 shrink-0">
-          PINN MODEL v3.2
+        <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 shrink-0">
+          PINN v3.2
         </span>
       </div>
 
       {/* Research PINN Physics Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-          <div className="text-[10px] font-extrabold text-slate-400 uppercase">LITHIUM PLATING INDEX</div>
-          <div className={`text-2xl font-black ${lithiumPlatingIndex > 0.15 ? 'text-red-500' : 'text-emerald-600'}`}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+          <div className="text-[9px] font-extrabold text-slate-400 uppercase">LITHIUM PLATING INDEX</div>
+          <div className={`text-xl font-black ${lithiumPlatingIndex > 0.15 ? 'text-red-500' : 'text-emerald-600'}`}>
             {lithiumPlatingIndex}
           </div>
           <div className="text-[9px] font-mono text-slate-500">Threshold: 0.15</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-          <div className="text-[10px] font-extrabold text-slate-400 uppercase font-mono">ARRHENIUS AGING FACTOR</div>
-          <div className="text-2xl font-black text-purple-600">{arrheniusDegradationFactor}x</div>
+        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+          <div className="text-[9px] font-extrabold text-slate-400 uppercase">ARRHENIUS AGING</div>
+          <div className="text-xl font-black text-purple-600">{arrheniusDegradationFactor}x</div>
           <div className="text-[9px] font-mono text-slate-500">Thermal Acceleration</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-          <div className="text-[10px] font-extrabold text-slate-400 uppercase">ESTIMATED RUL</div>
-          <div className="text-2xl font-black text-cyan-600">{RULCyclesRemaining} cycles</div>
+        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+          <div className="text-[9px] font-extrabold text-slate-400 uppercase">ESTIMATED RUL</div>
+          <div className="text-xl font-black text-cyan-600">{RULCyclesRemaining} cycles</div>
           <div className="text-[9px] font-mono text-slate-500">Remaining Useful Life</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-          <div className="text-[10px] font-extrabold text-slate-400 uppercase">PINN MODEL CONFIDENCE</div>
-          <div className="text-2xl font-black text-emerald-600">96.8%</div>
+        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+          <div className="text-[9px] font-extrabold text-slate-400 uppercase">MODEL CONFIDENCE</div>
+          <div className="text-xl font-black text-emerald-600">96.8%</div>
           <div className="text-[9px] font-mono text-slate-500">Validation R² Score</div>
         </div>
       </div>
 
-      {/* SOH vs Cycle Degradation Curve */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <h3 className="text-xs font-black text-slate-900 uppercase heading-tech tracking-wide flex items-center gap-2">
+      {/* SOH vs Cycle Degradation SVG Curve & Bar Chart */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h3 className="text-xs font-black text-slate-900 uppercase heading-tech tracking-wide flex items-center gap-1.5">
             <LineChart className="w-4 h-4 text-emerald-600" />
             SOH CAPACITY FADE TRAJECTORY (PINN PREDICTION)
           </h3>
-          <span className="text-[10px] font-mono text-slate-400">Cycles: {activeCycle}</span>
+          <span className="text-[10px] font-mono font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            {activeCycle} Cycles ({activeSoh}% SOH)
+          </span>
         </div>
 
-        <div className="h-40 flex items-end gap-1.5 pt-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
-          {[100, 99, 98, 97, activeSoh, 95, 93, 91, 88, 85, 82, 80].map((soh, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-              <div
-                className={`w-full rounded-t transition-all ${
-                  soh < 85 ? 'bg-amber-500' : 'bg-emerald-500'
-                }`}
-                style={{ height: `${soh}%` }}
-              />
-              <span className="text-[8px] font-mono text-slate-400">{i * 150}c</span>
-            </div>
-          ))}
+        {/* SVG Responsive Chart Container */}
+        <div className="w-full bg-slate-50 p-2 rounded-xl border border-slate-200 overflow-hidden">
+          <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto text-slate-700">
+            <defs>
+              <linearGradient id="sohGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10B981" stopOpacity="0.35" />
+                <stop offset="70%" stopColor="#10B981" stopOpacity="0.05" />
+                <stop offset="100%" stopColor="#EF4444" stopOpacity="0.0" />
+              </linearGradient>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#10B981" />
+                <stop offset="60%" stopColor="#F59E0B" />
+                <stop offset="100%" stopColor="#EF4444" />
+              </linearGradient>
+            </defs>
+
+            {/* Grid Horizontal Lines & Y-Axis Labels */}
+            {[100, 90, 80, 70].map((yVal) => {
+              const yPos = getY(yVal);
+              return (
+                <g key={yVal}>
+                  <line
+                    x1={padLeft}
+                    y1={yPos}
+                    x2={padLeft + chartW}
+                    y2={yPos}
+                    stroke="#E2E8F0"
+                    strokeDasharray="4 4"
+                    strokeWidth="1"
+                  />
+                  <text
+                    x={padLeft - 6}
+                    y={yPos + 3}
+                    textAnchor="end"
+                    className="text-[9px] font-mono font-bold fill-slate-400"
+                  >
+                    {yVal}%
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Gradient Area Fill under Curve */}
+            <polygon points={areaSvgStr} fill="url(#sohGradient)" />
+
+            {/* SOH Gradient Line */}
+            <polyline
+              fill="none"
+              stroke="url(#lineGrad)"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={pointsSvgStr}
+            />
+
+            {/* Bar columns under each cycle point */}
+            {dataPoints.map((d, i) => {
+              const xPos = getX(i);
+              const yPos = getY(d.soh);
+              const barH = padTop + chartH - yPos;
+              const isEol = d.soh < 80;
+              return (
+                <rect
+                  key={i}
+                  x={xPos - 6}
+                  y={yPos}
+                  width="12"
+                  height={Math.max(0, barH)}
+                  rx="3"
+                  fill={isEol ? '#F59E0B' : '#10B981'}
+                  opacity="0.2"
+                />
+              );
+            })}
+
+            {/* Data Point Circles */}
+            {dataPoints.map((d, i) => {
+              const cx = getX(i);
+              const cy = getY(d.soh);
+              return (
+                <circle
+                  key={i}
+                  cx={cx}
+                  cy={cy}
+                  r="3.5"
+                  className={d.soh < 80 ? 'fill-amber-500' : 'fill-emerald-500'}
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                />
+              );
+            })}
+
+            {/* Active Live Cycle Pulsing Pin Indicator */}
+            <g transform={`translate(${activeX}, ${activeY})`}>
+              <circle r="8" fill="#10B981" opacity="0.3" className="animate-ping" />
+              <circle r="5" fill="#059669" stroke="#FFFFFF" strokeWidth="2" />
+              <rect x="-24" y="-22" width="48" height="15" rx="4" fill="#0F172A" />
+              <text x="0" y="-12" textAnchor="middle" className="text-[8px] font-mono font-extrabold fill-emerald-400">
+                {activeSoh}% SOH
+              </text>
+            </g>
+
+            {/* X-Axis Cycle Labels */}
+            {[0, 300, 600, 900, 1200, 1500].map((cycleVal) => {
+              const idx = dataPoints.findIndex((dp) => dp.cycle === cycleVal);
+              if (idx === -1) return null;
+              const xPos = getX(idx);
+              return (
+                <text
+                  key={cycleVal}
+                  x={xPos}
+                  y={svgHeight - 10}
+                  textAnchor="middle"
+                  className="text-[9px] font-mono font-bold fill-slate-500"
+                >
+                  {cycleVal}c
+                </text>
+              );
+            })}
+          </svg>
+        </div>
+
+        {/* Legend Footer */}
+        <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500 pt-1 border-t border-slate-100">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <span>Optimal Window (&gt; 85% SOH)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+            <span>Degradation / EOL (&lt; 85% SOH)</span>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+export default ResearchDrawer;

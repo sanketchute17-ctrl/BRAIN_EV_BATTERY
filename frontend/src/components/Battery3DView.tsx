@@ -75,8 +75,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   const bmsGroupRef = useRef<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Camera Position (Zoomed-out natural actual size)
-  const targetCamPos = useRef(new THREE.Vector3(0, 0.5, 10.5));
+  // Camera Position (Elevated isometric view showing all 16 cells directly)
+  const targetCamPos = useRef(new THREE.Vector3(0, 3.2, 8.2));
   const targetLookAt = useRef(new THREE.Vector3(0, 0.0, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 0.0, 0));
 
@@ -135,10 +135,10 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
   };
 
   const resetCamera = () => {
-    targetCamPos.current.set(0, 0.5, 10.5);
+    targetCamPos.current.set(0, 3.2, 8.2);
     targetLookAt.current.set(0, 0.0, 0);
     if (rootGroupRef.current) {
-      rootGroupRef.current.rotation.set(0.20, 0.08, 0); // Directly facing front BRAIN logo plate
+      rootGroupRef.current.rotation.set(0.48, -0.42, 0); // Elevated isometric view showing all 16 cells
     }
     rotationVelocity.current = { x: 0, y: 0 };
     setSelectedInfo(null);
@@ -196,8 +196,8 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
     }
 
     const rootGroup = new THREE.Group();
-    // Starting angle: Facing the BRAIN logo plate directly at startup
-    rootGroup.rotation.set(0.18, 0.08, 0);
+    // Starting angle: Elevated isometric view showing all 16 cells directly
+    rootGroup.rotation.set(0.48, -0.42, 0);
     rootGroupRef.current = rootGroup;
     scene.add(rootGroup);
 
@@ -275,6 +275,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
 
     const glowingCellGeo = new THREE.BoxGeometry(cellWidth, cellHeight, cellDepth);
 
+    // FRONT ROW CELLS (C01 - C08)
     for (let i = 0; i < 8; i++) {
       const cellId = i + 1;
       const cellX = -1.8 + i * 0.52;
@@ -287,7 +288,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       const glowingCellMat = new THREE.MeshStandardMaterial({
         color: activeCellGlow,
         emissive: activeCellGlow,
-        emissiveIntensity: hasProblem ? 3.0 : 2.2,
+        emissiveIntensity: hasProblem ? 3.5 : 1.8,
         metalness: 0.35,
         roughness: 0.1,
       });
@@ -303,14 +304,14 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
         status: hasProblem ? 'FAULT DETECTED' : 'HEALTHY',
         risk: hasProblem ? '88%' : '2%',
         description: hasProblem
-          ? 'Internal impedance spike & localized overheating detected. Active cell balancing active.'
-          : 'High energy density blade cell operating within optimal voltage & thermal thresholds.',
+          ? 'Internal impedance spike & localized overheating detected on Cell 0' + cellId + '. Active cell balancing active.'
+          : 'High energy density blade cell C0' + cellId + ' operating within optimal voltage & thermal thresholds.',
       };
       rootGroup.add(cellMesh);
 
-      // Top White LED Indicator Stripe
+      // Top LED Status Stripe
       const neonBarGeo = new THREE.BoxGeometry(0.06, cellHeight - 0.1, 0.06);
-      const neonBarMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const neonBarMat = new THREE.MeshBasicMaterial({ color: hasProblem ? 0xef4444 : 0xffffff });
       const neonBar = new THREE.Mesh(neonBarGeo, neonBarMat);
       neonBar.position.set(cellX, -0.02, cellZ + 0.81);
       rootGroup.add(neonBar);
@@ -321,30 +322,57 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       const busbar = new THREE.Mesh(busbarGeo, busbarMat);
       busbar.position.set(cellX, 0.98, cellZ);
       rootGroup.add(busbar);
+
+      // Fault Warning Cone Pin indicator above faulty cell
+      if (hasProblem) {
+        const pinGeo = new THREE.ConeGeometry(0.12, 0.35, 8);
+        const pinMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+        const pinMesh = new THREE.Mesh(pinGeo, pinMat);
+        pinMesh.rotation.x = Math.PI;
+        pinMesh.position.set(cellX, 1.35, cellZ);
+        rootGroup.add(pinMesh);
+      }
     }
 
-    // BACK ROW METALLIC MODULE CELLS
-    const darkCellGeo = new THREE.BoxGeometry(cellWidth, cellHeight, cellDepth);
-    const darkCellMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85, roughness: 0.25 });
-
+    // REAR ROW CELLS (C09 - C16)
     for (let col = 0; col < 8; col++) {
       const cellId = col + 9;
       const cellX = -1.8 + col * 0.52;
       const cellZ = -1.05;
 
-      const darkCell = new THREE.Mesh(darkCellGeo, darkCellMat);
+      const hasProblem = status === 'CRITICAL' && cellId === 12;
+      const activeCellGlow = hasProblem ? 0xef4444 : 0x0284c7;
+
+      const darkCellMat = new THREE.MeshStandardMaterial({
+        color: hasProblem ? 0xef4444 : 0x1e293b,
+        emissive: activeCellGlow,
+        emissiveIntensity: hasProblem ? 3.0 : 0.6,
+        metalness: 0.85,
+        roughness: 0.25,
+      });
+
+      const darkCell = new THREE.Mesh(glowingCellGeo, darkCellMat);
       darkCell.position.set(cellX, -0.02, cellZ);
       darkCell.userData = {
         cellId,
         name: `Prismatic Module Cell C${cellId}`,
         type: 'Lithium Blade Cell',
-        voltage: '3.64 V',
-        temp: '31.8 °C',
-        status: 'HEALTHY',
-        risk: '1%',
-        description: 'Rear row prismatic cell block with active voltage telemetry sync.',
+        voltage: hasProblem ? '2.88 V (Voltage Spike)' : '3.64 V',
+        temp: hasProblem ? '54.1 °C (High Thermal Spike)' : '31.8 °C',
+        status: hasProblem ? 'FAULT DETECTED' : 'HEALTHY',
+        risk: hasProblem ? '92%' : '1%',
+        description: hasProblem
+          ? 'Rear row cell C' + cellId + ' thermal anomaly detected.'
+          : 'Rear row prismatic cell C' + cellId + ' with active voltage telemetry sync.',
       };
       rootGroup.add(darkCell);
+
+      // Busbars for Rear Row
+      const busbarGeo = new THREE.BoxGeometry(0.48, 0.06, 0.12);
+      const busbarMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.9, roughness: 0.2 });
+      const busbar = new THREE.Mesh(busbarGeo, busbarMat);
+      busbar.position.set(cellX, 0.98, cellZ);
+      rootGroup.add(busbar);
     }
 
     // Cell Separator Plates
@@ -397,9 +425,9 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       bmsGroup.add(cap);
     });
 
-    // 4. SIDE CONTROLLER BRANDING PLATE WITH BRAIN LOGO (BRAI White, N Green)
+    // 4. SIDE CHASSIS CONTROLLER BRANDING PLATE WITH BRAIN LOGO (Relocated to lower frame tray so cells are 100% visible)
     const logoTexture = createBrainLogoTexture();
-    const logoPlateGeo = new THREE.BoxGeometry(2.6, 1.4, 0.08);
+    const logoPlateGeo = new THREE.BoxGeometry(2.2, 0.38, 0.06);
     const logoPlateMat = new THREE.MeshStandardMaterial({
       map: logoTexture,
       metalness: 0.4,
@@ -409,7 +437,7 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       emissiveIntensity: 0.35,
     });
     const logoPlate = new THREE.Mesh(logoPlateGeo, logoPlateMat);
-    logoPlate.position.set(0.5, 0.0, 2.21);
+    logoPlate.position.set(0.0, -1.22, 2.11);
     logoPlate.userData = {
       name: 'BRAIN Master Intelligence Module Plate',
       type: 'BMS Controller Panel',
