@@ -295,7 +295,7 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
               <circle r="5" fill="#059669" stroke="#FFFFFF" strokeWidth="2" />
               <rect x="-24" y="-22" width="48" height="15" rx="4" fill="#0F172A" />
               <text x="0" y="-12" textAnchor="middle" className="text-[8px] font-mono font-extrabold fill-emerald-400">
-                {activeSoh}% SOH
+                {calculatedSoh}% SOH
               </text>
             </g>
 

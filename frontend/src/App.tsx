@@ -648,30 +648,6 @@ export function App() {
             {activeTab === 'home' && (
               <div className="space-y-3.5">
                 
-                {/* DISCONNECTED BLUETOOTH PAIRING PROMPT CARD */}
-                {batteryState.connectionState !== 'CONNECTED' && (
-                  <div className="bg-slate-900 text-white rounded-3xl p-4 border border-emerald-500/50 shadow-lg flex flex-col items-center justify-center text-center space-y-2.5 animate-fadeIn">
-                    <div className="p-3 rounded-2xl bg-slate-800 text-emerald-400 border border-slate-700">
-                      <Bluetooth className="w-6 h-6 animate-pulse text-emerald-400" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-black uppercase tracking-wider">
-                        BLUETOOTH BMS DISCONNECTED
-                      </div>
-                      <div className="text-[10px] font-semibold text-slate-300 mt-0.5">
-                        Pair your BLE battery hardware to view live metrics &amp; stream to Firebase DB.
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setIsPairingModalOpen(true)}
-                      className="py-2.5 px-5 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-xs font-extrabold rounded-full transition shadow-md flex items-center gap-2 uppercase tracking-wider cursor-pointer active:scale-95"
-                    >
-                      <Bluetooth className="w-4 h-4" />
-                      <span>PAIR BLUETOOTH BMS NOW</span>
-                    </button>
-                  </div>
-                )}
-                
                 {/* 3D DIGITAL TWIN HERO CARD */}
                 <div className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2.5">
                   <div className="flex items-center justify-between">
