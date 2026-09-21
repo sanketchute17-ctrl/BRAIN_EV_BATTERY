@@ -292,7 +292,7 @@ export function App() {
       <div className="w-full sm:w-[360px] min-h-screen sm:min-h-[800px] sm:h-[800px] sm:max-h-[800px] sm:rounded-[42px] relative overflow-y-auto sm:overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-0 sm:border-[8px] sm:border-slate-900 bg-slate-50 text-slate-900 flex flex-col justify-between z-10 shrink-0 pb-16 sm:pb-0 touch-scroll-active">
         
         {/* 1. CLEAN, UNCLUTTERED HEADER */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs shrink-0">
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs shrink-0 relative">
           <div className="flex items-center gap-2">
             {activeDrawerItem ? (
               <button
@@ -316,84 +316,16 @@ export function App() {
 
           {/* Right Header: Notifications & Alerts Bell & User Profile */}
           <div className="flex items-center gap-1.5">
-            <div className="relative">
-              <button
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="relative p-1.5 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-700 border border-slate-200 transition cursor-pointer active:scale-95"
-                title="Notifications & Safety Alerts"
-              >
-                <Bell className="w-4 h-4 text-slate-700 hover:text-emerald-600 transition" />
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-white">
-                  3
-                </span>
-              </button>
-
-              {/* Notification Popover Horizontal Window */}
-              {isNotificationsOpen && (
-                <div className="absolute right-0 top-10 w-72 sm:w-80 bg-slate-900 text-white rounded-2xl p-3.5 shadow-2xl border border-slate-700 z-50 animate-fadeIn space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <div className="flex items-center gap-1.5 text-xs font-black uppercase text-emerald-400">
-                      <Bell className="w-3.5 h-3.5" />
-                      Live Alerts &amp; System Notifications
-                    </div>
-                    <button
-                      onClick={() => setIsNotificationsOpen(false)}
-                      className="text-slate-400 hover:text-white p-1 rounded-lg transition"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-2 max-h-56 overflow-y-auto text-xs pr-1">
-                    <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1 shrink-0" />
-                      <div>
-                        <div className="font-bold text-white text-[11px]">BRAIN-SIM-8S Device Link</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          {batteryState.connectionState === 'CONNECTED'
-                            ? 'Connected via Bluetooth GATT Service'
-                            : 'Disconnected (0V Zero State active)'}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-400 mt-1 shrink-0" />
-                      <div>
-                        <div className="font-bold text-white text-[11px]">System Version v3.2.0 Active</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">PINN physics model engine running in optimal health mode.</div>
-                      </div>
-                    </div>
-
-                    <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
-                      <span className="w-2 h-2 rounded-full bg-amber-400 mt-1 shrink-0" />
-                      <div>
-                        <div className="font-bold text-white text-[11px]">AI Diagnostic Alert: SOH 96.4%</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">Health score: 86/100 (Cell imbalance &amp; thermal drift detected).</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-1 border-t border-slate-800">
-                    <button
-                      onClick={() => {
-                        setIsNotificationsOpen(false);
-                        setActiveDrawerItem('alerts');
-                      }}
-                      className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[10px] rounded-xl transition text-center uppercase tracking-wider"
-                    >
-                      View Full Safety Log
-                    </button>
-                    <button
-                      onClick={() => setIsNotificationsOpen(false)}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px] rounded-xl transition uppercase"
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className="relative p-1.5 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-700 border border-slate-200 transition cursor-pointer active:scale-95"
+              title="Notifications & Safety Alerts"
+            >
+              <Bell className="w-4 h-4 text-slate-700 hover:text-emerald-600 transition" />
+              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-white">
+                3
+              </span>
+            </button>
 
             <button
               onClick={() => {
@@ -420,6 +352,72 @@ export function App() {
               </span>
             </button>
           </div>
+
+          {/* Notification Popover Window (Perfectly Aligned Inside Smartphone Viewport) */}
+          {isNotificationsOpen && (
+            <div className="absolute right-2 top-11 w-[calc(100%-16px)] max-w-[340px] bg-slate-900 text-white rounded-2xl p-3.5 shadow-2xl border border-slate-700 z-50 animate-fadeIn space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div className="flex items-center gap-1.5 text-xs font-black uppercase text-emerald-400">
+                  <Bell className="w-3.5 h-3.5" />
+                  Live Alerts &amp; System Notifications
+                </div>
+                <button
+                  onClick={() => setIsNotificationsOpen(false)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="space-y-2 max-h-56 overflow-y-auto text-xs pr-1">
+                <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1 shrink-0" />
+                  <div>
+                    <div className="font-bold text-white text-[11px]">BRAIN-SIM-8S Device Link</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">
+                      {batteryState.connectionState === 'CONNECTED'
+                        ? 'Connected via Bluetooth GATT Service'
+                        : 'Disconnected (0V Zero State active)'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-400 mt-1 shrink-0" />
+                  <div>
+                    <div className="font-bold text-white text-[11px]">System Version v3.2.0 Active</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">PINN physics model engine running in optimal health mode.</div>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 mt-1 shrink-0" />
+                  <div>
+                    <div className="font-bold text-white text-[11px]">AI Diagnostic Alert: SOH 96.4%</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">Health score: 86/100 (Cell imbalance &amp; thermal drift detected).</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1 border-t border-slate-800">
+                <button
+                  onClick={() => {
+                    setIsNotificationsOpen(false);
+                    setActiveDrawerItem('alerts');
+                  }}
+                  className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[10px] rounded-xl transition text-center uppercase tracking-wider"
+                >
+                  View Full Safety Log
+                </button>
+                <button
+                  onClick={() => setIsNotificationsOpen(false)}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px] rounded-xl transition uppercase"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
         </header>
 
         {/* 2. MAIN CONTENT BODY */}
