@@ -51,8 +51,11 @@ export const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ batteryState, 
           batteryState.risk > 50 ? 'Warning: Elevated thermal risk detected! Recommend reducing discharge current.' : 'All electrochemical parameters are safe.'
         }`;
       } else if (qLower.includes('cell') || qLower.includes('voltage')) {
-        const cellInfo = batteryState.cells.map((c) => `C${c.id}: ${c.voltage}V (${c.temperature}°C)`).join(', ');
-        botResponse = `Live Pack Voltage is ${batteryState.voltage}V. Cell telemetry breakdown: ${cellInfo}.`;
+        const cellArray = Array.isArray(batteryState?.cells) ? batteryState.cells : [];
+        const cellInfo = cellArray.length > 0
+          ? cellArray.map((c) => `C${c.id}: ${c.voltage}V (${c.temperature}°C)`).join(', ')
+          : '8 Cells at 0.00V (Disconnected State)';
+        botResponse = `Live Pack Voltage is ${batteryState?.voltage || 0}V. Cell telemetry breakdown: ${cellInfo}.`;
       } else if (qLower.includes('range') || qLower.includes('distance')) {
         botResponse = `Estimated remaining driving range is approx ${batteryState.estimatedRange} km based on SOC at ${batteryState.soc}%.`;
       } else {

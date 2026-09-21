@@ -8,8 +8,17 @@ interface DoctorDrawerProps {
 }
 
 export const DoctorDrawer: React.FC<DoctorDrawerProps> = ({ batteryState, onBack }) => {
-  const cells = batteryState.cells;
-  const maxTemp = batteryState.maxTemperature || batteryState.temperature;
+  const cells = Array.isArray(batteryState?.cells) && batteryState.cells.length > 0
+    ? batteryState.cells
+    : Array.from({ length: 8 }, (_, i) => ({
+        id: i + 1,
+        voltage: 0.00,
+        temperature: 0.0,
+        deviation: 0.00,
+        risk: 0,
+        status: 'HEALTHY' as const,
+      }));
+  const maxTemp = batteryState?.maxTemperature || batteryState?.temperature || 0;
   const isHighRisk = batteryState.risk > 50 || maxTemp > 45;
 
   const voltages = cells.map((c) => c.voltage);

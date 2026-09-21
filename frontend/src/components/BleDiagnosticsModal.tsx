@@ -198,7 +198,7 @@ export const BleDiagnosticsModal: React.FC<BleDiagnosticsModalProps> = ({
                   risk: batteryState.risk,
                   safetyState: batteryState.safetyState,
                 },
-                cells: batteryState.cells.map((c) => ({
+                cells: (Array.isArray(batteryState?.cells) ? batteryState.cells : []).map((c) => ({
                   id: c.id,
                   voltage: c.voltage,
                   temp: c.temperature,

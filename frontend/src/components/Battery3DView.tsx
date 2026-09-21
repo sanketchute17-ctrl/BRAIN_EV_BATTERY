@@ -764,7 +764,13 @@ export const Battery3DView: React.FC<Battery3DViewProps> = ({
       }
 
       cellInternalGlowLight.intensity = 5.0 + Math.sin(Date.now() * 0.004) * 1.5;
-      renderer.render(scene, camera);
+      try {
+        if (renderer && scene && camera) {
+          renderer.render(scene, camera);
+        }
+      } catch (e) {
+        // Suppress WebGL render frame context loss error gracefully
+      }
     };
     animate();
 
