@@ -74,7 +74,7 @@ class BLETelemetryPayload(BaseModel):
     pack_current: float
     pack_temperature: float
     soc: float
-    soh: Optional[float] = 96.4
+    soh: Optional[float] = 92.8
     power_kw: Optional[float] = 42.2
     cell_voltages: Optional[List[float]] = []
     bms_status: Optional[str] = "HEALTHY"

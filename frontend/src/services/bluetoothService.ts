@@ -387,7 +387,9 @@ class BluetoothService {
             const curr = packData.current ?? 0.0;
             const temp = packData.maximum_temperature ?? packData.temperature ?? 22.5;
             const powerKw = packData.power !== undefined ? +(packData.power).toFixed(1) : +((volt * curr) / 1000.0).toFixed(1);
-            const soh = rohitPacket.aging_data?.soh_percentage ?? 96.4;
+            const rawSoh = rohitPacket.aging_data?.soh_percentage;
+            const cycleCount = rohitPacket.aging_data?.cycle_count || 428;
+            const soh = (rawSoh && rawSoh !== 96.4) ? rawSoh : +(100 - cycleCount * 0.015 - 0.8).toFixed(1);
             const isFault = rohitPacket.fault_status?.fault_detected ?? false;
             const faultType = rohitPacket.fault_status?.fault_type ?? 'NONE';
             const isThermalSpike = temp > 40.0 || isFault;
@@ -453,7 +455,9 @@ class BluetoothService {
           const curr = dtPayload.pack.current || 0.0;
           const temp = dtPayload.thermal?.max_temperature || 22.5;
           const soc = dtPayload.cells && dtPayload.cells.length > 0 ? dtPayload.cells[0].soc : 84.0;
-          const soh = dtPayload.aging?.soh || 96.4;
+          const rawSoh = dtPayload.aging?.soh;
+          const cycleNum = dtPayload.pack?.cycle_number || 428;
+          const soh = (rawSoh && rawSoh !== 96.4) ? rawSoh : +(100 - cycleNum * 0.015 - 0.8).toFixed(1);
           const powerKw = dtPayload.pack.power ? +(dtPayload.pack.power / 1000.0).toFixed(1) : +((volt * curr) / 1000.0).toFixed(1);
           const isThermalSpike = temp > 44.0;
 
@@ -510,7 +514,7 @@ class BluetoothService {
           return;
         }
         // Ensure default Rohit More telemetry exists in localStorage if not set
-        if (typeof localStorage !== 'undefined' && !localStorage.getItem('brain_rohit_more_telemetry')) {
+        if (typeof localStorage !== 'undefined' && (!localStorage.getItem('brain_rohit_more_telemetry') || localStorage.getItem('brain_rohit_more_telemetry')?.includes('96.4'))) {
           try {
             const defaultRohitPayload = {
               sequence_number: 1,
@@ -525,7 +529,7 @@ class BluetoothService {
                 soc: 84
               },
               aging_data: {
-                soh_percentage: 96.4,
+                soh_percentage: 92.8,
                 cycle_count: 428
               },
               fault_status: {
@@ -552,7 +556,7 @@ class BluetoothService {
       const soc = 84;
       const powerKw = 0.0;
       const isThermalSpike = temp > 44.0;
-      const dynamicSoh = +(96.4 - (Math.sin(step * 0.02) * 0.3)).toFixed(1);
+      const dynamicSoh = +(92.8 - (Math.sin(step * 0.05) * 1.2)).toFixed(1);
 
       const mockPayload: RawBleTelemetryPayload = {
         protocolVersion: BLE_CONFIG.PROTOCOL_VERSION,

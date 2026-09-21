@@ -50,7 +50,7 @@ latest_ble_telemetry: Dict[str, Any] = {
     "pack_current": 120.5,
     "pack_temperature": 34.2,
     "soc": 84.0,
-    "soh": 96.4,
+    "soh": 92.8,
     "power_kw": 42.2,
     "bms_status": "HEALTHY"
 }
@@ -75,7 +75,7 @@ def _step_simulation() -> dict:
         "pack_current": telemetry_pkt.get('pack', {}).get('current', 120.5),
         "pack_temperature": telemetry_pkt.get('thermal', {}).get('max_temperature', 34.2),
         "soc": telemetry_pkt.get('cells', [{}])[0].get('soc', 84.0) if telemetry_pkt.get('cells') else 84.0,
-        "soh": telemetry_pkt.get('aging', {}).get('soh', 96.4),
+        "soh": telemetry_pkt.get('aging', {}).get('soh', 92.8),
         "power_kw": round(telemetry_pkt.get('pack', {}).get('power', 42200) / 1000.0, 2),
         "cell_voltages": [c.get('voltage', 3.7) for c in telemetry_pkt.get('cells', [])],
         "cells": telemetry_pkt.get('cells', []),
@@ -191,7 +191,7 @@ def ingest_ble_telemetry(payload: BLETelemetryPayload, db: Session = Depends(get
         "pack_current": payload.pack_current,
         "pack_temperature": payload.pack_temperature,
         "soc": payload.soc,
-        "soh": payload.soh or 96.4,
+        "soh": payload.soh or 92.8,
         "power_kw": payload.power_kw or round(payload.pack_voltage * payload.pack_current / 1000.0, 2),
         "cell_voltages": payload.cell_voltages or [],
         "bms_status": payload.bms_status or "HEALTHY"
@@ -215,7 +215,7 @@ def ingest_ble_telemetry(payload: BLETelemetryPayload, db: Session = Depends(get
             pack_current=payload.pack_current,
             pack_temperature=payload.pack_temperature,
             soc=payload.soc,
-            soh=payload.soh or 96.4,
+            soh=payload.soh or 92.8,
             power_kw=payload.power_kw or round(payload.pack_voltage * payload.pack_current / 1000.0, 2),
             data_state="REAL_BLE"
         )

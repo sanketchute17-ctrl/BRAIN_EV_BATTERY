@@ -51,7 +51,7 @@ class BatteryPack(Base):
     cell_count = Column(Integer, default=96)
     bms_model = Column(String(100), default="BRAIN Smart BMS v2")
     bms_firmware = Column(String(50), default="v2.4.1")
-    current_soh = Column(Float, default=96.4)
+    current_soh = Column(Float, default=92.8)
     cycle_count = Column(Integer, default=142)
     status = Column(String(50), default="HEALTHY") # HEALTHY | WATCH | WARNING | CRITICAL
     created_at = Column(DateTime, default=datetime.utcnow)
