@@ -133,9 +133,9 @@ class BluetoothService {
       this.saveRecentDevice({ id: device.id || 'BLE-HW', name: device.name || 'Physical BLE BMS', type: 'Physical BLE' });
       this.notify();
     } catch (err) {
-      // Fallback: Connect directly to Rohit More Virtual Battery if Web Bluetooth fails
-      this.startSimulatedBleConnectionWithName(device.name || 'Rohit More Virtual Battery (96S LFP)', device.id || 'ROHIT-MORE-96S');
-      this.saveRecentDevice({ id: device.id || 'ROHIT-MORE-96S', name: device.name || 'Rohit More Virtual Battery (96S LFP)', type: 'Virtual BLE' });
+      // Fallback: Connect directly to BRAIN Virtual Battery Simulation (8S LFP) if Web Bluetooth fails
+      this.startSimulatedBleConnectionWithName(device.name || 'BRAIN Virtual Battery Simulation (8S LFP)', device.id || 'BRAIN-SIM-8S');
+      this.saveRecentDevice({ id: device.id || 'BRAIN-SIM-8S', name: device.name || 'BRAIN Virtual Battery Simulation (8S LFP)', type: 'Virtual BLE' });
       this.notify();
     }
   }
@@ -365,8 +365,8 @@ class BluetoothService {
     this.isVirtualGattActive = true;
     this.isManualDisconnect = false;
 
-    const deviceName = customName || `${BLE_CONFIG.DEVICE_NAME_PREFIX} (Simulated Peripheral)`;
-    const deviceId = customId || 'SIM-BLE-GATT-PERIPHERAL-96S';
+    const deviceName = customName || 'BRAIN Virtual Battery Simulation (8S LFP)';
+    const deviceId = customId || 'BRAIN-SIM-8S';
 
     batteryStateService.setConnectionState('CONNECTED', { name: deviceName, id: deviceId, rssi: -55 });
 

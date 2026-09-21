@@ -59,10 +59,10 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
         onClose();
       }, 700);
     } catch (err: any) {
-      // Seamless auto-connect bridge to active Rohit More Virtual Battery
-      bluetoothService.startSimulatedBleConnectionWithName('Rohit More Virtual Battery (96S LFP)', 'ROHIT-MORE-96S');
-      bluetoothService.saveRecentDevice({ id: 'ROHIT-MORE-96S', name: 'Rohit More Virtual Battery (96S LFP)', type: 'Virtual BLE' });
-      setStatusMsg('Connected to Rohit More Virtual Battery (96S LFP)!');
+      // Seamless auto-connect bridge to active BRAIN Virtual Battery Simulation
+      bluetoothService.startSimulatedBleConnectionWithName('BRAIN Virtual Battery Simulation (8S LFP)', 'BRAIN-SIM-8S');
+      bluetoothService.saveRecentDevice({ id: 'BRAIN-SIM-8S', name: 'BRAIN Virtual Battery Simulation (8S LFP)', type: 'Virtual BLE' });
+      setStatusMsg('Connected to BRAIN Virtual Battery Simulation (8S LFP)!');
       refreshState();
       setTimeout(() => {
         onClose();
@@ -75,12 +75,12 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
   const handleConnectVirtualBattery = async () => {
     setIsScanning(true);
     setErrorMsg('');
-    setStatusMsg('Connecting to Rohit More Virtual Battery (96S LFP)...');
+    setStatusMsg('Connecting to BRAIN Virtual Battery Simulation (8S LFP)...');
 
     setTimeout(() => {
-      bluetoothService.startSimulatedBleConnectionWithName('Rohit More Virtual Battery (96S LFP)', 'ROHIT-MORE-96S');
-      bluetoothService.saveRecentDevice({ id: 'ROHIT-MORE-96S', name: 'Rohit More Virtual Battery (96S LFP)', type: 'Virtual BLE' });
-      setStatusMsg('Connected to Rohit More Virtual Battery (96S LFP)!');
+      bluetoothService.startSimulatedBleConnectionWithName('BRAIN Virtual Battery Simulation (8S LFP)', 'BRAIN-SIM-8S');
+      bluetoothService.saveRecentDevice({ id: 'BRAIN-SIM-8S', name: 'BRAIN Virtual Battery Simulation (8S LFP)', type: 'Virtual BLE' });
+      setStatusMsg('Connected to BRAIN Virtual Battery Simulation (8S LFP)!');
       refreshState();
       setIsScanning(false);
       setTimeout(() => {
@@ -219,12 +219,12 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
         {/* Scrollable Main Content Area */}
         <div className="overflow-y-auto space-y-4 pr-1 flex-1">
           
-          {/* SECTION 1: ROHIT MORE VIRTUAL BATTERY SIMULATION */}
+          {/* SECTION 1: BRAIN VIRTUAL BATTERY SIMULATION */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-[10px] font-black uppercase text-slate-400 tracking-wider">
               <div className="flex items-center gap-1.5">
                 <Cpu className="w-3.5 h-3.5 text-emerald-600" />
-                ROHIT MORE 3D VIRTUAL BATTERY
+                BRAIN 3D VIRTUAL BATTERY
               </div>
               <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
                 Port 5174 Ready
@@ -238,7 +238,7 @@ export const BluetoothPairingModal: React.FC<BluetoothPairingModalProps> = ({
                 </div>
                 <div>
                   <div className="text-xs font-black text-white leading-tight">
-                    Rohit More Virtual Battery (96S LFP)
+                    BRAIN Virtual Battery Simulation (8S LFP)
                   </div>
                   <div className="text-[10px] font-semibold text-slate-400 flex items-center gap-1.5 mt-0.5">
                     <span className="text-emerald-400 font-bold">3D Broadcast Engine</span>

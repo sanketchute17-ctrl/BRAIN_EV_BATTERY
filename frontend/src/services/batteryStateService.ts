@@ -15,48 +15,48 @@ class BatteryStateService {
   private connectionStartTime: number | null = null;
   private lastPacketArrivalMs: number | null = null;
 
-  // Initial State synced with Rohit More 96S LFP Virtual Battery baseline
+  // Initial Disconnected Zero State for BRAIN Virtual Battery Simulation (8S LFP)
   private state: NormalizedBatteryState = {
     source: 'LIVE_BLE',
-    connectionState: 'CONNECTED',
-    deviceName: 'Rohit More Virtual Battery (96S LFP)',
-    deviceId: 'ROHIT-MORE-96S',
+    connectionState: 'DISCONNECTED',
+    deviceName: 'BRAIN Virtual Battery Simulation (8S LFP)',
+    deviceId: 'BRAIN-SIM-8S',
     rssi: -42,
     lastUpdated: new Date().toISOString(),
-    soc: 84,
+    soc: 0,
     soh: 96.4,
-    voltage: 25.60,
+    voltage: 0.00,
     current: 0.00,
     power: 0.0,
-    temperature: 22.5,
-    maxTemperature: 22.5,
-    minTemperature: 22.3,
+    temperature: 0.0,
+    maxTemperature: 0.0,
+    minTemperature: 0.0,
     internalResistance: 1.2,
     cycleCount: 428,
-    estimatedRange: 344,
-    risk: 12,
+    estimatedRange: 0,
+    risk: 0,
     safetyState: 'HEALTHY',
     ambientTemperature: 22.5,
     charging: {
       active: false,
       current: 0,
       power: 0,
-      temperature: 22.5,
+      temperature: 0.0,
       durationSeconds: 0,
     },
     cells: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
-      voltage: 3.20,
-      temperature: 22.5,
-      deviation: 0.01,
-      risk: 12,
+      voltage: 0.00,
+      temperature: 0.0,
+      deviation: 0.00,
+      risk: 0,
       status: 'HEALTHY' as HealthStatus,
     })),
     diagnostics: {
-      deviceName: 'Rohit More Virtual Battery (96S LFP)',
-      deviceId: 'ROHIT-MORE-96S',
+      deviceName: 'BRAIN Virtual Battery Simulation (8S LFP)',
+      deviceId: 'BRAIN-SIM-8S',
       rssi: -42,
-      connectionState: 'CONNECTED',
+      connectionState: 'DISCONNECTED',
       serviceUuid: BLE_CONFIG.SERVICE_UUID,
       telemetryCharUuid: BLE_CONFIG.TELEMETRY_CHAR_UUID,
       notificationsActive: false,
@@ -222,6 +222,8 @@ class BatteryStateService {
         ? 'LAST_KNOWN'
         : this.state.source;
 
+    const isDisconnected = connState === 'DISCONNECTED';
+
     this.state = {
       ...this.state,
       source: newSource,
@@ -229,6 +231,27 @@ class BatteryStateService {
       deviceName: deviceInfo?.name || this.state.deviceName,
       deviceId: deviceInfo?.id || this.state.deviceId,
       rssi: deviceInfo?.rssi ?? this.state.rssi,
+      ...(isDisconnected
+        ? {
+            soc: 0,
+            voltage: 0,
+            current: 0,
+            power: 0,
+            temperature: 0,
+            maxTemperature: 0,
+            minTemperature: 0,
+            estimatedRange: 0,
+            risk: 0,
+            cells: Array.from({ length: 8 }, (_, i) => ({
+              id: i + 1,
+              voltage: 0.00,
+              temperature: 0.0,
+              deviation: 0.00,
+              risk: 0,
+              status: 'HEALTHY' as HealthStatus,
+            })),
+          }
+        : {}),
       diagnostics: {
         ...this.state.diagnostics,
         connectionState: connState,

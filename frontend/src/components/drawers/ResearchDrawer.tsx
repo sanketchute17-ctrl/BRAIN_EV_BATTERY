@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { NormalizedBatteryState } from '../../types/telemetry';
-import { ArrowLeft, BookOpen, Activity, Cpu, LineChart, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, BookOpen, Activity, Cpu, LineChart, ShieldCheck, Sliders } from 'lucide-react';
 
 interface ResearchDrawerProps {
   batteryState: NormalizedBatteryState;
@@ -8,29 +8,21 @@ interface ResearchDrawerProps {
 }
 
 export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, onBack }) => {
-  const activeSoh = batteryState.soh || 96.4;
-  const activeCycle = batteryState.cycleCount || 428;
-  const activeTemp = batteryState.maxTemperature || batteryState.temperature || 22.5;
+  const [sliderTemp, setSliderTemp] = useState<number>(batteryState.maxTemperature || batteryState.temperature || 25);
+  const [sliderCurrent, setSliderCurrent] = useState<number>(Math.abs(batteryState.current) || 35);
+  const [sliderCycles, setSliderCycles] = useState<number>(batteryState.cycleCount || 428);
 
-  const lithiumPlatingIndex = +(0.02 + (activeTemp > 40 ? 0.28 : 0.04)).toFixed(3);
-  const arrheniusDegradationFactor = +(1.0 + Math.pow(activeTemp / 35, 2.2)).toFixed(2);
-  const RULCyclesRemaining = Math.max(800, Math.round(2000 * (activeSoh / 100) - activeCycle));
+  const lithiumPlatingIndex = +(0.02 + (sliderTemp > 40 ? 0.22 : 0.03) + (sliderCurrent / 150) * 0.12).toFixed(3);
+  const arrheniusDegradationFactor = +(1.0 + Math.pow(sliderTemp / 25, 2.1) + (sliderCurrent / 100) * 0.4).toFixed(2);
+  const calculatedSoh = +(Math.max(60, 100 - (sliderCycles * 0.015) * arrheniusDegradationFactor)).toFixed(1);
+  const RULCyclesRemaining = Math.max(0, Math.round(2000 * (calculatedSoh / 100) - sliderCycles));
 
-  // Generate 12 SOH trajectory curve data points over 0 to 1650 cycles
-  const dataPoints = [
-    { cycle: 0, soh: 100.0 },
-    { cycle: 150, soh: 99.2 },
-    { cycle: 300, soh: 98.1 },
-    { cycle: 450, soh: activeSoh },
-    { cycle: 600, soh: 94.8 },
-    { cycle: 750, soh: 93.1 },
-    { cycle: 900, soh: 91.0 },
-    { cycle: 1050, soh: 88.5 },
-    { cycle: 1200, soh: 85.2 },
-    { cycle: 1350, soh: 82.0 },
-    { cycle: 1500, soh: 78.5 },
-    { cycle: 1650, soh: 74.0 },
-  ];
+  // Generate 12 SOH trajectory curve data points dynamically over 0 to 2000 cycles
+  const dataPoints = Array.from({ length: 12 }, (_, i) => {
+    const c = Math.round((i / 11) * 2000);
+    const soh = +(Math.max(50, 100 - (c * 0.015) * arrheniusDegradationFactor)).toFixed(1);
+    return { cycle: c, soh };
+  });
 
   // SVG Chart dimensions & math
   const svgWidth = 500;
@@ -42,7 +34,7 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
   const chartW = svgWidth - padLeft - padRight;
   const chartH = svgHeight - padTop - padBottom;
 
-  const minSohVal = 70;
+  const minSohVal = 50;
   const maxSohVal = 100;
 
   const getX = (index: number) => padLeft + (index / (dataPoints.length - 1)) * chartW;
@@ -54,10 +46,10 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
   // Current active cycle indicator index
   const activePointIndex = Math.min(
     dataPoints.length - 1,
-    Math.max(0, Math.round((activeCycle / 1650) * (dataPoints.length - 1)))
+    Math.max(0, Math.round((sliderCycles / 2000) * (dataPoints.length - 1)))
   );
   const activeX = getX(activePointIndex);
-  const activeY = getY(activeSoh);
+  const activeY = getY(calculatedSoh);
 
   return (
     <div className="space-y-4 animate-fadeIn text-slate-900">
@@ -83,6 +75,85 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
         <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 shrink-0">
           PINN v3.2
         </span>
+      </div>
+
+      {/* INTERACTIVE PARAMETER TUNING SLIDERS CARD */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h3 className="text-xs font-black text-slate-900 uppercase heading-tech tracking-wide flex items-center gap-1.5">
+            <Sliders className="w-4 h-4 text-emerald-600" />
+            INTERACTIVE PHYSICS PARAMETER TUNER
+          </h3>
+          <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            Live PINN Model Ingestion
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          {/* Temperature Slider */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs font-bold">
+              <span className="text-slate-600">Operating Temperature</span>
+              <span className="font-mono text-emerald-600">{sliderTemp} °C</span>
+            </div>
+            <input
+              type="range"
+              min={20}
+              max={65}
+              value={sliderTemp}
+              onChange={(e) => setSliderTemp(Number(e.target.value))}
+              className="w-full accent-emerald-500 cursor-pointer"
+            />
+            <div className="flex justify-between text-[9px] font-mono text-slate-400">
+              <span>20°C (Optimal)</span>
+              <span>45°C (Warning)</span>
+              <span>65°C (Thermal Cutoff)</span>
+            </div>
+          </div>
+
+          {/* Load Current Slider */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs font-bold">
+              <span className="text-slate-600">Discharge / Load Current</span>
+              <span className="font-mono text-cyan-600">{sliderCurrent} A</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={150}
+              value={sliderCurrent}
+              onChange={(e) => setSliderCurrent(Number(e.target.value))}
+              className="w-full accent-cyan-500 cursor-pointer"
+            />
+            <div className="flex justify-between text-[9px] font-mono text-slate-400">
+              <span>0A (Standby)</span>
+              <span>75A (Moderate Load)</span>
+              <span>150A (Peak Discharge)</span>
+            </div>
+          </div>
+
+          {/* Cycle Count Slider */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs font-bold">
+              <span className="text-slate-600">Battery Life Cycle Count</span>
+              <span className="font-mono text-purple-600">{sliderCycles} Cycles</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={2000}
+              step={10}
+              value={sliderCycles}
+              onChange={(e) => setSliderCycles(Number(e.target.value))}
+              className="w-full accent-purple-500 cursor-pointer"
+            />
+            <div className="flex justify-between text-[9px] font-mono text-slate-400">
+              <span>0 (Brand New)</span>
+              <span>1000 (Mid-Life)</span>
+              <span>2000 (EOL Limit)</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Research PINN Physics Metrics Grid */}
@@ -122,7 +193,7 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
             SOH CAPACITY FADE TRAJECTORY (PINN PREDICTION)
           </h3>
           <span className="text-[10px] font-mono font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-            {activeCycle} Cycles ({activeSoh}% SOH)
+            {sliderCycles} Cycles ({calculatedSoh}% SOH)
           </span>
         </div>
 

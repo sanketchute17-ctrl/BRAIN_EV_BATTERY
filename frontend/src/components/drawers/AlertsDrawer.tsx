@@ -151,6 +151,55 @@ export const AlertsDrawer: React.FC<AlertsDrawerProps> = ({ batteryState, onBack
         )}
       </div>
 
+      {/* Live Parameter Protection Threshold Cards */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h3 className="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
+            <Activity className="w-4 h-4 text-emerald-600" />
+            SAFETY PARAMETER PROTECTION THRESHOLDS
+          </h3>
+          <span className="text-[10px] font-mono font-bold text-slate-400">Fixed BMS Safety Rules</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2.5">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <div className="text-[10px] font-extrabold text-slate-400 uppercase">MAX TEMP LIMIT</div>
+            <div className="text-sm font-black text-slate-900">55.0 °C</div>
+            <div className="text-[10px] font-mono flex justify-between">
+              <span className="text-slate-500">Live Pack Max:</span>
+              <span className={`font-bold ${maxTemp > 55 ? 'text-red-600' : 'text-emerald-600'}`}>{maxTemp} °C</span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <div className="text-[10px] font-extrabold text-slate-400 uppercase">OVER-VOLTAGE LIMIT</div>
+            <div className="text-sm font-black text-slate-900">4.20 V / cell</div>
+            <div className="text-[10px] font-mono flex justify-between">
+              <span className="text-slate-500">Live Max Cell:</span>
+              <span className="font-bold text-emerald-600">3.25 V</span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <div className="text-[10px] font-extrabold text-slate-400 uppercase">UNDER-VOLTAGE LIMIT</div>
+            <div className="text-sm font-black text-slate-900">2.50 V / cell</div>
+            <div className="text-[10px] font-mono flex justify-between">
+              <span className="text-slate-500">Live Min Cell:</span>
+              <span className="font-bold text-emerald-600">3.18 V</span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <div className="text-[10px] font-extrabold text-slate-400 uppercase">CELL IMBALANCE LIMIT</div>
+            <div className="text-sm font-black text-slate-900">30 mV (0.030V)</div>
+            <div className="text-[10px] font-mono flex justify-between">
+              <span className="text-slate-500">Live Delta:</span>
+              <span className="font-bold text-amber-600">25.0 mV</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Live System Safety Alarms */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
         <div className="flex items-center justify-between border-b border-slate-100 pb-2">

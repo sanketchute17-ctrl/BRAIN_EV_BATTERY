@@ -153,6 +153,7 @@ export function App() {
   const [bleError, setBleError] = useState('');
   const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
   const [isPairingModalOpen, setIsPairingModalOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [batteryState, setBatteryState] = useState<NormalizedBatteryState>(batteryStateService.getSnapshot());
 
   useEffect(() => {
@@ -168,13 +169,7 @@ export function App() {
     checkBackend();
     const interval = setInterval(checkBackend, 15000);
 
-    // Auto-start simulated BLE connection to Rohit More Virtual Battery on mount
-    if (!bluetoothService.getState().connected) {
-      bluetoothService.startSimulatedBleConnectionWithName(
-        'Rohit More Virtual Battery (96S LFP)',
-        'ROHIT-MORE-96S'
-      );
-    }
+    // Initial state is DISCONNECTED by default until user connects BLE
 
     // Subscribe to live BLE telemetry updates
     const unsubscribeBle = bluetoothService.subscribe(() => {
@@ -321,18 +316,84 @@ export function App() {
 
           {/* Right Header: Notifications & Alerts Bell & User Profile */}
           <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setActiveDrawerItem('alerts')}
-              className="relative p-1.5 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-700 border border-slate-200 transition cursor-pointer active:scale-95"
-              title="Notifications & Safety Alerts"
-            >
-              <Bell className="w-4 h-4 text-slate-700 hover:text-emerald-600 transition" />
-              {(batteryState.safetyState !== 'HEALTHY' || (batteryState.alerts && batteryState.alerts.length > 0)) && (
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white animate-pulse">
-                  {batteryState.alerts?.length || 1}
+            <div className="relative">
+              <button
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className="relative p-1.5 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-700 border border-slate-200 transition cursor-pointer active:scale-95"
+                title="Notifications & Safety Alerts"
+              >
+                <Bell className="w-4 h-4 text-slate-700 hover:text-emerald-600 transition" />
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-white">
+                  3
                 </span>
+              </button>
+
+              {/* Notification Popover Horizontal Window */}
+              {isNotificationsOpen && (
+                <div className="absolute right-0 top-10 w-72 sm:w-80 bg-slate-900 text-white rounded-2xl p-3.5 shadow-2xl border border-slate-700 z-50 animate-fadeIn space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <div className="flex items-center gap-1.5 text-xs font-black uppercase text-emerald-400">
+                      <Bell className="w-3.5 h-3.5" />
+                      Live Alerts &amp; System Notifications
+                    </div>
+                    <button
+                      onClick={() => setIsNotificationsOpen(false)}
+                      className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 max-h-56 overflow-y-auto text-xs pr-1">
+                    <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1 shrink-0" />
+                      <div>
+                        <div className="font-bold text-white text-[11px]">BRAIN-SIM-8S Device Link</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">
+                          {batteryState.connectionState === 'CONNECTED'
+                            ? 'Connected via Bluetooth GATT Service'
+                            : 'Disconnected (0V Zero State active)'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-400 mt-1 shrink-0" />
+                      <div>
+                        <div className="font-bold text-white text-[11px]">System Version v3.2.0 Active</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">PINN physics model engine running in optimal health mode.</div>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 mt-1 shrink-0" />
+                      <div>
+                        <div className="font-bold text-white text-[11px]">AI Diagnostic Alert: SOH 96.4%</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">Health score: 86/100 (Cell imbalance &amp; thermal drift detected).</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1 border-t border-slate-800">
+                    <button
+                      onClick={() => {
+                        setIsNotificationsOpen(false);
+                        setActiveDrawerItem('alerts');
+                      }}
+                      className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[10px] rounded-xl transition text-center uppercase tracking-wider"
+                    >
+                      View Full Safety Log
+                    </button>
+                    <button
+                      onClick={() => setIsNotificationsOpen(false)}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px] rounded-xl transition uppercase"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
 
             <button
               onClick={() => {
@@ -465,13 +526,13 @@ export function App() {
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm">
                       <div className="text-[10px] font-bold text-slate-400 uppercase">DEVICE NAME</div>
                       <div className="text-xs font-extrabold text-slate-900 mt-0.5 truncate">
-                        {bleState.deviceName || 'Rohit More Virtual Battery (96S LFP)'}
+                        {bleState.deviceName || 'BRAIN Virtual Battery Simulation (8S LFP)'}
                       </div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm">
                       <div className="text-[10px] font-bold text-slate-400 uppercase">DEVICE MAC / ID</div>
                       <div className="text-xs font-mono font-bold text-emerald-600 mt-0.5">
-                        {bleState.deviceId || 'ROHIT-MORE-96S'}
+                        {bleState.deviceId || 'BRAIN-SIM-8S'}
                       </div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm">
@@ -529,7 +590,7 @@ export function App() {
                     <button
                       onClick={() => {
                         setBleError('');
-                        bluetoothService.startSimulatedBleConnectionWithName('Rohit More Virtual Battery (96S LFP)', 'ROHIT-MORE-96S');
+                        bluetoothService.startSimulatedBleConnectionWithName('BRAIN Virtual Battery Simulation (8S LFP)', 'BRAIN-SIM-8S');
                         setBleState(bluetoothService.getState());
                       }}
                       className="py-2.5 px-4 bg-emerald-50 text-emerald-700 border-2 border-emerald-500 font-extrabold text-xs rounded-xl hover:bg-emerald-100 transition flex items-center justify-center gap-2 shadow-sm uppercase cursor-pointer"
@@ -846,7 +907,7 @@ export function App() {
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase heading-tech tracking-wide">
-                      ROHIT MORE SIMULATED CELL MATRIX ({batteryState.cells.length || 8} CELLS)
+                      BRAIN SIMULATED CELL MATRIX ({batteryState.cells.length || 8} CELLS)
                     </h3>
                     <div className="flex items-center gap-3 text-[10px] sm:text-[11px] font-bold">
                       <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Healthy</span>
