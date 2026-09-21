@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, User, Mail, Lock, Phone, Car, ShieldCheck, Cpu, Edit3, CheckCircle2, Wifi } from 'lucide-react';
 import { apiService } from '../services/api';
+import scooterBg from '../assets/scooter_bg.jpg';
 
 interface RegisterScreenProps {
   onRegisterComplete: (email?: string) => void;
@@ -101,6 +102,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
       {/* ANDROID MODERN SMARTPHONE CONTAINER FRAME (Width: 360px, Height: 800px, 9:20 Aspect Ratio) */}
       <div className="w-full min-h-screen sm:w-[360px] sm:min-h-[800px] sm:h-[800px] sm:max-h-[800px] sm:rounded-[42px] relative shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-0 sm:border-[8px] sm:border-slate-900 bg-slate-900 text-slate-900 flex flex-col justify-between p-3.5 sm:p-4 z-10 overflow-y-auto shrink-0">
         
+        {/* SCOOTER BACKGROUND OVERLAY */}
+        <div 
+          className="absolute inset-0 z-0 bg-[size:100%_100%] bg-center bg-no-repeat pointer-events-none opacity-40"
+          style={{ backgroundImage: `url(${scooterBg})` }}
+        />
+
         {/* Header */}
         <div className="flex items-center gap-2.5 pt-1 pb-2 relative z-10 shrink-0 border-b border-slate-800/80 mb-1">
           <button

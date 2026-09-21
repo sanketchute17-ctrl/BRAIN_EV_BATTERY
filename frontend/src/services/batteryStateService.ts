@@ -8,6 +8,14 @@ import type {
 } from '../types/telemetry';
 import { BLE_CONFIG } from './bleConfig';
 
+export interface SystemNotification {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: string;
+  type: 'info' | 'warning' | 'error' | 'success';
+}
+
 export type BatteryStateListener = (state: NormalizedBatteryState) => void;
 
 class BatteryStateService {
@@ -15,7 +23,32 @@ class BatteryStateService {
   private connectionStartTime: number | null = null;
   private lastPacketArrivalMs: number | null = null;
 
-  // Initial Disconnected Zero State for BRAIN Virtual Battery Simulation (8S LFP)
+  // System notifications state feed
+  private notifications: SystemNotification[] = [
+    {
+      id: 'notif-1',
+      title: 'BRAIN-SIM-8S Telemetry Service',
+      message: 'System initialization ready. Connect BLE battery to begin streaming.',
+      timestamp: 'Just now',
+      type: 'info',
+    },
+    {
+      id: 'notif-2',
+      title: 'PINN Physics Engine Active',
+      message: 'PINN physics model engine running in optimal monitoring mode.',
+      timestamp: '1m ago',
+      type: 'success',
+    },
+    {
+      id: 'notif-3',
+      title: 'AI Battery Guardian Active',
+      message: 'Continuous safety monitor checking cell voltages & thermal drift.',
+      timestamp: '2m ago',
+      type: 'info',
+    },
+  ];
+
+  // Initial State for BRAIN Virtual Battery Simulation (8S LFP)
   private state: NormalizedBatteryState = {
     source: 'LIVE_BLE',
     connectionState: 'DISCONNECTED',
@@ -85,6 +118,33 @@ class BatteryStateService {
   }
 
   /**
+   * Notification management methods
+   */
+  public getNotifications(): SystemNotification[] {
+    return [...this.notifications];
+  }
+
+  public clearNotifications(): void {
+    this.notifications = [];
+    this.notify();
+  }
+
+  public dismissNotification(id: string): void {
+    this.notifications = this.notifications.filter((n) => n.id !== id);
+    this.notify();
+  }
+
+  public addNotification(notification: Omit<SystemNotification, 'id' | 'timestamp'>): void {
+    const newNotif: SystemNotification = {
+      ...notification,
+      id: 'notif-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    this.notifications = [newNotif, ...this.notifications].slice(0, 25);
+    this.notify();
+  }
+
+  /**
    * Get immutable snapshot of current state
    */
   public getSnapshot(): NormalizedBatteryState {
@@ -140,6 +200,16 @@ class BatteryStateService {
 
     const packetsReceived = this.state.diagnostics.packetsReceived + 1;
 
+    // Check for alerts / triggers
+    const maxTemp = payload.pack.maxTemperature || payload.pack.temperature;
+    if (maxTemp > 45 && !this.notifications.some((n) => n.title.includes('High Temperature Warning'))) {
+      this.addNotification({
+        title: 'High Temperature Warning',
+        message: `Pack temp elevated at ${maxTemp}°C. Thermal monitoring active.`,
+        type: 'warning',
+      });
+    }
+
     this.state = {
       ...this.state,
       source: 'LIVE_BLE',
@@ -150,7 +220,7 @@ class BatteryStateService {
       lastUpdated: new Date().toISOString(),
 
       soc: payload.pack.soc,
-      soh: payload.pack.soh,
+      soh: payload.pack.soh ?? this.state.soh,
       voltage: payload.pack.voltage,
       current: payload.pack.current,
       power: payload.pack.power,
@@ -209,10 +279,22 @@ class BatteryStateService {
     connState: ConnectionState,
     deviceInfo?: { name?: string; id?: string; rssi?: number }
   ) {
+    const prevConn = this.state.connectionState;
+
     if (connState === 'CONNECTED' && !this.connectionStartTime) {
       this.connectionStartTime = Date.now();
-    } else if (connState === 'DISCONNECTED') {
+      this.addNotification({
+        title: `${deviceInfo?.name || this.state.deviceName || 'BLE Battery'} Connected`,
+        message: 'Connected via Bluetooth GATT Service. Live parameters streaming.',
+        type: 'success',
+      });
+    } else if (connState === 'DISCONNECTED' && prevConn === 'CONNECTED') {
       this.connectionStartTime = null;
+      this.addNotification({
+        title: 'BLE Connection Disconnected',
+        message: 'Bluetooth GATT stream closed. 0V Zero State active.',
+        type: 'warning',
+      });
     }
 
     const newSource: BatterySourceMode =

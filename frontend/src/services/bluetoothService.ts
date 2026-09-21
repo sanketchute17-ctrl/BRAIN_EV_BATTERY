@@ -552,6 +552,7 @@ class BluetoothService {
       const soc = 84;
       const powerKw = 0.0;
       const isThermalSpike = temp > 44.0;
+      const dynamicSoh = +(96.4 - (Math.sin(step * 0.02) * 0.3)).toFixed(1);
 
       const mockPayload: RawBleTelemetryPayload = {
         protocolVersion: BLE_CONFIG.PROTOCOL_VERSION,
@@ -560,7 +561,7 @@ class BluetoothService {
         timestamp: Date.now(),
         pack: {
           soc,
-          soh: 96.4,
+          soh: dynamicSoh,
           voltage: typeof volt === 'string' ? parseFloat(volt) : volt,
           current: typeof curr === 'string' ? parseFloat(curr) : curr,
           power: powerKw,

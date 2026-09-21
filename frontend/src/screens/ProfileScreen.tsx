@@ -55,6 +55,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   // Profile info update state
   const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const userEmail = currentUser?.email?.toLowerCase().trim();
+
   // Handle Photo Upload via file input
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,7 +71,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     reader.onload = () => {
       const base64Photo = reader.result as string;
       setAvatarPhoto(base64Photo);
-      localStorage.setItem('brain_user_avatar', base64Photo);
+      if (userEmail) {
+        localStorage.setItem(`brain_avatar_${userEmail}`, base64Photo);
+      }
       
       setProfileMsg({ type: 'success', text: 'Profile photo uploaded successfully! Click "Save Profile Changes" to confirm.' });
     };
@@ -78,6 +82,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   const handleRemovePhoto = () => {
     setAvatarPhoto('');
+    if (userEmail) {
+      localStorage.removeItem(`brain_avatar_${userEmail}`);
+    }
     localStorage.removeItem('brain_user_avatar');
     setProfileMsg({ type: 'success', text: 'Profile photo removed. Reverted to initials avatar.' });
   };
@@ -141,8 +148,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
     try {
       await apiService.updateUserProfile(updatedUser);
-      if (avatarPhoto) {
-        localStorage.setItem('brain_user_avatar', avatarPhoto);
+      if (avatarPhoto && userEmail) {
+        localStorage.setItem(`brain_avatar_${userEmail}`, avatarPhoto);
       }
 
       if (onProfileUpdated) {

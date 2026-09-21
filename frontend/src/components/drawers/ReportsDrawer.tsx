@@ -18,7 +18,7 @@ export const ReportsDrawer: React.FC<ReportsDrawerProps> = ({ batteryState, onBa
     downloadAnchor.remove();
   };
 
-  const activeSoh = batteryState.soh || 96.4;
+  const activeSoh = batteryState.soh ?? 96.4;
   const activeSoc = batteryState.soc || 84;
   const activeVolt = batteryState.voltage || 25.60;
   const activeCurr = batteryState.current || 0.00;

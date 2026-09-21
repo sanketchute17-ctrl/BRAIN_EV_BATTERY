@@ -24,6 +24,7 @@ import { ReportsDrawer } from './components/drawers/ReportsDrawer';
 import { SettingsDrawer } from './components/drawers/SettingsDrawer';
 import { CompanyAdminDrawer } from './components/drawers/CompanyAdminDrawer';
 import { firebaseSyncService } from './services/firebaseSyncService';
+import { PinnEngine } from './services/pinnEngine';
 import {
   ArrowLeft,
   Zap,
@@ -338,80 +339,116 @@ export function App() {
                   : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200 font-extrabold'
               }`}
             >
-              {currentUser?.avatar_photo || localStorage.getItem('brain_user_avatar') ? (
-                <img
-                  src={currentUser?.avatar_photo || localStorage.getItem('brain_user_avatar')!}
-                  alt="Avatar"
-                  className="w-4 h-4 rounded-full object-cover shrink-0"
-                />
-              ) : (
-                <User className="w-3.5 h-3.5 text-emerald-600" />
-              )}
+              {(() => {
+                const userEmail = currentUser?.email?.toLowerCase().trim();
+                const avatarSrc = currentUser?.avatar_photo || (userEmail ? localStorage.getItem(`brain_avatar_${userEmail}`) : null);
+                if (avatarSrc) {
+                  return (
+                    <img
+                      src={avatarSrc}
+                      alt="Avatar"
+                      className="w-4 h-4 rounded-full object-cover shrink-0"
+                    />
+                  );
+                }
+                return <User className="w-3.5 h-3.5 text-emerald-600" />;
+              })()}
               <span className="text-xs truncate max-w-[110px]">
                 {isDemoMode ? 'Demo Guest' : (currentUser?.full_name?.split(' ')[0] || 'Operator')}
               </span>
             </button>
           </div>
 
-          {/* Notification Popover Window (Perfectly Aligned Inside Smartphone Viewport) */}
+          {/* Notification Popover Window (Modern White Translucent Glassmorphism) */}
           {isNotificationsOpen && (
-            <div className="absolute right-2 top-11 w-[calc(100%-16px)] max-w-[340px] bg-slate-900 text-white rounded-2xl p-3.5 shadow-2xl border border-slate-700 z-50 animate-fadeIn space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <div className="flex items-center gap-1.5 text-xs font-black uppercase text-emerald-400">
+            <div className="absolute right-2 top-11 w-[calc(100%-16px)] max-w-[340px] bg-white/95 backdrop-blur-xl text-slate-900 rounded-2xl p-3.5 shadow-2xl border border-slate-200/90 z-50 animate-fadeIn space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div className="flex items-center gap-1.5 text-xs font-black uppercase text-emerald-600">
                   <Bell className="w-3.5 h-3.5" />
-                  Live Alerts &amp; System Notifications
+                  Live System Notifications
                 </div>
-                <button
-                  onClick={() => setIsNotificationsOpen(false)}
-                  className="text-slate-400 hover:text-white p-1 rounded-lg transition"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  {batteryStateService.getNotifications().length > 0 && (
+                    <button
+                      onClick={() => {
+                        batteryStateService.clearNotifications();
+                      }}
+                      className="text-[10px] font-extrabold text-red-500 hover:text-red-700 hover:underline px-1.5 py-0.5 rounded transition cursor-pointer"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsNotificationsOpen(false)}
+                    className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-2 max-h-56 overflow-y-auto text-xs pr-1">
-                <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1 shrink-0" />
-                  <div>
-                    <div className="font-bold text-white text-[11px]">BRAIN-SIM-8S Device Link</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
-                      {batteryState.connectionState === 'CONNECTED'
-                        ? 'Connected via Bluetooth GATT Service'
-                        : 'Disconnected (0V Zero State active)'}
+              <div className="space-y-2 max-h-60 overflow-y-auto text-xs pr-1">
+                {batteryStateService.getNotifications().length > 0 ? (
+                  batteryStateService.getNotifications().map((notif) => (
+                    <div
+                      key={notif.id}
+                      className={`p-2.5 rounded-xl border flex items-start justify-between gap-2 transition ${
+                        notif.type === 'warning'
+                          ? 'bg-amber-50/90 border-amber-200 text-amber-900'
+                          : notif.type === 'error'
+                          ? 'bg-red-50/90 border-red-200 text-red-900'
+                          : notif.type === 'success'
+                          ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900'
+                          : 'bg-slate-50 border-slate-200 text-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-start gap-2 min-w-0">
+                        <span
+                          className={`w-2 h-2 rounded-full mt-1 shrink-0 ${
+                            notif.type === 'warning'
+                              ? 'bg-amber-500'
+                              : notif.type === 'error'
+                              ? 'bg-red-500'
+                              : notif.type === 'success'
+                              ? 'bg-emerald-500'
+                              : 'bg-blue-500'
+                          }`}
+                        />
+                        <div className="min-w-0">
+                          <div className="font-bold text-[11px] truncate">{notif.title}</div>
+                          <div className="text-[10px] text-slate-500 mt-0.5 leading-tight">{notif.message}</div>
+                          <div className="text-[9px] text-slate-400 font-mono mt-1">{notif.timestamp}</div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => batteryStateService.dismissNotification(notif.id)}
+                        className="text-slate-400 hover:text-slate-600 p-0.5 rounded transition shrink-0 cursor-pointer"
+                        title="Dismiss notification"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-slate-400 text-xs font-semibold">
+                    No active notifications.
                   </div>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-400 mt-1 shrink-0" />
-                  <div>
-                    <div className="font-bold text-white text-[11px]">System Version v3.2.0 Active</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">PINN physics model engine running in optimal health mode.</div>
-                  </div>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-start gap-2">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 mt-1 shrink-0" />
-                  <div>
-                    <div className="font-bold text-white text-[11px]">AI Diagnostic Alert: SOH 96.4%</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">Health score: 86/100 (Cell imbalance &amp; thermal drift detected).</div>
-                  </div>
-                </div>
+                )}
               </div>
 
-              <div className="flex items-center gap-2 pt-1 border-t border-slate-800">
+              <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
                 <button
                   onClick={() => {
                     setIsNotificationsOpen(false);
                     setActiveDrawerItem('alerts');
                   }}
-                  className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[10px] rounded-xl transition text-center uppercase tracking-wider"
+                  className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[10px] rounded-xl transition text-center uppercase tracking-wider cursor-pointer shadow-xs"
                 >
                   View Full Safety Log
                 </button>
                 <button
                   onClick={() => setIsNotificationsOpen(false)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px] rounded-xl transition uppercase"
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] rounded-xl transition uppercase cursor-pointer"
                 >
                   Dismiss
                 </button>
@@ -819,7 +856,7 @@ export function App() {
                   </div>
                 </div>
 
-                {/* RECENT ALERTS CARD */}
+                {/* RECENT ALERTS CARD (DYNAMIC) */}
                 <div className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -828,16 +865,86 @@ export function App() {
                       </div>
                       <h4 className="text-xs font-black text-slate-900">Recent Alerts</h4>
                     </div>
-                    <button className="text-[10px] font-extrabold text-[#059669] hover:underline cursor-pointer">View All</button>
+                    <button
+                      onClick={() => setActiveDrawerItem('alerts')}
+                      className="text-[10px] font-extrabold text-[#059669] hover:underline cursor-pointer"
+                    >
+                      View All
+                    </button>
                   </div>
 
-                  <div className="flex items-center gap-2.5 p-2 bg-[#F8FAFC] rounded-2xl border border-slate-100">
-                    <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0" />
-                    <div>
-                      <div className="text-xs font-extrabold text-slate-900">No active alerts</div>
-                      <div className="text-[9px] font-semibold text-slate-400">Your battery is operating normally.</div>
-                    </div>
-                  </div>
+                  {(() => {
+                    const pinn = PinnEngine.evaluatePhysicsModel(batteryState);
+                    const maxTemp = batteryState.maxTemperature || batteryState.temperature;
+                    const activeAlerts: { title: string; desc: string; type: 'warning' | 'error' | 'info' }[] = [];
+
+                    if (batteryState.connectionState === 'DISCONNECTED') {
+                      activeAlerts.push({
+                        title: 'BLE Disconnected (0V Zero State)',
+                        desc: 'Connect battery via BLE GATT service to stream live parameters.',
+                        type: 'info',
+                      });
+                    }
+                    if (pinn.cellImbalanceIndex > 0.025) {
+                      activeAlerts.push({
+                        title: 'Cell Imbalance Warning',
+                        desc: `Cell variance is ${(pinn.cellImbalanceIndex * 1000).toFixed(0)}mV. Passive balancing recommended.`,
+                        type: 'warning',
+                      });
+                    }
+                    if (maxTemp > 42) {
+                      activeAlerts.push({
+                        title: 'Elevated Temperature Warning',
+                        desc: `Max pack temp reached ${maxTemp}°C (Normal: 25-38°C). Avoid fast charging.`,
+                        type: maxTemp > 50 ? 'error' : 'warning',
+                      });
+                    }
+                    if (batteryState.soc > 0 && batteryState.soc < 20) {
+                      activeAlerts.push({
+                        title: 'Low State of Charge (SOC < 20%)',
+                        desc: `Battery level is at ${Math.round(batteryState.soc)}%. Connect charger soon.`,
+                        type: 'warning',
+                      });
+                    }
+
+                    if (activeAlerts.length > 0) {
+                      return (
+                        <div className="space-y-1.5">
+                          {activeAlerts.slice(0, 3).map((alert, idx) => (
+                            <div
+                              key={idx}
+                              onClick={() => setActiveDrawerItem('alerts')}
+                              className={`flex items-start gap-2.5 p-2 rounded-2xl border cursor-pointer transition ${
+                                alert.type === 'error'
+                                  ? 'bg-red-50/90 border-red-200 text-red-900 hover:bg-red-100'
+                                  : alert.type === 'warning'
+                                  ? 'bg-amber-50/90 border-amber-200 text-amber-900 hover:bg-amber-100'
+                                  : 'bg-blue-50/90 border-blue-200 text-blue-900 hover:bg-blue-100'
+                              }`}
+                            >
+                              <AlertCircle className={`w-4 h-4 mt-0.5 shrink-0 ${
+                                alert.type === 'error' ? 'text-red-600' : alert.type === 'warning' ? 'text-amber-600' : 'text-blue-600'
+                              }`} />
+                              <div className="min-w-0 flex-1">
+                                <div className="text-xs font-extrabold truncate">{alert.title}</div>
+                                <div className="text-[9px] font-semibold opacity-80 leading-tight mt-0.5">{alert.desc}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="flex items-center gap-2.5 p-2 bg-[#F8FAFC] rounded-2xl border border-slate-100">
+                        <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0" />
+                        <div>
+                          <div className="text-xs font-extrabold text-slate-900">No active alerts</div>
+                          <div className="text-[9px] font-semibold text-slate-400">Your battery is operating normally.</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
               </div>
@@ -860,7 +967,7 @@ export function App() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">SOC / SOH</div>
-                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">{Math.round(batteryState.soc || 84)}% / {batteryState.soh || 96.4}%</div>
+                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">{Math.round(batteryState.soc)}% / {batteryState.soh}%</div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">VOLTAGE / CURRENT</div>

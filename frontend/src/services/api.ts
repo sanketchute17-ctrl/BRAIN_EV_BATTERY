@@ -116,6 +116,10 @@ export const apiService = {
       localStorage.removeItem('brain_access_token');
       localStorage.removeItem('brain_user_profile');
       localStorage.removeItem('brain_current_logged_email');
+      localStorage.removeItem('brain_user_avatar');
+      if (isFirebaseConfigured() && firebaseAuth) {
+        firebaseAuth.signOut().catch(() => {});
+      }
       if (isSupabaseConfigured() && supabase) {
         supabase.auth.signOut().catch(() => {});
       }
@@ -172,8 +176,10 @@ export const apiService = {
       const user: FirebaseUser = firebaseAuth.currentUser;
       const fbEmail = user.email?.toLowerCase().trim();
       if (!activeEmail || fbEmail === activeEmail) {
-        const storedProfile = activeEmail ? localStorage.getItem(`brain_profile_${activeEmail}`) : localStorage.getItem('brain_user_profile');
+        const emailToUse = fbEmail || activeEmail;
+        const storedProfile = emailToUse ? localStorage.getItem(`brain_profile_${emailToUse}`) : localStorage.getItem('brain_user_profile');
         const parsed = storedProfile ? JSON.parse(storedProfile) : {};
+        const userAvatar = emailToUse ? localStorage.getItem(`brain_avatar_${emailToUse}`) : null;
         return {
           id: user.uid,
           email: user.email,
@@ -181,6 +187,7 @@ export const apiService = {
           role: parsed.role || 'EV Rider / Owner',
           ev_model: parsed.ev_model || 'Ather 450X',
           battery_chemistry: parsed.battery_chemistry || 'NMC',
+          avatar_photo: userAvatar || parsed.avatar_photo || '',
         };
       }
     }
@@ -195,6 +202,7 @@ export const apiService = {
           if (sbEmail && (!activeEmail || sbEmail === activeEmail)) {
             const localUsers = getLocalUsersDB();
             const localRec = localUsers[sbEmail];
+            const userAvatar = localStorage.getItem(`brain_avatar_${sbEmail}`);
             return {
               id: data.user.id,
               email: data.user.email,
@@ -202,6 +210,7 @@ export const apiService = {
               role: data.user.user_metadata?.role || localRec?.role || 'EV Rider / Owner',
               ev_model: data.user.user_metadata?.ev_model || localRec?.evModel || localRec?.ev_model || 'Ather 450X',
               battery_chemistry: data.user.user_metadata?.battery_chemistry || localRec?.batteryChemistry || 'NMC',
+              avatar_photo: userAvatar || localRec?.avatar_photo || '',
             };
           }
         }
@@ -217,7 +226,11 @@ export const apiService = {
       });
       if (response.ok) {
         const backendUser = await response.json();
-        if (!activeEmail || backendUser.email?.toLowerCase().trim() === activeEmail) {
+        const beEmail = backendUser.email?.toLowerCase().trim();
+        if (!activeEmail || beEmail === activeEmail) {
+          if (beEmail) {
+            backendUser.avatar_photo = localStorage.getItem(`brain_avatar_${beEmail}`) || backendUser.avatar_photo || '';
+          }
           return backendUser;
         }
       }
@@ -228,8 +241,13 @@ export const apiService = {
     // 4. Local stored profile fallback matching active logged email strictly
     try {
       if (activeEmail) {
+        const userAvatar = localStorage.getItem(`brain_avatar_${activeEmail}`);
         const specificProfile = localStorage.getItem(`brain_profile_${activeEmail}`);
-        if (specificProfile) return JSON.parse(specificProfile);
+        if (specificProfile) {
+          const parsedProf = JSON.parse(specificProfile);
+          parsedProf.avatar_photo = userAvatar || parsedProf.avatar_photo || '';
+          return parsedProf;
+        }
         const localUsers = getLocalUsersDB();
         const userRec = localUsers[activeEmail];
         if (userRec) {
@@ -240,6 +258,7 @@ export const apiService = {
             role: userRec.role || 'EV Rider / Owner',
             ev_model: userRec.evModel || userRec.ev_model || 'Ather 450X',
             battery_chemistry: userRec.batteryChemistry || userRec.battery_chemistry || 'NMC',
+            avatar_photo: userAvatar || userRec.avatar_photo || '',
           };
         }
       }
@@ -253,7 +272,7 @@ export const apiService = {
   },
 
   /**
-   * User Login API Call (Firebase -> Supabase -> FastAPI -> Local DB)
+   * User Login API Call (Firebase -> Supabase -> FastAPI -> Cloud DB -> Local DB)
    */
   async login(payload: UserLoginPayload): Promise<AuthResponse> {
     const emailKey = payload.email.toLowerCase().trim();
@@ -265,8 +284,13 @@ export const apiService = {
       this.clearStoredToken();
     }
 
+    let firebaseErrorMsg: string | null = null;
+
     // TIER 1: Firebase Cloud Auth
     if (isFirebaseConfigured() && firebaseAuth) {
+      if (firebaseAuth.currentUser && firebaseAuth.currentUser.email?.toLowerCase().trim() !== emailKey) {
+        await firebaseAuth.signOut().catch(() => {});
+      }
       try {
         const userCredential = await signInWithEmailAndPassword(firebaseAuth, emailKey, password);
         const fbUser = userCredential.user;
@@ -291,6 +315,7 @@ export const apiService = {
           }
         }
 
+        const userAvatar = localStorage.getItem(`brain_avatar_${emailKey}`);
         const authData: AuthResponse = {
           access_token: idToken,
           user_id: fbUser.uid,
@@ -299,60 +324,60 @@ export const apiService = {
           role: userRecord.role || 'EV Rider / Owner',
           ev_model: userRecord.ev_model || userRecord.evModel || 'Ather 450X',
           battery_chemistry: userRecord.battery_chemistry || userRecord.batteryChemistry || 'NMC',
+          avatar_photo: userAvatar || userRecord.avatar_photo || '',
         };
+        saveLocalUserDB(emailKey, authData);
         this.setStoredToken(authData.access_token, authData);
         return authData;
       } catch (fbErr: any) {
-        let msg = 'Firebase authentication failed.';
-        if (fbErr.code === 'auth/invalid-credential' || fbErr.code === 'auth/wrong-password') {
-          msg = 'Incorrect password. Please verify your credentials.';
+        if (fbErr.code === 'auth/wrong-password' || fbErr.code === 'auth/invalid-credential') {
+          firebaseErrorMsg = 'Incorrect password. Please verify your credentials.';
         } else if (fbErr.code === 'auth/user-not-found') {
-          msg = 'No account found with this email address. Please register a new account.';
+          firebaseErrorMsg = 'No account found with this email address. Please register a new account.';
+        } else {
+          firebaseErrorMsg = fbErr.message || 'Firebase authentication failed.';
         }
-        throw new Error(msg);
+        // Fallthrough to Tier 2/3/4 Cloud DB check instead of abruptly stopping!
       }
     }
 
     // TIER 2: Supabase Cloud Auth
     if (isSupabaseConfigured() && supabase) {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: emailKey,
-        password: password,
-      });
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: emailKey,
+          password: password,
+        });
 
-      if (!error && data?.session) {
-        const userMeta = data.user?.user_metadata || {};
-        const localUsers = getLocalUsersDB();
-        const localRecord = localUsers[emailKey] || {};
+        if (!error && data?.session) {
+          const userMeta = data.user?.user_metadata || {};
+          const localUsers = getLocalUsersDB();
+          const localRecord = localUsers[emailKey] || {};
 
-        const authData: AuthResponse = {
-          access_token: data.session.access_token,
-          user_id: data.user.id,
-          email: data.user.email || emailKey,
-          full_name: userMeta.full_name || localRecord.fullName || localRecord.full_name || 'EV Operator',
-          role: userMeta.role || localRecord.role || 'EV Rider / Owner',
-          ev_model: userMeta.ev_model || localRecord.evModel || localRecord.ev_model || 'Ather 450X',
-          battery_chemistry: userMeta.battery_chemistry || localRecord.batteryChemistry || 'NMC',
-        };
+          const authData: AuthResponse = {
+            access_token: data.session.access_token,
+            user_id: data.user.id,
+            email: data.user.email || emailKey,
+            full_name: userMeta.full_name || localRecord.fullName || localRecord.full_name || 'EV Operator',
+            role: userMeta.role || localRecord.role || 'EV Rider / Owner',
+            ev_model: userMeta.ev_model || localRecord.evModel || localRecord.ev_model || 'Ather 450X',
+            battery_chemistry: userMeta.battery_chemistry || localRecord.batteryChemistry || 'NMC',
+          };
 
-        // Sync to Supabase public profiles table
-        try {
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
-            email: emailKey,
-            full_name: authData.full_name,
-            role: authData.role,
-            ev_model: authData.ev_model,
-            battery_chemistry: authData.battery_chemistry,
-            updated_at: new Date().toISOString(),
-          });
-        } catch {
-          // Ignore DB sync errors
+          saveLocalUserDB(emailKey, authData);
+          this.setStoredToken(authData.access_token, authData);
+
+          // Auto-sync user into Firebase Cloud Auth if missing
+          if (isFirebaseConfigured() && firebaseAuth) {
+            createUserWithEmailAndPassword(firebaseAuth, emailKey, password)
+              .then((cred) => updateProfile(cred.user, { displayName: authData.full_name }))
+              .catch(() => {});
+          }
+
+          return authData;
         }
-
-        saveLocalUserDB(emailKey, authData);
-        this.setStoredToken(authData.access_token, authData);
-        return authData;
+      } catch {
+        // Fallthrough
       }
     }
 
@@ -373,6 +398,14 @@ export const apiService = {
         data.battery_chemistry = data.battery_chemistry || userRecord.batteryChemistry || 'NMC';
         saveLocalUserDB(emailKey, data);
         this.setStoredToken(data.access_token, data);
+
+        // Auto-sync user into Firebase Cloud Auth if missing
+        if (isFirebaseConfigured() && firebaseAuth) {
+          createUserWithEmailAndPassword(firebaseAuth, emailKey, password)
+            .then((cred) => updateProfile(cred.user, { displayName: data.full_name }))
+            .catch(() => {});
+        }
+
         return data;
       }
     } catch {
@@ -380,14 +413,6 @@ export const apiService = {
     }
 
     // TIER 4: Cloud DB Profile & Cross-Device Sync Fallback
-    const localUsers = getLocalUsersDB();
-    const localRecord = localUsers[emailKey];
-
-    if (localRecord && localRecord.password && localRecord.password !== password) {
-      throw new Error('Incorrect password. Please verify your credentials.');
-    }
-
-    // Query Supabase Cloud profiles table directly
     if (isSupabaseConfigured() && supabase) {
       try {
         const { data: cloudProfile } = await supabase
@@ -406,21 +431,34 @@ export const apiService = {
             access_token: `sb_cloud_token_${Date.now()}`,
             user_id: cloudProfile.id || `usr_${Date.now()}`,
             email: cloudProfile.email || emailKey,
-            full_name: cloudProfile.full_name || cloudProfile.fullName || localRecord?.fullName || localRecord?.full_name || 'EV Operator',
-            role: cloudProfile.role || localRecord?.role || 'EV Rider / Owner',
-            ev_model: cloudProfile.ev_model || localRecord?.evModel || localRecord?.ev_model || 'Ather 450X',
-            battery_chemistry: cloudProfile.battery_chemistry || localRecord?.batteryChemistry || 'NMC',
+            full_name: cloudProfile.full_name || cloudProfile.fullName || 'EV Operator',
+            role: cloudProfile.role || 'EV Rider / Owner',
+            ev_model: cloudProfile.ev_model || 'Ather 450X',
+            battery_chemistry: cloudProfile.battery_chemistry || 'NMC',
           };
           saveLocalUserDB(emailKey, authData);
           this.setStoredToken(authData.access_token, authData);
+
+          // Auto-sync user into Firebase Cloud Auth if missing
+          if (isFirebaseConfigured() && firebaseAuth) {
+            createUserWithEmailAndPassword(firebaseAuth, emailKey, password)
+              .then((cred) => updateProfile(cred.user, { displayName: authData.full_name }))
+              .catch(() => {});
+          }
+
           return authData;
         }
-      } catch {
-        // Ignore RLS errors
+      } catch (e: any) {
+        if (e.message && e.message.includes('Incorrect password')) {
+          throw e;
+        }
       }
     }
 
-    // Check local storage record for offline / same-device persistence
+    // TIER 5: Check local storage record for same-device fallback
+    const localUsers = getLocalUsersDB();
+    const localRecord = localUsers[emailKey];
+
     if (localRecord) {
       if (localRecord.password && localRecord.password !== password) {
         throw new Error('Incorrect password. Please verify your credentials.');
@@ -437,7 +475,20 @@ export const apiService = {
       };
       saveLocalUserDB(emailKey, authData);
       this.setStoredToken(authData.access_token, authData);
+
+      // Try auto-syncing to Cloud DB & Firebase Auth
+      if (isFirebaseConfigured() && firebaseAuth) {
+        createUserWithEmailAndPassword(firebaseAuth, emailKey, password)
+          .then((cred) => updateProfile(cred.user, { displayName: authData.full_name }))
+          .catch(() => {});
+      }
+
       return authData;
+    }
+
+    // If Firebase explicitly returned an error message like incorrect password
+    if (firebaseErrorMsg) {
+      throw new Error(firebaseErrorMsg);
     }
 
     // Unregistered Account Protection: Reject login if account does not exist in any database
@@ -470,6 +521,7 @@ export const apiService = {
         const userCredential = await createUserWithEmailAndPassword(firebaseAuth, emailKey, payload.password || '');
         const fbUser = userCredential.user;
         await updateProfile(fbUser, { displayName: payload.fullName });
+        await firebaseAuth.signOut().catch(() => {});
       } catch (fbErr: any) {
         if (fbErr.code === 'auth/email-already-in-use') {
           throw new Error('Email address is already registered. Please sign in instead.');
@@ -596,6 +648,11 @@ export const apiService = {
     // 3. Update Local Storage Profile
     const emailKey = (updatedUser.email || '').toLowerCase().trim();
     if (emailKey) {
+      if (updatedUser.avatar_photo) {
+        localStorage.setItem(`brain_avatar_${emailKey}`, updatedUser.avatar_photo);
+      } else {
+        localStorage.removeItem(`brain_avatar_${emailKey}`);
+      }
       localStorage.setItem(`brain_profile_${emailKey}`, JSON.stringify(updatedUser));
       saveLocalUserDB(emailKey, updatedUser);
     }
