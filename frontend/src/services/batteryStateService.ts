@@ -23,30 +23,8 @@ class BatteryStateService {
   private connectionStartTime: number | null = null;
   private lastPacketArrivalMs: number | null = null;
 
-  // System notifications state feed
-  private notifications: SystemNotification[] = [
-    {
-      id: 'notif-1',
-      title: 'BRAIN-SIM-8S Telemetry Service',
-      message: 'System initialization ready. Connect BLE battery to begin streaming.',
-      timestamp: 'Just now',
-      type: 'info',
-    },
-    {
-      id: 'notif-2',
-      title: 'PINN Physics Engine Active',
-      message: 'PINN physics model engine running in optimal monitoring mode.',
-      timestamp: '1m ago',
-      type: 'success',
-    },
-    {
-      id: 'notif-3',
-      title: 'AI Battery Guardian Active',
-      message: 'Continuous safety monitor checking cell voltages & thermal drift.',
-      timestamp: '2m ago',
-      type: 'info',
-    },
-  ];
+  // System notifications state feed (starts empty, populates on live BLE/safety events)
+  private notifications: SystemNotification[] = [];
 
   // Initial State for BRAIN Virtual Battery Simulation (8S LFP)
   private state: NormalizedBatteryState = {

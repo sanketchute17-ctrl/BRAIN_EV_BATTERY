@@ -323,9 +323,11 @@ export function App() {
               title="Notifications & Safety Alerts"
             >
               <Bell className="w-4 h-4 text-slate-700 hover:text-emerald-600 transition" />
-              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-white">
-                3
-              </span>
+              {batteryStateService.getNotifications().length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-white animate-pulse">
+                  {batteryStateService.getNotifications().length}
+                </span>
+              )}
             </button>
 
             <button
@@ -430,8 +432,10 @@ export function App() {
                     </div>
                   ))
                 ) : (
-                  <div className="p-4 text-center text-slate-400 text-xs font-semibold">
-                    No active notifications.
+                  <div className="py-6 px-4 text-center text-slate-400 text-xs font-semibold flex flex-col items-center justify-center gap-1.5">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500/80" />
+                    <span>No active notifications</span>
+                    <span className="text-[10px] text-slate-400 font-normal">System is operating clean with zero unread alerts.</span>
                   </div>
                 )}
               </div>
