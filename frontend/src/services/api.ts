@@ -64,9 +64,11 @@ export interface AuthResponse {
   user_id: string | number;
   email: string;
   full_name?: string;
+  mobile?: string;
   role?: string;
   ev_model?: string;
   battery_chemistry?: string;
+  avatar_photo?: string;
 }
 
 const LOCAL_USERS_DB_KEY = 'brain_registered_users_db';
@@ -179,14 +181,17 @@ export const apiService = {
         const emailToUse = fbEmail || activeEmail;
         const storedProfile = emailToUse ? localStorage.getItem(`brain_profile_${emailToUse}`) : localStorage.getItem('brain_user_profile');
         const parsed = storedProfile ? JSON.parse(storedProfile) : {};
+        const localUsers = getLocalUsersDB();
+        const userRec = emailToUse ? localUsers[emailToUse] : null;
         const userAvatar = emailToUse ? localStorage.getItem(`brain_avatar_${emailToUse}`) : null;
         return {
           id: user.uid,
           email: user.email,
-          full_name: user.displayName || parsed.full_name || 'EV Operator',
-          role: parsed.role || 'EV Rider / Owner',
-          ev_model: parsed.ev_model || 'Ather 450X',
-          battery_chemistry: parsed.battery_chemistry || 'NMC',
+          full_name: user.displayName || parsed.full_name || parsed.fullName || userRec?.fullName || userRec?.full_name || 'EV Operator',
+          mobile: parsed.mobile || userRec?.mobile || userRec?.mobileNumber || '',
+          role: parsed.role || userRec?.role || 'EV Rider / Owner',
+          ev_model: parsed.ev_model || parsed.evModel || userRec?.evModel || userRec?.ev_model || 'Ather 450X',
+          battery_chemistry: parsed.battery_chemistry || parsed.batteryChemistry || userRec?.batteryChemistry || userRec?.battery_chemistry || 'NMC',
           avatar_photo: userAvatar || parsed.avatar_photo || '',
         };
       }
@@ -207,6 +212,7 @@ export const apiService = {
               id: data.user.id,
               email: data.user.email,
               full_name: data.user.user_metadata?.full_name || localRec?.fullName || localRec?.full_name || 'EV Operator',
+              mobile: data.user.user_metadata?.mobile || localRec?.mobile || '',
               role: data.user.user_metadata?.role || localRec?.role || 'EV Rider / Owner',
               ev_model: data.user.user_metadata?.ev_model || localRec?.evModel || localRec?.ev_model || 'Ather 450X',
               battery_chemistry: data.user.user_metadata?.battery_chemistry || localRec?.batteryChemistry || 'NMC',
@@ -255,6 +261,7 @@ export const apiService = {
             id: userRec.id || `usr_${Date.now()}`,
             email: activeEmail,
             full_name: userRec.fullName || userRec.full_name || 'EV Operator',
+            mobile: userRec.mobile || userRec.mobileNumber || '',
             role: userRec.role || 'EV Rider / Owner',
             ev_model: userRec.evModel || userRec.ev_model || 'Ather 450X',
             battery_chemistry: userRec.batteryChemistry || userRec.battery_chemistry || 'NMC',
@@ -321,6 +328,7 @@ export const apiService = {
           user_id: fbUser.uid,
           email: fbUser.email || emailKey,
           full_name: fbUser.displayName || userRecord.full_name || userRecord.fullName || 'EV Operator',
+          mobile: userRecord.mobile || userRecord.mobileNumber || '',
           role: userRecord.role || 'EV Rider / Owner',
           ev_model: userRecord.ev_model || userRecord.evModel || 'Ather 450X',
           battery_chemistry: userRecord.battery_chemistry || userRecord.batteryChemistry || 'NMC',
@@ -359,6 +367,7 @@ export const apiService = {
             user_id: data.user.id,
             email: data.user.email || emailKey,
             full_name: userMeta.full_name || localRecord.fullName || localRecord.full_name || 'EV Operator',
+            mobile: userMeta.mobile || localRecord.mobile || localRecord.mobileNumber || '',
             role: userMeta.role || localRecord.role || 'EV Rider / Owner',
             ev_model: userMeta.ev_model || localRecord.evModel || localRecord.ev_model || 'Ather 450X',
             battery_chemistry: userMeta.battery_chemistry || localRecord.batteryChemistry || 'NMC',
@@ -393,6 +402,7 @@ export const apiService = {
         const data: AuthResponse = await response.json();
         const localUsers = getLocalUsersDB();
         const userRecord = localUsers[emailKey] || {};
+        data.mobile = data.mobile || userRecord.mobile || userRecord.mobileNumber || '';
         data.role = data.role || userRecord.role || 'EV Rider / Owner';
         data.ev_model = data.ev_model || userRecord.evModel || 'Ather 450X';
         data.battery_chemistry = data.battery_chemistry || userRecord.batteryChemistry || 'NMC';
@@ -432,6 +442,7 @@ export const apiService = {
             user_id: cloudProfile.id || `usr_${Date.now()}`,
             email: cloudProfile.email || emailKey,
             full_name: cloudProfile.full_name || cloudProfile.fullName || 'EV Operator',
+            mobile: cloudProfile.mobile || '',
             role: cloudProfile.role || 'EV Rider / Owner',
             ev_model: cloudProfile.ev_model || 'Ather 450X',
             battery_chemistry: cloudProfile.battery_chemistry || 'NMC',
@@ -469,9 +480,10 @@ export const apiService = {
         user_id: localRecord.id || `usr_${Date.now()}`,
         email: emailKey,
         full_name: localRecord.fullName || localRecord.full_name || 'EV Operator',
+        mobile: localRecord.mobile || localRecord.mobileNumber || '',
         role: localRecord.role || 'EV Rider / Owner',
         ev_model: localRecord.evModel || localRecord.ev_model || 'Ather 450X',
-        battery_chemistry: localRecord.batteryChemistry || 'NMC',
+        battery_chemistry: localRecord.batteryChemistry || localRecord.battery_chemistry || 'NMC',
       };
       saveLocalUserDB(emailKey, authData);
       this.setStoredToken(authData.access_token, authData);
@@ -505,15 +517,21 @@ export const apiService = {
     const newUserRecord = {
       id: `usr_${Date.now()}`,
       fullName: payload.fullName,
+      full_name: payload.fullName,
       email: emailKey,
-      mobile: payload.mobile,
+      mobile: payload.mobile || '',
       password: payload.password,
       role: payload.role || 'EV Rider / Owner',
-      evModel: payload.evModel || 'Ather 450X / Ola S1',
+      evModel: payload.evModel || 'Ather 450X',
+      ev_model: payload.evModel || 'Ather 450X',
       batteryChemistry: payload.batteryChemistry || 'NMC (Nickel Manganese Cobalt)',
+      battery_chemistry: payload.batteryChemistry || 'NMC (Nickel Manganese Cobalt)',
       created_at: new Date().toISOString(),
     };
     saveLocalUserDB(emailKey, newUserRecord);
+    try {
+      localStorage.setItem(`brain_profile_${emailKey}`, JSON.stringify(newUserRecord));
+    } catch (e) {}
 
     // TIER 1: Firebase Cloud Auth Registration
     if (isFirebaseConfigured() && firebaseAuth) {

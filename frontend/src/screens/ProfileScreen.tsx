@@ -36,11 +36,27 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [fullName, setFullName] = useState(isDemoMode ? '' : (currentUser?.full_name || ''));
-  const [mobile, setMobile] = useState(isDemoMode ? '' : (currentUser?.mobile || ''));
+  const [fullName, setFullName] = useState(isDemoMode ? '' : (currentUser?.full_name || currentUser?.fullName || ''));
+  const [mobile, setMobile] = useState(isDemoMode ? '' : (currentUser?.mobile || currentUser?.mobileNumber || ''));
   const [role, setRole] = useState(isDemoMode ? '' : (currentUser?.role || 'EV Rider / Owner'));
-  const [evModel, setEvModel] = useState(isDemoMode ? '' : (currentUser?.ev_model || ''));
-  const [batteryChemistry, setBatteryChemistry] = useState(isDemoMode ? '' : (currentUser?.battery_chemistry || ''));
+  const [evModel, setEvModel] = useState(isDemoMode ? '' : (currentUser?.ev_model || currentUser?.evModel || ''));
+  const [batteryChemistry, setBatteryChemistry] = useState(isDemoMode ? '' : (currentUser?.battery_chemistry || currentUser?.batteryChemistry || ''));
+  
+  const getPackArchitecture = (modelStr: string) => {
+    const m = (modelStr || '').toLowerCase();
+    if (m.includes('ola')) {
+      return '70V Nominal • 19S Cell Architecture';
+    } else if (m.includes('ather')) {
+      return '51.1V Nominal • 14S Cell Architecture';
+    } else if (m.includes('tvs') || m.includes('iqube')) {
+      return '52V Nominal • 14S Cell Architecture';
+    } else if (m.includes('bajaj') || m.includes('chetak') || m.includes('vida') || m.includes('hero')) {
+      return '50.4V Nominal • 14S Cell Architecture';
+    } else if (m.includes('simple')) {
+      return '51.2V Nominal • 16S Cell Architecture';
+    }
+    return '51.2V Nominal • 14S-16S EV Pack Architecture';
+  };
   
   // Avatar Photo state (Base64 URL or empty)
   const [avatarPhoto, setAvatarPhoto] = useState<string>(isDemoMode ? '' : (currentUser?.avatar_photo || ''));
@@ -298,7 +314,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </span>
             <div className="font-extrabold text-emerald-700 flex items-center gap-1.5">
               <Zap className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>350V • 96 Series Cells</span>
+              <span className="truncate">{getPackArchitecture(evModel)}</span>
             </div>
           </div>
 
