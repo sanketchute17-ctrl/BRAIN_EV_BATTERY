@@ -137,7 +137,7 @@ export function App() {
   // Simulator Controls & Output State
   const [simSpeed, setSimSpeed] = useState(85);
   const [simTemp, setSimTemp] = useState(38);
-  const [simAux, setSimAux] = useState(2.5);
+  const [simAux, setSimAux] = useState(0.3);
   const [simMode, setSimMode] = useState('FAST_CHARGE');
   const [isSimulating, setIsSimulating] = useState(false);
   const [simResults, setSimResults] = useState<{
@@ -225,12 +225,16 @@ export function App() {
       alert('View-Only Demo Mode: Simulation controls are locked. Please Register or Sign In to run custom simulations.');
       return;
     }
+    if (batteryState.connectionState !== 'CONNECTED') {
+      alert('Bluetooth BMS Hardware Required: Please connect to a Bluetooth BMS device or Simulated BLE before running What-If Simulations.');
+      setIsPairingModalOpen(true);
+      return;
+    }
     setIsSimulating(true);
     setTimeout(() => {
-      const isBleConnected = batteryState.connectionState === 'CONNECTED';
-      const baseTemp = isBleConnected ? (batteryState.maxTemperature || batteryState.temperature || 30) : 30;
-      const baseSoc = isBleConnected ? Math.round(batteryState.soc || 80) : 80;
-      const baseRisk = isBleConnected ? (batteryState.risk || 10) : 10;
+      const baseTemp = batteryState.maxTemperature || batteryState.temperature || 30;
+      const baseSoc = Math.round(batteryState.soc || 80);
+      const baseRisk = batteryState.risk || 10;
 
       const userModel = (currentUser?.ev_model || currentUser?.evModel || '').toLowerCase();
       let modelScale = 1.0;
@@ -249,9 +253,9 @@ export function App() {
         thermalStress: calcTemp > 48 ? 'CRITICAL THERMAL STRESS' : calcTemp > 42 ? 'ELEVATED TEMPERATURE' : 'MODERATE STRESS',
         riskScore: calcRisk,
         safeWindow: calcTemp > 48 ? '6 - 10 MIN' : calcTemp > 42 ? '12 - 18 MIN' : '22 - 30 MIN',
-        baselineTemp: isBleConnected ? `${baseTemp}°C (Live BLE)` : '30°C (Standby)',
-        baselineSoc: isBleConnected ? `${baseSoc}% (Live BLE)` : '80% (Standby)',
-        baselineRisk: isBleConnected ? `${baseRisk}% (Live BLE)` : '10% (Standby)',
+        baselineTemp: `${baseTemp}°C (Live BLE)`,
+        baselineSoc: `${baseSoc}% (Live BLE)`,
+        baselineRisk: `${baseRisk}% (Live BLE)`,
         scooterModelName: currentUser?.ev_model || currentUser?.evModel || 'EV Scooter',
       });
       setIsSimulating(false);
@@ -1269,6 +1273,37 @@ export function App() {
             {/* TAB 4: WHAT-IF SIMULATOR */}
             {activeTab === 'simulator' && (
               <div className="space-y-6">
+                {batteryState.connectionState !== 'CONNECTED' && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-3 shadow-sm animate-fadeIn">
+                    <div className="flex items-center gap-2.5 text-amber-900 font-extrabold text-sm">
+                      <Bluetooth className="w-5 h-5 text-amber-600 animate-pulse shrink-0" />
+                      <span>BLUETOOTH BMS HARDWARE REQUIRED</span>
+                    </div>
+                    <p className="text-xs text-amber-800 font-medium">
+                      What-If simulations require live battery telemetry baseline from your connected EV Scooter BMS hardware.
+                    </p>
+                    <button
+                      onClick={() => setIsPairingModalOpen(true)}
+                      className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-xl shadow-sm transition uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <Bluetooth className="w-4 h-4" />
+                      <span>CONNECT BLUETOOTH BMS HARDWARE</span>
+                    </button>
+                  </div>
+                )}
+
+                {batteryState.connectionState === 'CONNECTED' && (
+                  <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-3 flex items-center justify-between text-xs font-bold text-emerald-900 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>LIVE TELEMETRY BASELINE ACTIVE ({batteryState.maxTemperature || batteryState.temperature}°C • {Math.round(batteryState.soc)}% SOC)</span>
+                    </div>
+                    <span className="text-[10px] font-mono uppercase bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full font-extrabold">
+                      CONNECTED
+                    </span>
+                  </div>
+                )}
+
                 <div className="bg-white p-6 rounded-2xl border-2 border-emerald-500/80 space-y-5 shadow-xl">
                   <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                     <div className="flex items-center gap-2.5">
@@ -1278,8 +1313,12 @@ export function App() {
                         <p className="text-xs text-slate-500">Predictive Physics Model for EV Scooter Loads &amp; Thermal Stress</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
-                      PREDICTIVE TOOL
+                    <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
+                      batteryState.connectionState === 'CONNECTED'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                        : 'bg-slate-100 text-slate-500 border-slate-300'
+                    }`}>
+                      {batteryState.connectionState === 'CONNECTED' ? 'PREDICTIVE TOOL' : 'LOCKED (BLE DISCONNECTED)'}
                     </span>
                   </div>
 
@@ -1291,8 +1330,9 @@ export function App() {
                         min="0"
                         max="100"
                         value={simSpeed}
+                        disabled={batteryState.connectionState !== 'CONNECTED'}
                         onChange={(e) => setSimSpeed(Number(e.target.value))}
-                        className="w-full accent-emerald-500 cursor-pointer mt-2"
+                        className="w-full accent-emerald-500 cursor-pointer mt-2 disabled:opacity-40 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -1303,8 +1343,9 @@ export function App() {
                         min="-10"
                         max="55"
                         value={simTemp}
+                        disabled={batteryState.connectionState !== 'CONNECTED'}
                         onChange={(e) => setSimTemp(Number(e.target.value))}
-                        className="w-full accent-red-500 cursor-pointer mt-2"
+                        className="w-full accent-red-500 cursor-pointer mt-2 disabled:opacity-40 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -1316,8 +1357,9 @@ export function App() {
                         max="1.0"
                         step="0.1"
                         value={simAux}
+                        disabled={batteryState.connectionState !== 'CONNECTED'}
                         onChange={(e) => setSimAux(Number(e.target.value))}
-                        className="w-full accent-emerald-500 cursor-pointer mt-2"
+                        className="w-full accent-emerald-500 cursor-pointer mt-2 disabled:opacity-40 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -1325,8 +1367,9 @@ export function App() {
                       <label className="text-xs font-bold text-slate-700 uppercase">CHARGING MODE</label>
                       <select
                         value={simMode}
+                        disabled={batteryState.connectionState !== 'CONNECTED'}
                         onChange={(e) => setSimMode(e.target.value)}
-                        className="input-high-contrast mt-1 text-slate-900 bg-white"
+                        className="input-high-contrast mt-1 text-slate-900 bg-white disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         <option value="FAST_CHARGE">EV Scooter Public Fast Charger (3.3 kW Ather / Ola Grid)</option>
                         <option value="FAST_HOME">Fast Home Charger (2.2 kW / 15A AC)</option>
@@ -1339,13 +1382,17 @@ export function App() {
                   <button
                     onClick={runWhatIfSimulation}
                     disabled={isSimulating}
-                    className="w-full py-3.5 bg-emerald-500 text-white font-extrabold text-sm rounded-xl hover:bg-emerald-600 transition uppercase tracking-wider shadow-emerald heading-tech"
+                    className="w-full py-3.5 bg-emerald-500 text-white font-extrabold text-sm rounded-xl hover:bg-emerald-600 transition uppercase tracking-wider shadow-emerald heading-tech disabled:opacity-50"
                   >
-                    {isSimulating ? 'RUNNING PHYSICAL SIMULATION...' : 'RUN SIMULATION'}
+                    {batteryState.connectionState !== 'CONNECTED'
+                      ? 'CONNECT BLE TO RUN SIMULATION'
+                      : isSimulating
+                      ? 'RUNNING PHYSICAL SIMULATION...'
+                      : 'RUN SIMULATION'}
                   </button>
                 </div>
 
-                {simResults && (
+                {batteryState.connectionState === 'CONNECTED' && simResults && (
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-4 animate-fadeIn shadow-md">
                     <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                       <h3 className="text-lg font-black text-slate-900 heading-tech uppercase">CURRENT VS SIMULATED COMPARISON</h3>
