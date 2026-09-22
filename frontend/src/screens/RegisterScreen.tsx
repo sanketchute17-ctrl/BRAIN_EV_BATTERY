@@ -17,7 +17,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   const [successMsg, setSuccessMsg] = useState('');
 
   // Form State tailored for BRAIN proposed system
-  const [role, setRole] = useState<'EV Rider / Owner' | 'Fleet Operations Manager' | 'Battery Researcher / Engineer'>('EV Rider / Owner');
+  const role = 'EV Rider / Owner';
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
@@ -139,36 +139,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           )}
 
           <form onSubmit={handleSubmit} className="space-y-2.5">
-            
-            {/* 1. ROLE SELECTION */}
-            <div>
-              <label className="block text-[9px] font-black text-slate-700 uppercase tracking-wider mb-1">
-                Account Type / Role
-              </label>
-              <div className="grid grid-cols-3 gap-1">
-                {[
-                  { id: 'EV Rider / Owner', label: 'EV Rider', sub: 'Personal Pack' },
-                  { id: 'Fleet Operations Manager', label: 'Fleet Ops', sub: 'Fleet Pack' },
-                  { id: 'Battery Researcher / Engineer', label: 'Researcher', sub: 'AI Diagnostics' },
-                ].map((r) => (
-                  <button
-                    type="button"
-                    key={r.id}
-                    onClick={() => setRole(r.id as any)}
-                    className={`py-1.5 px-1 rounded-xl border text-center transition cursor-pointer ${
-                      role === r.id
-                        ? 'bg-emerald-600 border-emerald-500 text-white shadow-md'
-                        : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    <div className="text-[9px] font-black leading-tight">{r.label}</div>
-                    <div className={`text-[7px] mt-0.5 ${role === r.id ? 'text-emerald-100' : 'text-slate-500'}`}>
-                      {r.sub}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* 2. FULL NAME */}
             <div>
