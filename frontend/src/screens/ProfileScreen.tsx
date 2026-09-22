@@ -403,7 +403,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1">
-                EV SCOOTER / VEHICLE MODEL
+                EV SCOOTER MODEL
               </label>
               <div className="relative">
                 <Car className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -412,7 +412,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   required
                   value={evModel}
                   onChange={(e) => setEvModel(e.target.value)}
-                  placeholder="Ather 450X / Ola S1 Pro"
+                  placeholder="e.g. Ather 450X, Ola S1 Pro"
                   className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
                 />
               </div>
