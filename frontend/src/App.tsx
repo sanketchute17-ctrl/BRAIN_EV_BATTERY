@@ -146,6 +146,10 @@ export function App() {
     thermalStress: string;
     riskScore: number;
     safeWindow: string;
+    baselineTemp: string;
+    baselineSoc: string;
+    baselineRisk: string;
+    scooterModelName: string;
   } | null>(null);
 
   // Bluetooth BLE BMS State
@@ -223,16 +227,32 @@ export function App() {
     }
     setIsSimulating(true);
     setTimeout(() => {
-      const calcTemp = Math.round(simTemp + (simSpeed * 0.12) + (simAux * 1.5));
-      const calcSoc = Math.max(12, Math.round(84 - (simSpeed * 0.25)));
-      const calcRisk = Math.min(88, Math.round(15 + (calcTemp * 0.8)));
+      const isBleConnected = batteryState.connectionState === 'CONNECTED';
+      const baseTemp = isBleConnected ? (batteryState.maxTemperature || batteryState.temperature || 30) : 30;
+      const baseSoc = isBleConnected ? Math.round(batteryState.soc || 80) : 80;
+      const baseRisk = isBleConnected ? (batteryState.risk || 10) : 10;
+
+      const userModel = (currentUser?.ev_model || currentUser?.evModel || '').toLowerCase();
+      let modelScale = 1.0;
+      if (userModel.includes('ola')) modelScale = 1.15;
+      else if (userModel.includes('ather')) modelScale = 1.0;
+      else if (userModel.includes('tvs') || userModel.includes('iqube')) modelScale = 0.9;
+      else if (userModel.includes('bajaj') || userModel.includes('chetak')) modelScale = 0.85;
+
+      const calcTemp = Math.round(baseTemp + (simSpeed * 0.12 * modelScale) + (simAux * 2.0));
+      const calcSoc = Math.max(5, Math.round(baseSoc - (simSpeed * 0.22 / modelScale)));
+      const calcRisk = Math.min(95, Math.round(baseRisk + (calcTemp > 45 ? (calcTemp - 40) * 2 : 5)));
 
       setSimResults({
         predictedTemp: calcTemp,
         predictedSoc: calcSoc,
-        thermalStress: calcTemp > 45 ? 'HIGH THERMAL LOAD' : 'MODERATE STRESS',
+        thermalStress: calcTemp > 48 ? 'CRITICAL THERMAL STRESS' : calcTemp > 42 ? 'ELEVATED TEMPERATURE' : 'MODERATE STRESS',
         riskScore: calcRisk,
-        safeWindow: calcTemp > 48 ? '8 - 14 MIN' : '18 - 25 MIN',
+        safeWindow: calcTemp > 48 ? '6 - 10 MIN' : calcTemp > 42 ? '12 - 18 MIN' : '22 - 30 MIN',
+        baselineTemp: isBleConnected ? `${baseTemp}°C (Live BLE)` : '30°C (Standby)',
+        baselineSoc: isBleConnected ? `${baseSoc}% (Live BLE)` : '80% (Standby)',
+        baselineRisk: isBleConnected ? `${baseRisk}% (Live BLE)` : '10% (Standby)',
+        scooterModelName: currentUser?.ev_model || currentUser?.evModel || 'EV Scooter',
       });
       setIsSimulating(false);
     }, 600);
@@ -1336,25 +1356,25 @@ export function App() {
                       <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                         <div className="text-[10px] font-bold text-slate-500">PREDICTED TEMP</div>
                         <div className="text-2xl font-extrabold text-red-500 mt-1">{simResults.predictedTemp} °C</div>
-                        <div className="text-[10px] text-slate-500">Current: 34.2 °C</div>
+                        <div className="text-[10px] text-slate-500 font-medium mt-0.5">Baseline: {simResults.baselineTemp}</div>
                       </div>
 
                       <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                         <div className="text-[10px] font-bold text-slate-500">PREDICTED SOC</div>
                         <div className="text-2xl font-extrabold text-emerald-600 mt-1">{simResults.predictedSoc}%</div>
-                        <div className="text-[10px] text-slate-500">Current: 84%</div>
+                        <div className="text-[10px] text-slate-500 font-medium mt-0.5">Baseline: {simResults.baselineSoc}</div>
                       </div>
 
                       <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                        <div className="text-[10px] font-bold text-slate-500">RISK SCORE</div>
+                        <div className="text-[10px] font-bold text-slate-500">SIMULATED RISK SCORE</div>
                         <div className="text-2xl font-extrabold text-red-500 mt-1">{simResults.riskScore}%</div>
-                        <div className="text-[10px] text-slate-500">Current: 23%</div>
+                        <div className="text-[10px] text-slate-500 font-medium mt-0.5">Baseline: {simResults.baselineRisk}</div>
                       </div>
 
                       <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                         <div className="text-[10px] font-bold text-slate-500">SAFE WINDOW</div>
                         <div className="text-lg font-extrabold text-emerald-600 mt-1">{simResults.safeWindow}</div>
-                        <div className="text-[10px] text-slate-500">Model-based estimate</div>
+                        <div className="text-[10px] text-slate-500 font-medium mt-0.5">{simResults.scooterModelName} PINN Model</div>
                       </div>
                     </div>
                   </div>
