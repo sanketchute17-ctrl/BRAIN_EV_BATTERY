@@ -797,34 +797,56 @@ export function App() {
                 </div>
 
                 {/* BATTERY HEALTH PROGRESS BAR CARD */}
-                <div className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2">
+                <div
+                  onClick={() => setActiveTab('battery')}
+                  className="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2 cursor-pointer hover:border-emerald-300 transition"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 rounded-xl bg-[#ECFDF5] text-[#059669]">
                         <Activity className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-black text-slate-900">Battery Health</h4>
+                        <h4 className="text-xs font-black text-slate-900 flex items-center gap-1">
+                          Battery Health
+                          <ChevronRight className="w-3 h-3 text-slate-400" />
+                        </h4>
                         <p className="text-[9px] font-semibold text-slate-400">
-                          {batteryState.safetyState === 'HEALTHY' ? 'Overall battery condition is healthy' : 'Attention required for cell balance'}
+                          {batteryState.connectionState === 'CONNECTED'
+                            ? (batteryState.safetyState === 'HEALTHY' ? 'Overall battery condition is healthy' : 'Attention required for cell balance')
+                            : 'Connect Bluetooth BMS to inspect live SOH & PINN metrics'}
                         </p>
                       </div>
                     </div>
 
                     <span className={`inline-flex items-center gap-1 border px-2.5 py-0.5 rounded-full text-[9px] font-extrabold ${
-                      batteryState.safetyState === 'HEALTHY'
-                        ? 'bg-[#ECFDF5] border-[#A7F3D0] text-[#047857]'
-                        : 'bg-red-50 border-red-200 text-red-700'
+                      batteryState.connectionState === 'CONNECTED'
+                        ? (batteryState.safetyState === 'HEALTHY'
+                          ? 'bg-[#ECFDF5] border-[#A7F3D0] text-[#047857]'
+                          : 'bg-red-50 border-red-200 text-red-700')
+                        : 'bg-slate-100 border-slate-300 text-slate-500'
                     }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${batteryState.safetyState === 'HEALTHY' ? 'bg-[#059669]' : 'bg-red-500 animate-ping'}`} /> {batteryState.safetyState}
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        batteryState.connectionState === 'CONNECTED'
+                          ? (batteryState.safetyState === 'HEALTHY' ? 'bg-[#059669]' : 'bg-red-500 animate-ping')
+                          : 'bg-slate-400'
+                      }`} />
+                      {batteryState.connectionState === 'CONNECTED' ? batteryState.safetyState : 'STANDBY'}
                     </span>
                   </div>
 
                   <div className="space-y-1 pt-1">
                     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5">
-                      <div className="h-full bg-[#059669] rounded-full transition-all duration-500" style={{ width: `${batteryState.soh}%` }} />
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          batteryState.connectionState === 'CONNECTED' ? 'bg-[#059669]' : 'bg-slate-300'
+                        }`}
+                        style={{ width: `${batteryState.connectionState === 'CONNECTED' ? batteryState.soh : 0}%` }}
+                      />
                     </div>
-                    <div className="text-right text-xs font-black text-slate-900">{batteryState.soh}%</div>
+                    <div className="text-right text-xs font-black text-slate-900">
+                      {batteryState.connectionState === 'CONNECTED' ? `${batteryState.soh}%` : '0% (BLE Disconnected)'}
+                    </div>
                   </div>
                 </div>
 
@@ -835,29 +857,47 @@ export function App() {
                       <BarChart2 className="w-4 h-4 text-[#059669]" />
                       <h4 className="text-xs font-black text-slate-900">Live Parameters</h4>
                     </div>
-                    <button className="text-[10px] font-extrabold text-[#059669] hover:underline cursor-pointer">View All</button>
+                    <button
+                      onClick={() => setActiveTab('battery')}
+                      className="text-[10px] font-extrabold text-[#059669] hover:underline cursor-pointer flex items-center gap-0.5"
+                    >
+                      <span>View All</span>
+                      <ChevronRight className="w-3 h-3 text-[#059669]" />
+                    </button>
                   </div>
 
                   <div className="grid grid-cols-4 gap-2">
-                    <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                    <div
+                      onClick={() => setActiveTab('battery')}
+                      className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1 cursor-pointer hover:border-emerald-300 transition"
+                    >
                       <Zap className="w-4 h-4 text-[#059669]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Voltage</div>
                       <div className="text-xs font-black text-[#059669]">{batteryState.voltage} V</div>
                     </div>
 
-                    <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                    <div
+                      onClick={() => setActiveTab('battery')}
+                      className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1 cursor-pointer hover:border-emerald-300 transition"
+                    >
                       <Activity className="w-4 h-4 text-[#2563EB]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Current</div>
                       <div className="text-xs font-black text-[#2563EB]">{batteryState.current} A</div>
                     </div>
 
-                    <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                    <div
+                      onClick={() => setActiveTab('battery')}
+                      className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1 cursor-pointer hover:border-emerald-300 transition"
+                    >
                       <Cpu className="w-4 h-4 text-[#9333EA]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Power</div>
                       <div className="text-xs font-black text-[#9333EA]">{batteryState.power} kW</div>
                     </div>
 
-                    <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                    <div
+                      onClick={() => setActiveTab('battery')}
+                      className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1 cursor-pointer hover:border-emerald-300 transition"
+                    >
                       <Thermometer className="w-4 h-4 text-[#EA580C]" />
                       <div className="text-[8px] font-extrabold text-slate-400 uppercase">Temperature</div>
                       <div className="text-xs font-black text-[#EA580C]">{batteryState.maxTemperature || batteryState.temperature} °C</div>
