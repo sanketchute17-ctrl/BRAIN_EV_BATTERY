@@ -1,32 +1,18 @@
-# React + TypeScript + Vite
+# ⚡ BRAIN EV BATTERY — Frontend Web Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This is the React + TypeScript + Vite frontend application for **BRAIN EV BATTERY**, a Physics-Informed Neural Network (PINN) and Web Bluetooth BLE BMS digital twin intelligence platform designed for Electric Scooters.
 
-Currently, two official plugins are available:
+## 🔗 Live Application
+- 🌐 **Live Demo**: [https://brain-ev-battery.vercel.app](https://brain-ev-battery.vercel.app)
+- 📦 **GitHub Repository**: [https://github.com/sanketchute17-ctrl/BRAIN_EV_BATTERY](https://github.com/sanketchute17-ctrl/BRAIN_EV_BATTERY)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## 🚀 Quick Start
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 🛠️ Build for Production
+```bash
+npm run build
+```
