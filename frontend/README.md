@@ -3,7 +3,7 @@
 This is the React + TypeScript + Vite frontend application for **BRAIN EV BATTERY**, a Physics-Informed Neural Network (PINN) and Web Bluetooth BLE BMS digital twin intelligence platform designed for Electric Scooters.
 
 ## 🔗 Live Application
-- 🌐 **Live Demo**: [https://brain-ev-battery.vercel.app](https://brain-ev-battery.vercel.app)
+- 🌐 **Live Demo**: [https://frontend-three-pi-88.vercel.app/](https://frontend-three-pi-88.vercel.app/)
 - 📦 **GitHub Repository**: [https://github.com/sanketchute17-ctrl/BRAIN_EV_BATTERY](https://github.com/sanketchute17-ctrl/BRAIN_EV_BATTERY)
 
 ## 🚀 Quick Start

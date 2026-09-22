@@ -6,7 +6,7 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-cyan.svg?logo=tailwindcss)](https://tailwindcss.com/)
 [![Three.js](https://img.shields.io/badge/Three.js-WebGL-black.svg?logo=three.js)](https://threejs.org/)
 [![Web Bluetooth](https://img.shields.io/badge/Web_Bluetooth-GATT-blueviolet.svg)](https://web.dev/bluetooth/)
-[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black.svg?logo=vercel)](https://brain-ev-battery.vercel.app)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black.svg?logo=vercel)](https://frontend-three-pi-88.vercel.app/)
 
 > **BRAIN EV BATTERY** is a Physics-Informed Neural Network (PINN) and Web Bluetooth BLE BMS digital twin intelligence platform designed exclusively for Electric Scooters. It enables real-time 3D battery telemetry visualizer, 8-cell LFP pack monitoring, predictive thermal stress simulation, and Explainable AI (XAI) risk diagnostic analytics.
 
@@ -14,7 +14,7 @@
 
 ## 🔗 Live Links & Repository
 
-- 🌐 **Live Web Application**: [https://brain-ev-battery.vercel.app](https://brain-ev-battery.vercel.app)
+- 🌐 **Live Web Application**: [https://frontend-three-pi-88.vercel.app/](https://frontend-three-pi-88.vercel.app/)
 - 📦 **GitHub Repository**: [https://github.com/sanketchute17-ctrl/BRAIN_EV_BATTERY](https://github.com/sanketchute17-ctrl/BRAIN_EV_BATTERY)
 
 ---
@@ -125,4 +125,4 @@ BRAIN_EV_BATTERY/
 Developed with ❤️ for EV Scooter Battery Safety, Diagnostics, and PINN Intelligence.
 
 - **GitHub Repository**: [sanketchute17-ctrl/BRAIN_EV_BATTERY](https://github.com/sanketchute17-ctrl/BRAIN_EV_BATTERY)
-- **Live Demo**: [brain-ev-battery.vercel.app](https://brain-ev-battery.vercel.app)
+- **Live Demo**: [frontend-three-pi-88.vercel.app](https://frontend-three-pi-88.vercel.app/)
