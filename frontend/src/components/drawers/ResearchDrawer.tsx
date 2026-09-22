@@ -120,15 +120,15 @@ export const ResearchDrawer: React.FC<ResearchDrawerProps> = ({ batteryState, on
             <input
               type="range"
               min={0}
-              max={150}
+              max={60}
               value={sliderCurrent}
               onChange={(e) => setSliderCurrent(Number(e.target.value))}
               className="w-full accent-cyan-500 cursor-pointer"
             />
             <div className="flex justify-between text-[9px] font-mono text-slate-400">
               <span>0A (Standby)</span>
-              <span>75A (Moderate Load)</span>
-              <span>150A (Peak Discharge)</span>
+              <span>25A (Cruising Load)</span>
+              <span>60A (Peak Acceleration)</span>
             </div>
           </div>
 

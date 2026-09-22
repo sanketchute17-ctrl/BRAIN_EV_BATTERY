@@ -189,6 +189,22 @@ export function App() {
     };
   }, []);
 
+  const getPackArchitecture = (modelStr?: string) => {
+    const m = (modelStr || currentUser?.ev_model || currentUser?.evModel || '').toLowerCase();
+    if (m.includes('ola')) {
+      return '70V Nominal • 19S Cell Architecture (~4.0 kWh)';
+    } else if (m.includes('ather')) {
+      return '51.1V Nominal • 14S Cell Architecture (~3.7 kWh)';
+    } else if (m.includes('tvs') || m.includes('iqube')) {
+      return '52V Nominal • 14S Cell Architecture (~3.04 kWh)';
+    } else if (m.includes('bajaj') || m.includes('chetak') || m.includes('vida') || m.includes('hero')) {
+      return '50.4V Nominal • 14S Cell Architecture (~2.9 kWh)';
+    } else if (m.includes('simple')) {
+      return '51.2V Nominal • 16S Cell Architecture (~5.0 kWh)';
+    }
+    return '51.2V Nominal • 14S-16S EV Pack Architecture (~3.5 kWh)';
+  };
+
   const handleLogout = () => {
     try {
       localStorage.removeItem('brain_auth_session');
@@ -957,42 +973,69 @@ export function App() {
             {/* TAB 2: BATTERY INTELLIGENCE & CELL MONITORING */}
             {activeTab === 'battery' && (
               <div className="space-y-6">
+                {batteryState.connectionState !== 'CONNECTED' && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 flex items-center justify-between text-xs font-bold text-amber-900 shadow-sm animate-fadeIn">
+                    <div className="flex items-center gap-2">
+                      <Bluetooth className="w-4 h-4 text-amber-600 animate-pulse shrink-0" />
+                      <span>Bluetooth BMS Disconnected — Connect hardware to stream live telemetry</span>
+                    </div>
+                    <button
+                      onClick={() => setIsPairingModalOpen(true)}
+                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-[10px] rounded-xl shadow-sm cursor-pointer shrink-0"
+                    >
+                      Connect BLE
+                    </button>
+                  </div>
+                )}
+
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
                     <div>
                       <h2 className="text-base sm:text-lg font-black text-slate-900 heading-tech uppercase">BATTERY PACK OVERVIEW</h2>
-                      <p className="text-[11px] text-slate-500 font-semibold">96 Series High-Voltage LFP Architecture</p>
+                      <p className="text-[11px] text-slate-500 font-semibold">{getPackArchitecture()}</p>
                     </div>
-                    <span className="text-[10px] font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 shrink-0">
-                      OPTIMAL OPERATING MATRIX
+                    <span className={`text-[10px] font-mono font-bold px-3 py-1 rounded-full border shrink-0 ${
+                      batteryState.connectionState === 'CONNECTED'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                        : 'bg-slate-100 text-slate-600 border-slate-300'
+                    }`}>
+                      {batteryState.connectionState === 'CONNECTED' ? 'LIVE STREAM ACTIVE' : 'DISCONNECTED / STANDBY'}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">SOC / SOH</div>
-                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">{Math.round(batteryState.soc)}% / {batteryState.soh}%</div>
+                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">
+                        {batteryState.connectionState === 'CONNECTED' ? `${Math.round(batteryState.soc)}% / ${batteryState.soh}%` : '0% / 0%'}
+                      </div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">VOLTAGE / CURRENT</div>
-                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">{batteryState.voltage || 25.60} V / {batteryState.current || 0.00} A</div>
+                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">
+                        {batteryState.connectionState === 'CONNECTED' ? `${(batteryState.voltage || 0).toFixed(1)} V / ${(batteryState.current || 0).toFixed(1)} A` : '0.0 V / 0.0 A'}
+                      </div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">POWER / TEMP</div>
-                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">{batteryState.power || 0.0} kW / {batteryState.maxTemperature || batteryState.temperature || 22.5} °C</div>
+                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">
+                        {batteryState.connectionState === 'CONNECTED' ? `${(batteryState.power || 0).toFixed(1)} kW / ${batteryState.maxTemperature || batteryState.temperature || 0} °C` : '0.0 kW / -- °C'}
+                      </div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                       <div className="text-[10px] font-bold text-slate-500">INTERNAL RESISTANCE</div>
-                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">{batteryState.internalResistance || 1.2} mΩ / cell</div>
+                      <div className="text-base sm:text-lg font-extrabold text-emerald-600 mt-0.5">
+                        {batteryState.connectionState === 'CONNECTED' ? `${batteryState.internalResistance} mΩ / cell` : 'N/A'}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Simulated Digital Twin Cell Matrix Grid (Rohit More 8-Cell Pack) */}
+                {/* Digital Twin Cell Matrix Grid */}
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase heading-tech tracking-wide">
-                      BRAIN SIMULATED CELL MATRIX ({batteryState.cells.length || 8} CELLS)
+                      EV SCOOTER CELL MATRIX ({batteryState.connectionState === 'CONNECTED' ? batteryState.cells.length || 8 : 8} CELLS)
                     </h3>
                     <div className="flex items-center gap-3 text-[10px] sm:text-[11px] font-bold">
                       <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Healthy</span>
@@ -1001,34 +1044,46 @@ export function App() {
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
-                    {(batteryState.cells && batteryState.cells.length > 0 ? batteryState.cells : Array.from({ length: 8 }, (_, idx) => ({ id: idx + 1, voltage: 3.20, temperature: 22.5, status: 'HEALTHY' }))).map((c: any) => {
-                      const cVoltage = c.voltage || 3.20;
-                      const cTemp = c.temperature || 22.5;
-                      const isAbnormal = c.status !== 'HEALTHY' || cTemp > 44;
-                      const statusColor = isAbnormal
-                        ? 'bg-red-100 border-red-500 text-red-700 animate-pulse shadow-red'
-                        : 'bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100';
+                    {batteryState.connectionState === 'CONNECTED' && batteryState.cells && batteryState.cells.length > 0 ? (
+                      batteryState.cells.map((c: any) => {
+                        const cVoltage = c.voltage || 0;
+                        const cTemp = c.temperature || 0;
+                        const isAbnormal = c.status !== 'HEALTHY' || cTemp > 44;
+                        const statusColor = isAbnormal
+                          ? 'bg-red-100 border-red-500 text-red-700 animate-pulse shadow-red'
+                          : 'bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100';
 
-                      return (
-                        <button
-                          key={c.id}
-                          onClick={() =>
-                            setSelectedCell({
-                              id: c.id,
-                              voltage: cVoltage,
-                              temp: cTemp,
-                              deviation: c.deviation || 0.01,
-                              status: isAbnormal ? 'CRITICAL' : 'HEALTHY',
-                              riskScore: isAbnormal ? 84 : 12,
-                            })
-                          }
-                          className={`h-12 rounded-xl border flex flex-col items-center justify-center font-mono text-xs font-bold transition-all cursor-pointer ${statusColor}`}
+                        return (
+                          <button
+                            key={c.id}
+                            onClick={() =>
+                              setSelectedCell({
+                                id: c.id,
+                                voltage: cVoltage,
+                                temp: cTemp,
+                                deviation: c.deviation || 0.01,
+                                status: isAbnormal ? 'CRITICAL' : 'HEALTHY',
+                                riskScore: isAbnormal ? 84 : 12,
+                              })
+                            }
+                            className={`h-12 rounded-xl border flex flex-col items-center justify-center font-mono text-xs font-bold transition-all cursor-pointer ${statusColor}`}
+                          >
+                            <span>C0{c.id} ({cVoltage}V)</span>
+                            <span className="text-[9px] font-normal opacity-80">{cTemp}°C</span>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      Array.from({ length: 8 }, (_, idx) => (
+                        <div
+                          key={idx + 1}
+                          className="h-12 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center justify-center font-mono text-xs text-slate-400 font-semibold"
                         >
-                          <span>C0{c.id} ({cVoltage}V)</span>
-                          <span className="text-[9px] font-normal opacity-80">{cTemp}°C</span>
-                        </button>
-                      );
-                    })}
+                          <span>C0{idx + 1} (--V)</span>
+                          <span className="text-[8px] opacity-70">STANDBY</span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -1100,34 +1155,47 @@ export function App() {
                         <p className="text-xs text-slate-500">Physics-Informed Neural Network (PINN) Safety Engine</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
-                      STATUS: NORMAL
+                    <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
+                      batteryState.connectionState === 'CONNECTED'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                        : 'bg-slate-100 text-slate-600 border-slate-300'
+                    }`}>
+                      {batteryState.connectionState === 'CONNECTED' ? 'STATUS: NORMAL' : 'STANDBY (BLE DISCONNECTED)'}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
-                      <div className="text-[9px] font-extrabold text-slate-500 uppercase">RISK SCORE</div>
-                      <div className="text-2xl font-black text-emerald-600 my-0.5">
-                        23%
-                      </div>
-                      <div className="text-[8px] font-mono text-slate-500">LOW RISK</div>
-                    </div>
+                  {(() => {
+                    const isConn = batteryState.connectionState === 'CONNECTED';
+                    const pinn = isConn ? PinnEngine.evaluatePhysicsModel(batteryState) : null;
 
-                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
-                      <div className="text-[9px] font-extrabold text-slate-500 uppercase">CONFIDENCE</div>
-                      <div className="text-2xl font-black text-emerald-600 my-0.5">
-                        91%
-                      </div>
-                      <div className="text-[8px] font-mono text-slate-500">PINN MODEL</div>
-                    </div>
+                    return (
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
+                          <div className="text-[9px] font-extrabold text-slate-500 uppercase">RISK SCORE</div>
+                          <div className="text-2xl font-black text-emerald-600 my-0.5">
+                            {isConn ? `${pinn?.thermalRunawayRiskPct}%` : '0%'}
+                          </div>
+                          <div className="text-[8px] font-mono text-slate-500">{isConn ? pinn?.overallRiskLevel || 'LOW RISK' : 'STANDBY'}</div>
+                        </div>
 
-                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
-                      <div className="text-[9px] font-extrabold text-slate-500 uppercase">SAFE WINDOW</div>
-                      <div className="text-sm font-extrabold text-red-500 my-0.5">18–25 MIN</div>
-                      <div className="text-[8px] font-mono text-slate-500">ESTIMATE</div>
-                    </div>
-                  </div>
+                        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
+                          <div className="text-[9px] font-extrabold text-slate-500 uppercase">CONFIDENCE</div>
+                          <div className="text-2xl font-black text-emerald-600 my-0.5">
+                            {isConn ? `${pinn?.modelConfidencePct}%` : 'N/A'}
+                          </div>
+                          <div className="text-[8px] font-mono text-slate-500">PINN MODEL</div>
+                        </div>
+
+                        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
+                          <div className="text-[9px] font-extrabold text-slate-500 uppercase">SAFE WINDOW</div>
+                          <div className="text-sm font-extrabold text-emerald-600 my-0.5">
+                            {isConn ? (pinn?.thermalRunawayRiskPct && pinn.thermalRunawayRiskPct > 30 ? '8-14 MIN' : '18-25 MIN') : 'STANDBY'}
+                          </div>
+                          <div className="text-[8px] font-mono text-slate-500">ESTIMATE</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* EXPLAINABLE AI CONTRIBUTION BARS */}
@@ -1142,25 +1210,38 @@ export function App() {
                     <span className="text-[11px] font-mono text-slate-500">PINN FEATURE ATTRIBUTION</span>
                   </div>
 
-                  <div className="space-y-3 pt-1">
-                    {[
-                      { factor: 'Temperature Rise', pct: 35, color: 'bg-red-500', val: '+35%' },
-                      { factor: 'Cell Imbalance', pct: 25, color: 'bg-emerald-500', val: '+25%' },
-                      { factor: 'High Current Discharge', pct: 20, color: 'bg-emerald-500', val: '+20%' },
-                      { factor: 'SOH Degradation', pct: 12, color: 'bg-red-500', val: '+12%' },
-                      { factor: 'Other Factors', pct: 8, color: 'bg-slate-400', val: '+8%' },
-                    ].map((item, idx) => (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-slate-700">
-                          <span>{item.factor}</span>
-                          <span className="font-mono text-emerald-600">{item.val}</span>
+                  {batteryState.connectionState === 'CONNECTED' ? (
+                    <div className="space-y-3 pt-1">
+                      {[
+                        { factor: 'Temperature Rise', pct: 35, color: 'bg-red-500', val: '+35%' },
+                        { factor: 'Cell Imbalance', pct: 25, color: 'bg-emerald-500', val: '+25%' },
+                        { factor: 'High Current Discharge', pct: 20, color: 'bg-emerald-500', val: '+20%' },
+                        { factor: 'SOH Degradation', pct: 12, color: 'bg-red-500', val: '+12%' },
+                        { factor: 'Other Factors', pct: 8, color: 'bg-slate-400', val: '+8%' },
+                      ].map((item, idx) => (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex justify-between text-xs font-bold text-slate-700">
+                            <span>{item.factor}</span>
+                            <span className="font-mono text-emerald-600">{item.val}</span>
+                          </div>
+                          <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                            <div className={`h-full ${item.color} rounded-full transition-all duration-500`} style={{ width: `${item.pct}%` }} />
+                          </div>
                         </div>
-                        <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                          <div className={`h-full ${item.color} rounded-full transition-all duration-500`} style={{ width: `${item.pct}%` }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center space-y-2">
+                      <div className="text-xs font-bold text-slate-600">Bluetooth BMS Disconnected</div>
+                      <p className="text-[10px] text-slate-400">Connect Bluetooth BMS hardware to stream live battery parameters and calculate real-time PINN risk feature attributions.</p>
+                      <button
+                        onClick={() => setIsPairingModalOpen(true)}
+                        className="px-3 py-1.5 bg-emerald-600 text-white font-extrabold text-[10px] rounded-xl shadow-sm cursor-pointer"
+                      >
+                        Connect BLE Hardware
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1174,21 +1255,21 @@ export function App() {
                       <Cpu className="w-6 h-6 text-emerald-600" />
                       <div>
                         <h2 className="text-xl font-black text-slate-900 heading-tech uppercase">WHAT-IF BATTERY SIMULATOR</h2>
-                        <p className="text-xs text-slate-500">Simulate Driving Loads, Thermal Stress & Fast Charging</p>
+                        <p className="text-xs text-slate-500">Predictive Physics Model for EV Scooter Loads &amp; Thermal Stress</p>
                       </div>
                     </div>
                     <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
-                      SIMULATED DATA
+                      PREDICTIVE TOOL
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 gap-3">
                     <div>
-                      <label className="text-xs font-bold text-slate-700 uppercase">VEHICLE SPEED: {simSpeed} KM/H</label>
+                      <label className="text-xs font-bold text-slate-700 uppercase">EV SCOOTER SPEED: {simSpeed} KM/H</label>
                       <input
                         type="range"
                         min="0"
-                        max="160"
+                        max="100"
                         value={simSpeed}
                         onChange={(e) => setSimSpeed(Number(e.target.value))}
                         className="w-full accent-emerald-500 cursor-pointer mt-2"
@@ -1208,12 +1289,12 @@ export function App() {
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-slate-700 uppercase">AUXILIARY LOAD: {simAux} KW</label>
+                      <label className="text-xs font-bold text-slate-700 uppercase">AUXILIARY LOAD (LIGHTS/ECU): {simAux} KW</label>
                       <input
                         type="range"
                         min="0"
-                        max="8"
-                        step="0.5"
+                        max="1.0"
+                        step="0.1"
                         value={simAux}
                         onChange={(e) => setSimAux(Number(e.target.value))}
                         className="w-full accent-emerald-500 cursor-pointer mt-2"
@@ -1227,9 +1308,10 @@ export function App() {
                         onChange={(e) => setSimMode(e.target.value)}
                         className="input-high-contrast mt-1 text-slate-900 bg-white"
                       >
-                        <option value="FAST_CHARGE">DC Fast Charge (150 kW)</option>
-                        <option value="NORMAL">AC Level 2 (11 kW)</option>
-                        <option value="ECO_DRIVE">Regen Driving Mode</option>
+                        <option value="FAST_CHARGE">EV Scooter Public Fast Charger (3.3 kW Ather / Ola Grid)</option>
+                        <option value="FAST_HOME">Fast Home Charger (2.2 kW / 15A AC)</option>
+                        <option value="NORMAL">Standard Portable Home Charger (1.2 kW / 5A AC)</option>
+                        <option value="ECO_DRIVE">Regen Eco Driving Mode</option>
                       </select>
                     </div>
                   </div>
